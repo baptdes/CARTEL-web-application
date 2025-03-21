@@ -1,0 +1,43 @@
+# IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated/
+.sts4-cache/
+.nb-gradle/
+nbproject/
+nbactions.xml
+nb-configuration.xml
+
+# Operating System files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+
+# Local configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.local
+
+# Database files
+hsqldb/
+
+# Temporary files
+tmp/
+temp/
