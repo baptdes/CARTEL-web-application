@@ -1,4 +1,11 @@
-# Cartel - Application Web de Gestion de Bibliothèque Ludothèque Étudiante
+## C - Catalogue 
+## A - Annuellement
+## R - Ressucité et 
+## T - Téléconsultable d'
+## E - Elements 
+## L - Ludiques
+
+# C.A.R.T.E.L - Application Web de Gestion de Bibliothèque Ludothèque Étudiante
 
 ## Description
 
