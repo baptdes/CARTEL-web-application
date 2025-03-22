@@ -1,7 +1,21 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import svelteLogo from './assets/svelte.svg';
+  import viteLogo from '/vite.svg';
+  import Counter from './lib/Counter.svelte';
+  import { onMount } from 'svelte';
+  import { invokeGet } from './api';
+
+  let users = [];
+  let errorMessage = '';
+
+  onMount(async () => {
+    try {
+      users = await invokeGet('users') || [];
+    } catch (error) {
+      errorMessage = 'Error fetching users: ' + error.message;
+      console.error(errorMessage);
+    }
+  });
 </script>
 
 <main>
@@ -13,15 +27,23 @@
       <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
     </a>
   </div>
-  <h1>Vite + Svelte</h1>
+  <h1>C.A.R.T.E.L</h1>
+  <h2>Catalogue Annuellement Ressucité et Téléconsultable d'Elements Ludiques</h2>
 
   <div class="card">
     <Counter />
   </div>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
+  <h2>Users List</h2>
+  {#if errorMessage}
+    <p class="error">{errorMessage}</p>
+  {:else}
+    <ul>
+      {#each users as user}
+        <li>{user.name} - {user.email}</li>
+      {/each}
+    </ul>
+  {/if}
 
   <p class="read-the-docs">
     Click on the Vite and Svelte logos to learn more
@@ -43,5 +65,16 @@
   }
   .read-the-docs {
     color: #888;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin: 0.5em 0;
+  }
+  .error {
+    color: red;
+    font-weight: bold;
   }
 </style>

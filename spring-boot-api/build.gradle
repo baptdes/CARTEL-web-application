@@ -21,10 +21,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     runtimeOnly 'org.hsqldb:hsqldb'
+	runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+task runHsqldbManager(type: JavaExec) {
+    group = 'database'
+    description = "Lance l'interface graphique HSQLDB Manager pour une base de données en mémoire"
+    classpath = configurations.runtimeClasspath
+    mainClass = "org.hsqldb.util.DatabaseManagerSwing"
 }
