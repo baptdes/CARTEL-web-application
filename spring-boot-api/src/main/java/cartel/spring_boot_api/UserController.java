@@ -17,6 +17,10 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
+        User defaultUser = new User();
+        defaultUser.setName("default");
+        defaultUser.setEmail("default@example.com");
+        userRepository.save(defaultUser);
         return userRepository.findAll();
     }
 

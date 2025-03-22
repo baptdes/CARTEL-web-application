@@ -41,6 +41,10 @@ start-backend:
 	@echo "\n |||||||||||||||||| Running Backend... ||||||||||||||||||"
 	cd $(BACKEND_DIR) && ./gradlew bootRun --args='--spring.profiles.active=dev'
 
+start-build-continous:
+	@echo "|||||||||||||||||| Starting Build Continuous... |||||||||||||||||| \n"
+	cd $(BACKEND_DIR) && ./gradlew build --continuous --parallel --build-cache --configuration-cache
+
 # Nettoyage
 clean: clean-backend clean-frontend clear-database
 
