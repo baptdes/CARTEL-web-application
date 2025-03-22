@@ -1,11 +1,9 @@
 # IDE files
+.vscode
 .idea/
 *.iws
 *.iml
 *.ipr
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
 .project
 .classpath
 .settings/
@@ -36,7 +34,7 @@ logs/
 *.local
 
 # Database files
-hsqldb/
+hsqldb/data
 
 # Temporary files
 tmp/
