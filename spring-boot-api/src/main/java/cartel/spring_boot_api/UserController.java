@@ -1,6 +1,9 @@
 package cartel.spring_boot_api;
 
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -10,6 +13,14 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @PostConstruct
+    public void init() {
+        User defaultUser = new User();
+        defaultUser.setName("default");
+        defaultUser.setEmail("default@example.com");
+        userRepository.save(defaultUser);
+    }
+
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
@@ -17,10 +28,6 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
-        User defaultUser = new User();
-        defaultUser.setName("default");
-        defaultUser.setEmail("default@example.com");
-        userRepository.save(defaultUser);
         return userRepository.findAll();
     }
 
