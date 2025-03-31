@@ -7,9 +7,6 @@ BACKEND_DIR = spring-boot-api
 # Installer les dépendances
 install: install-backend install-frontend
 
-# Démarrer tous les services pour le développement
-start: start-frontend start-backend
-
 # Arrêter tous les services
 stop: stop-frontend stop-backend
 
@@ -62,9 +59,9 @@ help:
 	@echo "  make install         - Installe toutes les dépendances"
 	@echo "  make install-backend - Installe les dépendances du backend"
 	@echo "  make install-frontend - Installe les dépendances du frontend"
-	@echo "  make start           - Démarre tous les services (BDD, backend, frontend)"
 	@echo "  make start-backend   - Démarre le backend"
 	@echo "  make start-frontend  - Démarre le frontend"
+	@echo "  make start-build-continous   - Démarre le build continu backend"
 	@echo "  make stop            - Arrête tous les services"
 	@echo "  make stop-backend    - Arrête le backend"
 	@echo "  make stop-frontend   - Arrête le frontend"
