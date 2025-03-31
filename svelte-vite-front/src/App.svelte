@@ -2,6 +2,8 @@
   import svelteLogo from './assets/svelte.svg';
   import viteLogo from '/vite.svg';
   import Counter from './lib/Counter.svelte';
+  import Navbar from './lib/Navbar.svelte';
+  import Title from './lib/home/Title.svelte';
   import { onMount } from 'svelte';
   import { invokeGet } from './api';
 
@@ -18,21 +20,13 @@
   });
 </script>
 
-<main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>C.A.R.T.E.L</h1>
-  <h2>Catalogue Annuellement Ressucité et Téléconsultable d'Elements Ludiques</h2>
+<header>
+  <Navbar />
+</header>
 
-  <div class="card">
-    <Counter />
-  </div>
+<main>
+  
+  <Title />
 
   <h2>Users List</h2>
   {#if errorMessage}
@@ -51,18 +45,6 @@
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
   .read-the-docs {
     color: #888;
   }
