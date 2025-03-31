@@ -17,7 +17,7 @@ install-frontend:
 
 start-frontend:
 	@echo "Starting frontend dev server..."
-	cd $(FRONTEND_DIR) && npm run dev &
+	cd $(FRONTEND_DIR) && npm run dev
 
 stop-frontend:
 	@echo "Stopping frontend..."
