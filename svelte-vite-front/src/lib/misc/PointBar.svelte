@@ -1,11 +1,14 @@
 <script>
-    // Props for customization
-    export let Color = 'var(--primary)';    // Color of the horizontal bar
-    export let barHeight = '2px';    // Height/thickness of the bar
-    export let dotSize = '8px';      // Size of the dot
-    export let width = '100%';       // Width of the entire component
-    export let showStartDot = true;  // Option to show/hide the start dot
-    export let showEndDot = true;    // Option to show/hide the end dot
+    // Props for customization  
+    export let Color = 'var(--primary)';    
+    export let barHeight = '2px';    
+    export let dotSize = '8px';      
+    export let width = '100%';       
+    export let showStartDot = true;  
+    export let showEndDot = true;    
+    export let startDotSrc = null;   
+    export let endDotSrc = null;     
+    export let imageScale = 1;       
 </script>
 
 <div class="point-bar-container" style="width: {width}">
@@ -13,12 +16,18 @@
     <div 
         class="dot start-dot" 
         style="
-            background-color: {Color}; 
             width: {dotSize}; 
             height: {dotSize}; 
             left: calc(-{dotSize}/2);
+            {startDotSrc ? '' : `background-color: ${Color};`}
         "
-    ></div>
+    >
+        {#if startDotSrc}
+            <div class="img-container" style="--scale: {imageScale}">
+                <img src={startDotSrc} alt="start dot" class="dot-image" />
+            </div>
+        {/if}
+    </div>
     {/if}
     
     <div 
@@ -30,12 +39,18 @@
     <div 
         class="dot end-dot" 
         style="
-            background-color: {Color}; 
             width: {dotSize}; 
             height: {dotSize}; 
             right: calc(-{dotSize}/2);
+            {endDotSrc ? '' : `background-color: ${Color};`}
         "
-    ></div>
+    >
+        {#if endDotSrc}
+            <div class="img-container" style="--scale: {imageScale}">
+                <img src={endDotSrc} alt="end dot" class="dot-image" />
+            </div>
+        {/if}
+    </div>
     {/if}
 </div>
 
@@ -55,5 +70,25 @@
         border-radius: 50%;
         top: 50%;
         transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .img-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: scale(var(--scale, 1));
+    }
+    
+    .dot-image {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
     }
 </style>

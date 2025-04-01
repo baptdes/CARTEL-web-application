@@ -1,8 +1,10 @@
 <script>
-  import PointBar from "../misc/PointBar.svelte";
+  import { text } from "@sveltejs/kit";
+import EchoText from "../misc/EchoText.svelte";
+import PointBar from "../misc/PointBar.svelte";
 
   const letters = ["C", "A", "R", "T", "E", "L"];
-  const repeats = 100; // Initial value
+  const repeats = 250; // Initial value
 </script>
 
 <section class="title-section">
@@ -10,7 +12,16 @@
 
   <div class="content">
     <div class="logo-container">
-      <img class="colorized-logo" src="src/assets/img/cartel_guisol.svg" alt="Logo" />
+      <img
+        class="colorized-logo"
+        src="src/assets/img/cartel_guisol.svg"
+        alt="Logo"
+      />
+      <div class="flex-vertical spice-icons-container">
+        <img class="spice-icon fit" src="src/assets/img/icons/star_skew_twin_octo.svg" />
+        <img class="spice-icon fit" src="src/assets/img/icons/echo_wave.svg" />
+        <img class="spice-icon fit" src="src/assets/img/icons/earth_flat.svg" />
+      </div>
     </div>
     <div class="stack">
       <div class="stack-inner back-cont">
@@ -31,11 +42,36 @@
         </p>
       </div>
     </div>
-    <PointBar width="100%" />
+    <PointBar
+      width="100%"
+      startDotSrc="src/assets/img/icons/star_rf.svg"
+      endDotSrc="src/assets/img/icons/star_rf.svg"
+      imageScale={3}
+    />
+    <div class="description">
+      <div class="column">
+        <EchoText text="TEST" />
+      </div>
+      <div class="column"></div>
+    </div>
   </div>
 </section>
 
 <style>
+
+  .description {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .column {
+    flex-grow: 1;
+  }
+
   .stack {
     display: grid;
     grid-template: 1fr / 1fr;
@@ -137,8 +173,16 @@
     justify-content: center;
   }
 
+  .fit {
+  }
+
   .logo-container {
     margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 2rem;
   }
 
   .colorized-logo {
@@ -148,4 +192,21 @@
     filter: invert() drop-shadow(0 0 1em var(--quaternary));
   }
 
+  .spice-icons-container {
+    height: 10rem; /* Set fixed height to match logo */
+    display: flex;
+    justify-content: space-between; /* Changed from center to space-between */
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: visible; /* Prevent overflow */
+  }
+
+  .spice-icon {
+    max-height: calc(
+      (10rem - 2rem) / 3
+    ); /* Calculate max height based on container */
+    width: auto;
+    filter: drop-shadow(0 0 1em var(--quaternary));
+  }
 </style>

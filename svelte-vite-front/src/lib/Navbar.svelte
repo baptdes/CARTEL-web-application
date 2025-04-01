@@ -3,23 +3,23 @@
 </script>
 
 <nav class="grain">
-  <div class="logo">
+  <div class="logo hover-invert">
     <a href="/" aria-label="Home">
       <img src="src/assets/img/cartel_guisol.svg" />
     </a>
   </div>
-  <PointBar Color="var(--primary)" />
+  <PointBar Color="var(--primary)" endDotSrc="src/assets/img/icons/star_rf.svg" imageScale={3} />
   <ul class="nav-links">
     <li>
-      <a href="/catalogue">Catalogue</a>
+      <a class="hover-invert" href="/catalogue">Catalogue</a>
     </li>
     <div class="vr"></div>
     <li>
-      <a href="/courses">Courses</a>
+      <a class="hover-invert" href="/courses">Courses</a>
     </li>
     <div class="vr"></div>
     <li>
-      <a href="/admin">Admin</a>
+      <a class="hover-invert" href="/admin">Admin</a>
     </li>
   </ul>
 </nav>
@@ -47,20 +47,27 @@
   .logo img {
     width: auto;
     height: 3rem;
-    filter: invert(0) drop-shadow(0 0 0.1em #ffffff);
-    display: block;
-    will-change: filter;
-    transition: filter 300ms;
+    filter: invert(1) drop-shadow(0 0 0.0em #ffffff);
   }
 
-  .logo:hover img {
-    filter: invert(1) drop-shadow(0 0 0.3em #000000);
+  .hover-invert {
+    will-change: filter;
+    transition: filter 300ms;
+    display: block;
+    color: var(--primary);
+    filter: invert(0) drop-shadow(0 0 0em #ffffff);
+  }
+
+  .hover-invert:hover {
+    will-change: filter;
+    transition: filter 300ms;
+    filter: invert(1) drop-shadow(0 0 0.3em #ffffff);
   }
 
   .logo a {
     font-size: 1.5rem;
     font-weight: bold;
-    color: white;
+    color: var(--primary);
     text-decoration: none;
   }
 
