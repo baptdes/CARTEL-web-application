@@ -4,7 +4,7 @@
   // Define menu items
   const menuItems = [
     { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' }
+    { href: '/about', label: 'About' },
     { href: '/catalogue', label: 'Catalogue' }
   ];
 </script>
