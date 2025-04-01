@@ -9,7 +9,7 @@
       <div class="ext">
         <div class="minbox">
           <div class="Catalogue bouton">
-            <button class="Thebouton" type="button" on:click={()=>$nb2=1}>Catalogue </button>
+            <button class="Thebouton" type="button" on:click={()=>$nb2=1}><center>Catalogue</center></button>
           </div>
         </div>
         <div class="minbox">
@@ -67,9 +67,9 @@
   
       .Thebouton{
         background: rgba(255,255,255,0);
-        color :black;
-        height:10em;
-        width:40em;
+        color :red;
+        padding: 1.9em 6.79em;
+        font-size: 2em;
       }
   
       .minbox{
