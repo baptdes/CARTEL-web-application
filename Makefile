@@ -1,7 +1,7 @@
 .PHONY: start stop install clean
 
 # Chemins des projets
-FRONTEND_DIR = svelte-vite-front
+FRONTEND_DIR = sveltekit-vite-front
 BACKEND_DIR = spring-boot-api
 
 # Installer les dépendances
