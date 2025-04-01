@@ -1,7 +1,4 @@
 <script>
-  import svelteLogo from './assets/svelte.svg';
-  import viteLogo from '/vite.svg';
-  import Counter from './lib/Counter.svelte';
   import Navbar from './lib/Navbar.svelte';
   import Title from './lib/home/Title.svelte';
   import { onMount } from 'svelte';

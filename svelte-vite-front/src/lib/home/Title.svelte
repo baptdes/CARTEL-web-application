@@ -1,10 +1,11 @@
 <script>
   import { text } from "@sveltejs/kit";
-import EchoText from "../misc/EchoText.svelte";
-import PointBar from "../misc/PointBar.svelte";
+  import EchoText from "../misc/EchoText.svelte";
+  import PointBar from "../misc/PointBar.svelte";
 
   const letters = ["C", "A", "R", "T", "E", "L"];
   const repeats = 250; // Initial value
+
 </script>
 
 <section class="title-section">
@@ -18,9 +19,9 @@ import PointBar from "../misc/PointBar.svelte";
         alt="Logo"
       />
       <div class="flex-vertical spice-icons-container">
-        <img class="spice-icon fit" src="src/assets/img/icons/star_skew_twin_octo.svg" />
-        <img class="spice-icon fit" src="src/assets/img/icons/echo_wave.svg" />
-        <img class="spice-icon fit" src="src/assets/img/icons/earth_flat.svg" />
+        <img class="spice-icon" src="src/assets/img/icons/star_skew_twin_octo.svg" alt="ICON" />
+        <img class="spice-icon" src="src/assets/img/icons/echo_wave.svg" alt="ICON" />
+        <img class="spice-icon" src="src/assets/img/icons/earth_flat.svg" alt="ICON" />
       </div>
     </div>
     <div class="stack">
@@ -31,7 +32,7 @@ import PointBar from "../misc/PointBar.svelte";
           {/each}
         </p>
       </div>
-      <div class="stack-inner" style="align:center">
+      <div class="stack-inner">
         <p class="stack-text front">
           Catalogue <br />
           Annuellement <br />
@@ -50,20 +51,23 @@ import PointBar from "../misc/PointBar.svelte";
     />
     <div class="description">
       <div class="column">
+        <EchoText text="TEST" textColor="var(--tertiary)" />
+      </div>
+      <div class="column">
         <EchoText text="TEST" />
       </div>
-      <div class="column"></div>
     </div>
   </div>
 </section>
 
-<style>
+<style lang="scss">
+  @use '../sass/variables' as v;
+  @use '../sass/mixins' as m;
 
   .description {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    align-content: center;
     gap: 2rem;
     margin-top: 2rem;
   }
@@ -78,11 +82,13 @@ import PointBar from "../misc/PointBar.svelte";
     place-items: center;
     position: relative;
     width: 100%;
-  }
-  .stack > * {
-    grid-column: 1 / 1;
-    grid-row: 1 / 1;
-    width: 100%;
+    margin: 2rem 0;
+    
+    > * {
+      grid-column: 1 / 1;
+      grid-row: 1 / 1;
+      width: 100%;
+    }
   }
 
   .stack-text {
@@ -93,38 +99,29 @@ import PointBar from "../misc/PointBar.svelte";
     padding: 0;
     text-transform: uppercase;
     transform-style: preserve-3d;
-    transition: transform 0.5s;
+    
+    &.back {
+      text-align: center;
+      color: var(--tertiary);
+      line-height: 1.6;
+    }
+    
+    &.front {
+      line-height: 1.6;
+      paint-order: stroke;
+      -webkit-text-stroke: 2rem;
+      -webkit-text-stroke-color: var(--background);
+    }
   }
 
   .back-cont {
-    /* Prevent overflow text from expanding container */
     max-width: 80%;
     box-sizing: border-box;
     overflow: hidden;
-    display: block;
-    width: auto;
     white-space: nowrap;
-    /* position: relative; */
-    overflow: hidden;
     text-overflow: clip;
     display: flex;
     justify-content: center;
-  }
-
-  .back {
-    text-align: center;
-    color: var(--tertiary);
-    position: static; /* Position the text absolutely */
-    left: 50%; /* Position from center */
-    width: max-content; /* Allow the text to take its natural width */
-    line-height: 1.6;
-  }
-
-  .front {
-    height: 1.6;
-    paint-order: stroke;
-    -webkit-text-stroke: 2rem;
-    -webkit-text-stroke-color: var(--background);
   }
 
   .title-section {
@@ -133,8 +130,9 @@ import PointBar from "../misc/PointBar.svelte";
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     perspective: 800px;
+    margin: 5rem;
   }
 
   .grid-background {
@@ -168,12 +166,8 @@ import PointBar from "../misc/PointBar.svelte";
     z-index: 10;
     padding: 2rem;
     border-radius: 8px;
-    display: flex;
-    flex-direction: column;
+    @include m.flex-column;
     justify-content: center;
-  }
-
-  .fit {
   }
 
   .logo-container {
@@ -181,7 +175,6 @@ import PointBar from "../misc/PointBar.svelte";
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: row;
     gap: 2rem;
   }
 
@@ -189,23 +182,19 @@ import PointBar from "../misc/PointBar.svelte";
     fill: var(--tertiary);
     height: 10rem;
     width: auto;
-    filter: invert() drop-shadow(0 0 1em var(--quaternary));
+    filter: invert(1) drop-shadow(0 0 1em var(--quaternary));
   }
 
   .spice-icons-container {
-    height: 10rem; /* Set fixed height to match logo */
-    display: flex;
-    justify-content: space-between; /* Changed from center to space-between */
-    align-items: center;
-    flex-direction: column;
+    height: 10rem;
+    @include m.flex-column;
+    justify-content: space-between;
     gap: 1rem;
-    overflow: visible; /* Prevent overflow */
+    overflow: visible;
   }
 
   .spice-icon {
-    max-height: calc(
-      (10rem - 2rem) / 3
-    ); /* Calculate max height based on container */
+    max-height: calc((10rem - 2rem) / 3);
     width: auto;
     filter: drop-shadow(0 0 1em var(--quaternary));
   }

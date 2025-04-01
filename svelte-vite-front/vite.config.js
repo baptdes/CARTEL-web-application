@@ -12,5 +12,15 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/api/, '')
       }
     }
+  },
+  css: {
+    preprocessorOptions: {
+      sass: {
+        additionalData: `
+          @import '$lib/sass/variables'
+          @import '$lib/sass/mixins'
+        `,
+      }
+    },
   }
 })

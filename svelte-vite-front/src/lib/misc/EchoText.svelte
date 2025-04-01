@@ -1,21 +1,24 @@
 <script>
   // Props for the component
   export let text = "Default text";
-  export let echoes = 3;
-  export let maxScale = 2;
-  export let backgroundColor = "black";
+  export let textSize = 3;
+  export let textColor = "var(--primary)";
+  export let maxScale = 1.5;
 </script>
 
-<div class="stack">
-  <p class="stack-inner" style="transform: scaleY({maxScale})">
-    {text}
-  </p>
-  <p class="stack-inner">
-    {text}
-  </p>
+<div class="stack" style="--max-scale: {maxScale};--text-color : {textColor};--text-size : {textSize}rem;">
+    <!-- For i in range of 0 to echoes, -->
+    {#each Array.from({ length: 3 }) as _, i}
+        <p class="stack-inner">
+            {text}
+        </p>
+    {/each}
+
 </div>
 
-<style>
+<style lang="scss">
+
+    @use "sass:math" as math;
   .stack {
     display: grid;
     grid-template: 1fr / 1fr;
@@ -30,17 +33,27 @@
   }
 
     /* For every class such as stack-<number> */
+    $maxScale: var(--max-scale);
+    $textColor: var(--text-color);
     
-  
+    .stack{
 
-  .stack-text {
-    font-size: 1.5rem;
-    font-family: Guisol;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    text-transform: uppercase;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-  }
+        @for $i from 1 through 3 {
+        :nth-child(#{$i}) {
+            transform: scaleY(calc($maxScale - ($maxScale/3) * ($i - 2)));
+            // background-color: var(--background-color);
+            text-align: center;
+            paint-order: stroke;
+            -webkit-text-stroke: 0.4rem;
+            -webkit-text-stroke-color: var(--background);
+            }
+        }
+
+    }
+
+
+    .stack-inner {
+        color: $textColor;
+        font-size: var(--text-size);
+    }
 </style>

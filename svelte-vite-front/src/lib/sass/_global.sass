@@ -1,0 +1,126 @@
+@use "variables" as v;
+
+// Font faces
+@font-face 
+    font-family: 'Guisol'
+    src: url('./assets/font/Guisol.otf') format('opentype')
+    font-weight: normal
+    font-style: normal
+
+@font-face 
+    font-family: 'HelveticaNeue'
+    src: url('./assets/font/HelveticaNeue-Black.otf') format('opentype')
+    font-weight: normal
+    font-style: normal
+
+// Mixins
+@mixin flex-container($direction: row, $justify: center, $align: center)
+    display: flex
+    flex-direction: $direction
+    justify-content: $justify
+    align-items: $align
+
+:root
+    // Color variables
+    --primary: #{v.$primary}
+    --secondary: #{v.$secondary}
+    --tertiary: #{v.$tertiary}
+    --quaternary: #{v.$quaternary}
+    --quinary: #{v.$quinary}
+    --background: #{v.$background}
+    --background-light: #{v.$background-light}
+    
+    // Text variables
+    --text-body: var(--secondary)
+    --text-strong: var(--primary)
+    --heading-1: var(--primary)
+    --heading-2: var(--tertiary)
+    --heading-3: var(--quinary)
+    --heading-4: var(--quinary)
+    --heading-5: var(--quinary)
+
+    font-family: HelveticaNeue, Helvetica, Arial, sans-serif, system-ui
+    line-height: 1.5
+    font-weight: 400
+
+    color-scheme: light dark
+    color: rgba(255, 255, 255, 0.87)
+    background-color: var(--background)
+
+    font-synthesis: none
+    text-rendering: optimizeLegibility
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
+
+/* Credits to Valentin Bossens */
+.grain::before
+    content: ""
+    background-color: transparent
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E")
+    background-repeat: repeat
+    background-size: 182px
+    opacity: 0.08
+    top: 0
+    left: 0
+    position: absolute
+    width: 100%
+    height: 100%
+
+a
+    font-weight: 500
+    color: v.$link-color
+    text-decoration: inherit
+    &:hover
+        color: v.$link-hover-color
+
+body
+    margin: 0
+    display: flex
+    place-items: top
+    width: 100%
+    min-width: 320px
+    min-height: 100vh
+
+h1
+    font-size: 3.2em
+    line-height: 1.1
+
+.card
+    padding: 2em
+
+.vr
+    border-left: 1px solid v.$primary
+    height: auto
+
+#app
+    max-width: 100%
+    margin: 0 auto
+    padding: 0
+    text-align: center
+
+button
+    border-radius: 8px
+    border: 1px solid transparent
+    padding: 0.6em 1.2em
+    font-size: 1em
+    font-weight: 500
+    font-family: inherit
+    background-color: v.$button-bg
+    cursor: pointer
+    transition: border-color 0.25s
+    &:hover
+        border-color: v.$button-hover-border
+    &:focus, &:focus-visible
+        outline: 4px auto -webkit-focus-ring-color
+
+@media (prefers-color-scheme: light)
+    :root
+        color: #213547
+        background-color: #ffffff
+    a:hover
+        color: #747bff
+    button
+        background-color: #f9f9f9
+
+.flex-vertical
+    @include flex-container(column)
