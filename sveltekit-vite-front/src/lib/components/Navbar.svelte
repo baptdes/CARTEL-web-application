@@ -62,8 +62,8 @@
     top: 0;
     width: 100%;
     z-index: 1000;
-    background-color: #1a1a1a;
-    color: white;
+    background-color: #111111;
+    color: var(--white);
     padding: 0.75rem 1rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, background-color 0.3s ease;
@@ -137,15 +137,15 @@
   }
 
   .menu li a:hover {
-    background-color: #bb2a2b;
+    background-color: var(--red);
     color: white;
     transform: scale(1.1);
   }
 
   .menu li.active a {
-    background-color: #bb2a2b;
+    background-color: var(--red);
     font-weight: bold;
-    border: #d77d42 2px solid;
+    border: var(--dark-red) 2px solid;
   }
 
   .menu-toggle {
@@ -188,7 +188,6 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
-      background-color: #1a1a1a;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
     

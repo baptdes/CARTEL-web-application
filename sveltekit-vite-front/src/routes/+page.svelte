@@ -7,7 +7,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
-        <h1>Bienvenue dans<br>la <span style="color: #d77d42;">C</span>averne <span style="color: #d77d42;">A</span>ux <span style="color: #d77d42;">R</span>ichesses <span style="color: #d77d42;">T</span>éléconsultable <span style="color: #d77d42;">E</span>t <span style="color: #d77d42;">L</span>égendaires</h1>
+        <h1>Bienvenue dans<br>la <span style="color: #d77d42;">C</span>averne <span style="color: #d77d42;">A</span>ux <span style="color: #d77d42;">R</span>ichesses <span style="color: #d77d42;">T</span>éléconsultables <span style="color: #d77d42;">E</span>t <span style="color: #d77d42;">L</span>égendaires</h1>
         <p>Explorez notre collection et trouvez votre prochaine aventure !</p>
     </div>
   </section>
