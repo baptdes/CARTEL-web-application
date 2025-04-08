@@ -8,9 +8,6 @@
   <main>
     <slot />
   </main>
-  <footer>
-    <p>© {new Date().getFullYear()} C.A.R.T.E.L - Catalogue Annuellement Ressucité et Téléconsultable d'Elements Ludiques</p>
-  </footer>
 </div>
 
 <style>
@@ -22,15 +19,5 @@
 
   main {
     flex: 1;
-    padding: 1rem;
-  }
-
-  footer {
-    text-align: center;
-    padding: 1rem;
-    background-color: #f5f5f5;
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 2rem;
   }
 </style>
