@@ -4,8 +4,8 @@
   import { onMount } from 'svelte'; // Added import for onMount
 
   const menuItems = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
+    { href: '/', label: 'Accueil' },
+    { href: '/Test', label: 'Test' },
     { href: '/catalogue', label: 'Catalogue' }
   ];
 
@@ -119,6 +119,7 @@
     list-style: none;
     margin: 0;
     padding: 0;
+    background-color: #111111;
   }
 
   .menu li {
@@ -134,6 +135,7 @@
     border-radius: 5px;
     transition: all 0.3s ease;
     border: 2px solid transparent;
+    background-color: var();
   }
 
   .menu li a:hover {

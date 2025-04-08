@@ -1,3 +1,34 @@
+<script>
+  import CardArticle from '$lib/components/CardArticle.svelte';
+  
+  // Sample recommendation data
+  const recommendations = [
+    {
+      title: "Gloomhaven",
+      imageSrc: "/hagitest.jpeg", 
+      rating: 5,
+      description: "Une aventure épique de donjon-crawler, avec des mécaniques innovantes et une campagne immersive!"
+    },
+    {
+      title: "Les Colons de Catane",
+      imageSrc: "/hagitest.jpeg",
+      rating: 4,
+      description: "Un classique intemporel de stratégie et de négociation qui captive depuis des années."
+    },
+    {
+      title: "Pandemic Legacy",
+      imageSrc: "/hagitest.jpeg",
+      rating: 5,
+      description: "Une expérience coopérative évolutive où vos décisions changent le jeu à jamais!"
+    }
+  ];
+  
+  function handleCardClick(title) {
+    console.log(`Clicked on ${title}`);
+    // You can add navigation or modal opening logic here
+  }
+</script>
+
 <svelte:head>
   <title>C.A.R.T.E.L</title>
   <meta name="description" content="Catalogue Annuellement Ressucité et Téléconsultable d'Elements Ludiques" />
@@ -12,14 +43,22 @@
     </div>
   </section>
   
-  <section class="content">
-    <h2>About Us</h2>
-    <p>C.A.R.T.E.L is dedicated to providing a comprehensive catalog of playful elements, ensuring that you have access to the best resources available.</p>
-    <ul>
-      <li>Explore our extensive collection of games and activities.</li>
-      <li>Stay updated with our annual releases.</li>
-      <li>Join our community of enthusiasts and share your experiences.</li>
-    </ul>
+  <!-- Monthly Recommendations Section -->
+  <section class="monthly-recommendations">
+    <div class="frame-container">
+      <h2>Recommandations du Mois</h2>
+      <div class="recommendations-grid">
+        {#each recommendations as item}
+          <CardArticle 
+            title={item.title}
+            imageSrc={item.imageSrc}
+            rating={item.rating}
+            description={item.description}
+            onClick={() => handleCardClick(item.title)}
+          />
+        {/each}
+      </div>
+    </div>
   </section>
 </main>
 
@@ -28,7 +67,7 @@
     background-image: url('/dragon_library.png');
     background-size: cover;
     background-position: center;
-    height: 100vh; /* Full page height */
+    height: 102vh; /* Full page height */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,16 +113,48 @@
     }
   }
   
-  .content {
-    padding: 2rem;
+  .monthly-recommendations {
+    padding: 3rem 2rem;
+    background-image: url('ancient_paper_bg.webp');
+    background-repeat: no-repeat;
+    background-size: 101% 100%;
+    background-position: 0.0;
+    margin-top: -2rem;
+    margin-bottom: -2rem;
+  }
+
+  .frame-container {
+    margin: 0 auto;
+    padding: 2.5rem;
+    position: relative;
+    max-width: 80vw;
   }
   
-  ul {
-    list-style-type: none;
-    padding: 0;
+  .monthly-recommendations h2 {
+    text-align: center;
+    font-family: "Pirata One", system-ui;
+    font-size: 3rem;
+    color: #8b4513;
+    margin-bottom: 2rem;
   }
   
-  li {
-    margin: 0.5em 0;
+  .recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .recommendations-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .frame-container {
+      padding: 1.5rem;
+    }
+    
+    .monthly-recommendations h2 {
+      font-size: 2.5rem;
+    }
   }
 </style>
