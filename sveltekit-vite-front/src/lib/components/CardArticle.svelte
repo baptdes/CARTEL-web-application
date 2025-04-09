@@ -7,6 +7,7 @@
   export let altText = title;
   export let onClick = () => {}; // Default empty function
   export let iconType = '/icons/books.svg'; // Default icon for articles
+  export let frameColor = 'var(--dark-orange)'; // Default frame color
 
   // Helper for stars display
   function getStars(rating) {
@@ -25,7 +26,7 @@
 </script>
 
 <button class="card-medieval" on:click={onClick} type="button" aria-label="Card">
-  <div class="card-frame">
+  <div class="card-frame" style="--frame-color: {frameColor};">
     <div class="card-inner">
       <div class="card-image-container">
         <img src={imageSrc} alt={altText} class="card-image" />
@@ -81,8 +82,8 @@
     width: 100%;
     height: 100%;
     border-radius: 8px;
-    background: #8b4513;
     padding: 8px;
+    background-color: var(--frame-color);
     box-shadow: 
       0 5px 15px rgba(0, 0, 0, 0.35),
       0 0 0 1px rgba(139, 69, 19, 0.5),
@@ -107,7 +108,7 @@
     width: 100%;
     height: 200px;
     overflow: hidden;
-    border-bottom: 4px solid #8b4513;
+    border-bottom: 4px solid var(--frame-color);
     position: relative;
   }
 
@@ -183,6 +184,7 @@
     height: 24px;
     position: absolute;
     z-index: 4;
+    filter: invert(100%);
   }
 
   .icon-top-right {
@@ -198,7 +200,7 @@
   .top-left {
     top: 0;
     left: 0;
-    background-color: #8b4513;
+    background-color: var(--frame-color);
     border-bottom-right-radius: 100%;
   }
 
@@ -206,21 +208,21 @@
     top: 0;
     right: 0;
     border-bottom-left-radius: 100%;
-    background-color: #8b4513;
+    background-color: var(--frame-color);
   }
 
   .bottom-left {
     bottom: 0;
     left: 0;
     border-top-right-radius: 100%;
-    background-color: #8b4513;
+    background-color: var(--frame-color);
   }
 
   .bottom-right {
     bottom: 0;
     right: 0;
     border-top-left-radius: 100%;
-    background-color: #8b4513;
+    background-color: var(--frame-color);
   }
 
   /* Responsive adjustments */
@@ -235,11 +237,6 @@
     
     .card-image-container {
       height: 180px;
-    }
-    
-    .corner-icon {
-      width: 16px;
-      height: 16px;
     }
   }
 </style>

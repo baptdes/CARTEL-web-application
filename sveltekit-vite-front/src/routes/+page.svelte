@@ -1,5 +1,6 @@
 <script>
   import CardArticle from '$lib/components/CardArticle.svelte';
+  import PurgeCountdown from '$lib/components/PurgeCountdown.svelte';
   
   // Sample recommendation data
   const recommendations = [
@@ -22,6 +23,8 @@
       description: "Une expérience coopérative évolutive où vos décisions changent le jeu à jamais!"
     }
   ];
+  
+  const purgeDate = new Date(2023, 5, 30, 18, 0, 0);
   
   function handleCardClick(title) {
     console.log(`Clicked on ${title}`);
@@ -60,9 +63,20 @@
       </div>
     </div>
   </section>
+
+  <!-- Purge Countdown Section -->
+  <section class="purge-countdown">
+    <div class="countdown-container">
+      <h2>La Prochaine Purge Approche</h2>
+      <p class="subtitle">Préparez-vous à récupérer vos affaires, ou les dragons s'en chargeront...</p>
+      
+      <PurgeCountdown targetDate={purgeDate} />
+    </div>
+  </section>
 </main>
 
 <style>
+  /* Hero section */
   .hero {
     background-image: url('/dragon_library.png');
     background-size: cover;
@@ -72,7 +86,6 @@
     align-items: center;
     justify-content: center;
     color: white;
-    padding: 1em;
   }
   
   .hero-content {
@@ -113,11 +126,12 @@
     }
   }
   
+  /* Monthly Recommendations Section */
   .monthly-recommendations {
     padding: 3rem 2rem;
     background-image: url('ancient_paper_bg.webp');
     background-repeat: no-repeat;
-    background-size: 101% 100%;
+    background-size: 101% 102%;
     background-position: 0.0;
     margin-top: -2rem;
     margin-bottom: -2rem;
@@ -143,6 +157,44 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
   }
+
+  /* Purge Countdown Section */
+  .purge-countdown {
+    background-image: url('/red_wallpaper.webp');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    padding: 6rem 2rem;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    z-index: -2;
+  }
+  
+  .countdown-container {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid var(--dark-red);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  }
+  
+  .purge-countdown h2 {
+    font-family: "Pirata One", cursive;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--red);
+    text-shadow: 2px 2px 5px #000;
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
   
   @media (max-width: 768px) {
     .recommendations-grid {
@@ -154,6 +206,10 @@
     }
     
     .monthly-recommendations h2 {
+      font-size: 2.5rem;
+    }
+    
+    .purge-countdown h2 {
       font-size: 2.5rem;
     }
   }
