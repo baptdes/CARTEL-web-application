@@ -21,7 +21,7 @@
         </a>
         <a href="https://jejeu.org/jeu.php?id=29" target="_blank" rel="noopener noreferrer" class="social-link">
             <img src="/icons/adult-18.svg" alt="Adulte +18 Logo" class="icon" />
-          <span>Adulte +18</span>
+          <span>OnlyFan</span>
         </a>
       </div>
     </div>
