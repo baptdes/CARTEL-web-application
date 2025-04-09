@@ -24,7 +24,7 @@
     }
   ];
   
-  const purgeDate = new Date(2023, 5, 30, 18, 0, 0);
+  const purgeDate = new Date(2025, 5, 30, 18, 0, 0);
   
   function handleCardClick(title) {
     console.log(`Clicked on ${title}`);
@@ -68,8 +68,7 @@
   <section class="purge-countdown">
     <div class="countdown-container">
       <h2>La Prochaine Purge Approche</h2>
-      <p class="subtitle">Préparez-vous à récupérer vos affaires, ou les dragons s'en chargeront...</p>
-      
+      <p class="subtitle">Attention, la grande purge des suggestions d'achats approche ! Les dragons trieront vos suggestions avec plus de flammes que de tact... 🐉🔥</p>
       <PurgeCountdown targetDate={purgeDate} />
     </div>
   </section>
