@@ -1,28 +1,27 @@
 <script>
   import Admin from './admin.svelte';
-  import {nb2} from './page.js';
+  import { adminPageState } from './store.js';
 </script>
 
-
 <main>
-  {#if $nb2 === 0}
+  {#if $adminPageState === 0}
     <Admin/>
 
-  {:else if $nb2 === 1}
+  {:else if $adminPageState === 1}
     <h1>Catalogue</h1>
-    <button class="Thebouton" type="button" on:click={()=>$nb2=0}>Retour </button>
-  {:else if $nb2 === 2}
+    <button class="Thebouton" type="button" on:click={()=>$adminPageState=0}>Retour </button>
+  {:else if $adminPageState === 2}
     <h1>Course</h1>
-    <button class="Thebouton" type="button" on:click={()=>$nb2=0}>Retour </button>
-  {:else if $nb2 === 3}
+    <button class="Thebouton" type="button" on:click={()=>$adminPageState=0}>Retour </button>
+  {:else if $adminPageState === 3}
     <h1>Tresorerie</h1>
-    <button class="Thebouton" type="button" on:click={()=>$nb2=0}>Retour </button>
-  {:else if $nb2 === 4}
+    <button class="Thebouton" type="button" on:click={()=>$adminPageState=0}>Retour </button>
+  {:else if $adminPageState === 4}
     <h1>Empruntpret</h1>
-    <button class="Thebouton" type="button" on:click={()=>$nb2=0}>Retour </button>
+    <button class="Thebouton" type="button" on:click={()=>$adminPageState=0}>Retour </button>
   {:else}
     <h1>Erreur</h1>
-    <button class="Thebouton" type="button" on:click={()=>$nb2=0}>Retour </button>
+    <button class="Thebouton" type="button" on:click={()=>$adminPageState=0}>Retour </button>
   {/if}
 </main>
 

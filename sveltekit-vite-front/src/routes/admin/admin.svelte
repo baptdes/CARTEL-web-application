@@ -1,6 +1,5 @@
 <script>
-  import Counter from './lib/Counter.svelte';
-  import {nb2} from './page.js';
+  import { adminPageState } from './store.js';
 </script>
 
 
@@ -9,12 +8,12 @@
     <div class="ext">
       <div class="minbox">
         <div class="Catalogue bouton">
-          <button class="Thebouton" type="button" on:click={()=>$nb2=1}><center>Catalogue</center></button>
+          <button class="Thebouton" type="button" on:click={()=>$adminPageState=1}><center>Catalogue</center></button>
         </div>
       </div>
       <div class="minbox">
         <div class="Course bouton">
-          <button class="Thebouton" type="button" on:click={()=>$nb2=2}>Purger Course </button>
+          <button class="Thebouton" type="button" on:click={()=>$adminPageState=2}>Purger Course </button>
         </div>
       </div>
     </div>
@@ -22,12 +21,12 @@
     <div class="ext">
       <div class="minbox">
         <div class="Tresorerie bouton">
-          <button class="Thebouton" type="button" on:click={()=>$nb2=3}>Trésorerie</button>
+          <button class="Thebouton" type="button" on:click={()=>$adminPageState=3}>Trésorerie</button>
         </div>
       </div>
       <div class="minbox">
         <div class="Empruntpret bouton">
-          <button class="Thebouton" type="button" on:click={()=>$nb2=4}>Emprunt/prêt </button>
+          <button class="Thebouton" type="button" on:click={()=>$adminPageState=4}>Emprunt/prêt </button>
         </div>
       </div>
     </div>
