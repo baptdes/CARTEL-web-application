@@ -1,11 +1,11 @@
 <script>
   import { page } from '$app/stores';
   import PointBar from './PointBar.svelte';
-  import { onMount } from 'svelte'; // Added import for onMount
+  import { onMount } from 'svelte';
 
   const menuItems = [
     { href: '/', label: 'Accueil' },
-    { href: '/Test', label: 'Test' },
+    { href: '/about', label: 'Test' },
     { href: '/catalogue', label: 'Catalogue' }
   ];
 
