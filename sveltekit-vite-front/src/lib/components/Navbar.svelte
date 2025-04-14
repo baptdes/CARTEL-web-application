@@ -1,7 +1,7 @@
 <script>
   import { page } from '$app/stores';
   import PointBar from './PointBar.svelte';
-  import { onMount } from 'svelte'; // Added import for onMount
+  import { onMount } from 'svelte';
 
   const menuItems = [
     { href: '/', label: 'Accueil' },

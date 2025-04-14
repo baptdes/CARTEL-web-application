@@ -29,6 +29,7 @@
   
   <div class="footer-info">
     <p>&copy; {currentYear} CARTEL - Tous droits réservés</p>
+    <a href={'/admin'} class="admin-link">Espace administrateur</a>
   </div>
 </footer>
 
@@ -112,6 +113,23 @@
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .admin-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .admin-link:hover {
+    color: var(--orange);
+    text-decoration: underline;
   }
   
   @media (max-width: 768px) {
