@@ -1,13 +1,15 @@
 <script>
   // Props for the card
-  export let title = '';
-  export let imageSrc = '';
-  export let rating = 0;
-  export let description = '';
-  export let altText = title;
-  export let onClick = () => {}; // Default empty function
-  export let iconType = '/icons/books.svg'; // Default icon for articles
-  export let frameColor = 'var(--dark-orange)'; // Default frame color
+  let { 
+    title = '',
+    imageSrc = '',
+    rating = 0,
+    description = '',
+    altText = title,
+    onClick = () => {}, // Default empty function
+    iconType = '/icons/books.svg', // Default icon for articles
+    frameColor = 'var(--dark-orange)' // Default frame color
+  } = $props();
 
   // Helper for stars display
   function getStars(rating) {
@@ -22,10 +24,10 @@
     };
   }
 
-  const stars = getStars(rating);
+  const stars = $derived(getStars(rating));
 </script>
 
-<button class="card-medieval" on:click={onClick} type="button" aria-label="Card">
+<button class="card-medieval" onclick={onClick} type="button" aria-label="Card">
   <div class="card-frame" style="--frame-color: {frameColor};">
     <div class="card-inner">
       <div class="card-image-container">

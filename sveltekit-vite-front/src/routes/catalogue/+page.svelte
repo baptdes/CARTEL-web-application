@@ -2,7 +2,7 @@
     import CardArticle from '$lib/components/CardArticle.svelte';
     
     // This will eventually be replaced with data from your API
-    let catalogItems = [
+    let catalogItems = $state([
       { id: 1, title: 'GetHagimoned 1', imageSrc: 'hagitest.jpeg', rating: 4.5, description: 'Description du jeu 1' },
       { id: 2, title: 'GetHagimoned 2', imageSrc: 'hagitest.jpeg', rating: 3, description: 'Description du jeu 2' },
       { id: 3, title: 'GetHagimoned 3', imageSrc: 'hagitest.jpeg', rating: 5, description: 'Description du jeu 3' },
@@ -10,7 +10,7 @@
       { id: 5, title: 'GetHagimoned 5', imageSrc: 'hagitest.jpeg', rating: 3.5, description: 'Description du jeu 5' },
       { id: 6, title: 'GetHagimoned 6', imageSrc: 'hagitest.jpeg', rating: 4, description: 'Description du jeu 6' },
       // You can add more items here or load them from an API
-    ];
+    ]);
   
     function handleItemClick(item) {
       alert(`Vous avez sélectionné ${item.title}`);
@@ -32,7 +32,7 @@
         imageSrc={item.imageSrc}
         rating={item.rating}
         description={item.description}
-        onClick={() => handleItemClick(item)}
+        onclick={() => handleItemClick(item)}
       />
     {/each}
   </div>

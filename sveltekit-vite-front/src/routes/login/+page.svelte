@@ -1,21 +1,16 @@
 <script>
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { login, isAuthenticated, authLoading } from '$lib/auth';
 
-  let password = '';
-  let errorMessage = '';
-  let showPassword = false;
+  let password = $state('');
+  let errorMessage = $state('');
+  let showPassword = $state(false);
 
-  // Redirect if already authenticated
-  onMount(() => {
-    const unsubscribe = isAuthenticated.subscribe(value => {
-      if (value) {
-        goto('/admin');
-      }
-    });
-    
-    return unsubscribe;
+  // Replace onMount with $effect
+  $effect(() => {
+    if ($isAuthenticated) {
+      goto('/admin');
+    }
   });
 
   async function handleSubmit() {
@@ -46,8 +41,7 @@
       <img src="/logo/cartel_dragon.png" alt="CARTEL Logo" class="logo" />
       <h1>Administration CARTEL</h1>
     </div>
-    
-    <form on:submit|preventDefault={handleSubmit} class="login-form">
+    <form onsubmit={handleSubmit} class="login-form">
       <div class="form-group">
         <label for="password">Mot de passe</label>
         <div class="password-input-container">
@@ -61,7 +55,7 @@
           <button 
             type="button" 
             class="toggle-password" 
-            on:click={togglePasswordVisibility}
+            onclick={togglePasswordVisibility}
             aria-label={showPassword ? 'Cacher le mot de passe' : 'Afficher le mot de passe'}
           >
             {showPassword ? '👁️' : '👁️‍🗨️'}

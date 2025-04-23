@@ -2,18 +2,17 @@
   import { adminPageState } from './store.js';
 </script>
 
-
 <main>
   <div class="boxes">
     <div class="ext">
       <div class="minbox">
         <div class="Catalogue bouton">
-          <button class="Thebouton" type="button" on:click={()=>$adminPageState=1}><center>Catalogue</center></button>
+          <button class="Thebouton" type="button" onclick={()=>$adminPageState=1}><center>Catalogue</center></button>
         </div>
       </div>
       <div class="minbox">
         <div class="Course bouton">
-          <button class="Thebouton" type="button" on:click={()=>$adminPageState=2}>Purger Course </button>
+          <button class="Thebouton" type="button" onclick={()=>$adminPageState=2}>Purger Course </button>
         </div>
       </div>
     </div>
@@ -21,12 +20,12 @@
     <div class="ext">
       <div class="minbox">
         <div class="Tresorerie bouton">
-          <button class="Thebouton" type="button" on:click={()=>$adminPageState=3}>Trésorerie</button>
+          <button class="Thebouton" type="button" onclick={()=>$adminPageState=3}>Trésorerie</button>
         </div>
       </div>
       <div class="minbox">
         <div class="Empruntpret bouton">
-          <button class="Thebouton" type="button" on:click={()=>$adminPageState=4}>Emprunt/prêt </button>
+          <button class="Thebouton" type="button" onclick={()=>$adminPageState=4}>Emprunt/prêt </button>
         </div>
       </div>
     </div>

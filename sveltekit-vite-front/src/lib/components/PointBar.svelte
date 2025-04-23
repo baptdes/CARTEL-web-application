@@ -1,14 +1,16 @@
 <script>
-    // Props for customization  
-    export let Color = 'var(--primary)';    
-    export let barHeight = '2px';    
-    export let dotSize = '8px';      
-    export let width = '100%';       
-    export let showStartDot = true;  
-    export let showEndDot = true;    
-    export let startDotSrc = null;   
-    export let endDotSrc = null;     
-    export let imageScale = 1;       
+    // Props for customization
+    let { 
+        Color = 'var(--primary)',
+        barHeight = '2px',
+        dotSize = '8px',
+        width = '100%',
+        showStartDot = true,
+        showEndDot = true,
+        startDotSrc = null,
+        endDotSrc = null,
+        imageScale = 1
+    } = $props();
 </script>
 
 <div class="point-bar-container" style="width: {width}">

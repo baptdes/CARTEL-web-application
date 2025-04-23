@@ -1,20 +1,18 @@
 <script>
-  import { onMount } from 'svelte';
-  
   // Props with default values
-  export let targetDate = null;
+  let { targetDate = null } = $props();
   
   // Countdown state
-  let days = 0;
-  let hours = 0;
-  let minutes = 0;
-  let seconds = 0;
-  let isValidFutureDate = false;
+  let days = $state(0);
+  let hours = $state(0);
+  let minutes = $state(0);
+  let seconds = $state(0);
+  let isValidFutureDate = $state(false);
   
   // Set the date of the next purge if not provided
-  let purgeDate;
+  let purgeDate = $state(null);
   
-  $: {
+  $effect(() => {
     if (targetDate instanceof Date) {
       // Use the Date object directly
       purgeDate = targetDate;
@@ -29,7 +27,11 @@
     // Check if the date is valid and in the future
     const now = new Date();
     isValidFutureDate = purgeDate && !isNaN(purgeDate) && purgeDate > now;
-  }
+    
+    if (isValidFutureDate) {
+      updateCountdown();
+    }
+  });
 
   function updateCountdown() {
     if (!isValidFutureDate) return;
@@ -49,9 +51,10 @@
     }
   }
   
-  onMount(() => {
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+  // Start countdown timer
+  let interval;
+  $effect(() => {
+    interval = setInterval(updateCountdown, 1000);
     
     return () => clearInterval(interval);
   });

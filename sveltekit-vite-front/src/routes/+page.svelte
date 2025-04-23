@@ -3,7 +3,7 @@
   import PurgeCountdown from '$lib/components/PurgeCountdown.svelte';
   
   // Sample recommendation data
-  const recommendations = [
+  const recommendations = $state([
     {
       title: "Gloomhaven",
       imageSrc: "/hagitest.jpeg", 
@@ -22,7 +22,7 @@
       rating: 5,
       description: "Une expérience coopérative évolutive où vos décisions changent le jeu à jamais!"
     }
-  ];
+  ]);
   
   const purgeDate = new Date(2025, 5, 30, 18, 0, 0);
   
@@ -57,7 +57,7 @@
             imageSrc={item.imageSrc}
             rating={item.rating}
             description={item.description}
-            onClick={() => handleCardClick(item.title)}
+            onclick={() => handleCardClick(item.title)}
           />
         {/each}
       </div>

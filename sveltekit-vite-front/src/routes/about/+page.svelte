@@ -1,9 +1,7 @@
 <script>
-  import { onMount } from 'svelte';
+  let fadeIn = $state(false);
   
-  let fadeIn = false;
-  
-  onMount(() => {
+  $effect(() => {
     setTimeout(() => {
       fadeIn = true;
     }, 100);
