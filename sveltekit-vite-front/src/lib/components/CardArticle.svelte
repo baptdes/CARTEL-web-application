@@ -1,7 +1,7 @@
 <script>
   let { 
     title = '',
-    imageSrc = '',
+    imageSrc = 'hagitest.jpeg',
     rating = 0,
     description = '',
     altText = title,
