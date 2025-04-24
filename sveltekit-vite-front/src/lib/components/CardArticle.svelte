@@ -2,8 +2,8 @@
   let { 
     title = '',
     imageSrc = 'hagitest.jpeg',
-    rating = 0,
-    description = '',
+    rating = null,
+    description = "La description s'est perdue dans les méandres du temps.",
     altText = title,
     onClick = () => {}, // Default empty function
     iconType = '/icons/books.svg', // Default icon for articles
@@ -35,17 +35,19 @@
       <div class="card-content">
         <h3 class="card-title">{title}</h3>
         
-        <div class="rating">
-          {#each stars.full as _}
-            <span class="star full">★</span>
-          {/each}
-          {#each stars.half as _}
-            <span class="star half">★</span>
-          {/each}
-          {#each stars.empty as _}
-            <span class="star empty">☆</span>
-          {/each}
-        </div>
+        {#if rating !== null}
+          <div class="rating">
+            {#each stars.full as _}
+              <span class="star full">★</span>
+            {/each}
+            {#each stars.half as _}
+              <span class="star half">★</span>
+            {/each}
+            {#each stars.empty as _}
+              <span class="star empty">☆</span>
+            {/each}
+          </div>
+        {/if}
         
         <p class="card-description">{description}</p>
       </div>

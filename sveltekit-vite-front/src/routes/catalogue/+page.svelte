@@ -18,14 +18,6 @@
       loading = false;
     }
   });
-  
-  // Navigate to book details
-  function handleBookClick(book) {
-    // For now, we'll just console.log the book details
-    console.log('Book selected:', book);
-    // In a future implementation, we could navigate to a detail page
-    // window.location.href = `/catalogue/books/${book.id}`;
-  }
 </script>
 
 <div class="books-catalogue">
@@ -50,13 +42,7 @@
       {#each books as book}
         <CardArticle
           title={book.title}
-          description={book.description || "Pas de description disponible"}
-          imageSrc={book.coverImage || "/hagitest.jpeg"}
-          rating={4}
-          onClick={() => handleBookClick(book)}
-          altText={`Couverture de ${book.title}`}
           iconType="/icons/books.svg"
-          frameColor="var(--dark-orange)"
         />
       {/each}
     </div>
