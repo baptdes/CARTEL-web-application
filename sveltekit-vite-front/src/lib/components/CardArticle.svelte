@@ -1,5 +1,4 @@
 <script>
-  // Props for the card
   let { 
     title = '',
     imageSrc = '',
@@ -11,7 +10,6 @@
     frameColor = 'var(--dark-orange)' // Default frame color
   } = $props();
 
-  // Helper for stars display
   function getStars(rating) {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
