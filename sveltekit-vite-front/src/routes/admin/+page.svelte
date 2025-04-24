@@ -1,21 +1,16 @@
 <script>
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import Admin from './admin.svelte';
   import { adminPageState } from './store.js';
   import { isAuthenticated, logout } from '$lib/auth';
   
-  let authenticated = false;
+  let authenticated = $state(false);
   
-  onMount(() => {
-    const unsubscribe = isAuthenticated.subscribe(value => {
-      authenticated = value;
-      if (!value) {
-        goto('/login');
-      }
-    });
-    
-    return unsubscribe;
+  $effect(() => {
+    authenticated = $isAuthenticated;
+    if (!authenticated) {
+      goto('/login');
+    }
   });
   
   function handleLogout() {
@@ -28,26 +23,26 @@
   <main>
     <div class="admin-header">
       <h1>Panel d'administration</h1>
-      <button class="logout-button" on:click={handleLogout}>Déconnexion</button>
+      <button class="logout-button" onclick={handleLogout}>Déconnexion</button>
     </div>
     
     {#if $adminPageState === 0}
       <Admin/>
     {:else if $adminPageState === 1}
       <h2>Catalogue</h2>
-      <button class="return-button" type="button" on:click={()=>$adminPageState=0}>Retour</button>
+      <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {:else if $adminPageState === 2}
       <h2>Course</h2>
-      <button class="return-button" type="button" on:click={()=>$adminPageState=0}>Retour</button>
+      <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {:else if $adminPageState === 3}
       <h2>Tresorerie</h2>
-      <button class="return-button" type="button" on:click={()=>$adminPageState=0}>Retour</button>
+      <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {:else if $adminPageState === 4}
       <h2>Empruntpret</h2>
-      <button class="return-button" type="button" on:click={()=>$adminPageState=0}>Retour</button>
+      <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {:else}
       <h2>Erreur</h2>
-      <button class="return-button" type="button" on:click={()=>$adminPageState=0}>Retour</button>
+      <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {/if}
   </main>
 {/if}

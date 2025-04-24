@@ -1,17 +1,16 @@
 <script>
   import { page } from '$app/stores';
   import PointBar from './PointBar.svelte';
-  import { onMount } from 'svelte';
 
-  const menuItems = [
+  const menuItems = $state([
     { href: '/', label: 'Accueil' },
     { href: '/about', label: 'Test' },
     { href: '/catalogue', label: 'Catalogue' }
-  ];
+  ]);
 
-  let isMenuOpen = false;
-  let isVisible = true;
-  let lastScrollY = 0;
+  let isMenuOpen = $state(false);
+  let isVisible = $state(true);
+  let lastScrollY = $state(0);
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
@@ -23,9 +22,11 @@
     lastScrollY = currentScrollY;
   }
 
-  onMount(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+  $effect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
   });
 </script>
 
@@ -50,7 +51,7 @@
       {/each}
     </ul>
     
-    <button class="menu-toggle" on:click={toggleMenu} aria-label="Toggle menu">
+    <button class="menu-toggle" onclick={toggleMenu} aria-label="Toggle menu">
       ☰
     </button>
   </div>

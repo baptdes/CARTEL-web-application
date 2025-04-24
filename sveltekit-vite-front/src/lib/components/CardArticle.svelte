@@ -1,15 +1,15 @@
 <script>
-  // Props for the card
-  export let title = '';
-  export let imageSrc = '';
-  export let rating = 0;
-  export let description = '';
-  export let altText = title;
-  export let onClick = () => {}; // Default empty function
-  export let iconType = '/icons/books.svg'; // Default icon for articles
-  export let frameColor = 'var(--dark-orange)'; // Default frame color
+  let { 
+    title = '',
+    imageSrc = 'hagitest.jpeg',
+    rating = null,
+    description = "La description s'est perdue dans les méandres du temps.",
+    altText = title,
+    onClick = () => {}, // Default empty function
+    iconType = '/icons/books.svg', // Default icon for articles
+    frameColor = 'var(--dark-orange)' // Default frame color
+  } = $props();
 
-  // Helper for stars display
   function getStars(rating) {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5;
@@ -22,10 +22,10 @@
     };
   }
 
-  const stars = getStars(rating);
+  const stars = $derived(getStars(rating));
 </script>
 
-<button class="card-medieval" on:click={onClick} type="button" aria-label="Card">
+<button class="card-medieval" onclick={onClick} type="button" aria-label="Card">
   <div class="card-frame" style="--frame-color: {frameColor};">
     <div class="card-inner">
       <div class="card-image-container">
@@ -35,17 +35,19 @@
       <div class="card-content">
         <h3 class="card-title">{title}</h3>
         
-        <div class="rating">
-          {#each stars.full as _}
-            <span class="star full">★</span>
-          {/each}
-          {#each stars.half as _}
-            <span class="star half">★</span>
-          {/each}
-          {#each stars.empty as _}
-            <span class="star empty">☆</span>
-          {/each}
-        </div>
+        {#if rating !== null}
+          <div class="rating">
+            {#each stars.full as _}
+              <span class="star full">★</span>
+            {/each}
+            {#each stars.half as _}
+              <span class="star half">★</span>
+            {/each}
+            {#each stars.empty as _}
+              <span class="star empty">☆</span>
+            {/each}
+          </div>
+        {/if}
         
         <p class="card-description">{description}</p>
       </div>
