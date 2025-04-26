@@ -56,7 +56,7 @@
     {/if}
 </div>
 
-<style>
+<style lang="scss">
     .point-bar-container {
         position: relative;
         display: block;

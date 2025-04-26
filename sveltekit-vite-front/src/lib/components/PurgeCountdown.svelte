@@ -98,73 +98,76 @@
   </div>
 {/if}
 
-<style>
+<style lang="scss">
+  $animation-duration: 3s;
+  $spacing-sm: 0.5rem;
+  $spacing-md: 1rem;
+  $spacing-lg: 1.5rem;
+  $spacing-xl: 2rem;
+  $border-radius: 8px;
+  $box-min-width: 80px;
+  
   .countdown-timer {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: $spacing-lg;
   }
   
   .countdown-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 80px;
-  }
-  
-  .number {
-    font-family: "Pirata One", cursive;
-    font-size: 3.5rem;
-    color: #fff;
-    background: var(--dark-red);
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    display: block;
-    min-width: 80px;
-    text-align: center;
-  }
-  
-  .label {
-    margin-top: 0.5rem;
-    font-size: 1rem;
-    color: var(--white);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    min-width: $box-min-width;
+    
+    .number {
+      font-family: "Pirata One", cursive;
+      font-size: 3.5rem;
+      color: #fff;
+      background: var(--dark-red);
+      padding: $spacing-sm $spacing-md;
+      border-radius: 5px;
+      display: block;
+      min-width: $box-min-width;
+      text-align: center;
+    }
+    
+    .label {
+      margin-top: $spacing-sm;
+      font-size: $spacing-md;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
   }
   
   .no-date-message {
     display: flex;
     justify-content: center;
-    padding: 2rem;
-  }
-  
-  .message-box {
-    background: var(--dark-red);
-    padding: 1.5rem;
-    border-radius: 8px;
-    max-width: 80%;
-    position: relative;
-    animation: float 3s ease-in-out infinite;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  }
-  
-  .message {
-    font-family: "Pirata One", cursive;
-    font-size: 2rem;
-    color: #fff;
-    text-align: center;
-    display: block;
+    padding: $spacing-xl;
+    
+    .message-box {
+      background: var(--dark-red);
+      padding: $spacing-lg;
+      border-radius: $border-radius;
+      max-width: 80%;
+      position: relative;
+      animation: float $animation-duration ease-in-out infinite;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      
+      .message {
+        font-family: "Pirata One", cursive;
+        font-size: 2rem;
+        color: #fff;
+        text-align: center;
+        display: block;
+      }
+    }
   }
   
   @keyframes float {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
-  }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
   }
   
   @media (max-width: 768px) {
@@ -174,11 +177,11 @@
     
     .countdown-box {
       min-width: 70px;
-    }
-    
-    .number {
-      font-size: 2.5rem;
-      min-width: 60px;
+      
+      .number {
+        font-size: 2.5rem;
+        min-width: 60px;
+      }
     }
     
     .message {

@@ -32,56 +32,44 @@
   </div>
 </main>
 
-<style>
-    .Catalogue{
-        background: white;
-        height:10em;
-        width:40em;
-    }
-
-    .Course{
-      background: white;
-      height:10em;
-      width:40em;
-    }
-
-    .Tresorerie{
-      background: white;
-      height:10em;
-      width:40em;
-    }
-
-    .Empruntpret{
-      background: white;
-      height:10em;
-      width:40em;
-    }
-
-    .bouton{
-      border-radius: 0.5em;
-      display: block;
-      padding:0em;
-    }
-
-    .Thebouton{
-      background: rgba(255,255,255,0);
-      color :red;
-      font-size: 2em;
-      height:10em;
-      width:40em;
-    }
-
-    .minbox{
-      padding: 1em;
-    }
-
-    .ext{
-      padding: 0em;
-    }
+<style lang="scss">
+  $button-height: 10em;
+  $button-width: 40em;
+  $border-radius: 0.5em;
+  
+  .bouton {
+    border-radius: $border-radius;
+    display: block;
+    padding: 0;
     
-    .boxes{
-      padding: 0em;
-      display: flex;
+    &.Catalogue, 
+    &.Course, 
+    &.Tresorerie,
+    &.Empruntpret {
+      background: white;
+      height: $button-height;
+      width: $button-width;
     }
- 
+  }
+
+  .Thebouton {
+    background: rgba(255, 255, 255, 0);
+    color: red;
+    font-size: 2em;
+    height: $button-height;
+    width: $button-width;
+  }
+
+  .minbox {
+    padding: 1em;
+  }
+
+  .ext {
+    padding: 0;
+  }
+  
+  .boxes {
+    padding: 0;
+    display: flex;
+  }
 </style>

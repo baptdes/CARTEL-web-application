@@ -37,105 +37,114 @@
   import PointBar from './PointBar.svelte';
 </script>
 
-<style>
+<style lang="scss">
+  $spacing-sm: 0.5rem;
+  $spacing-md: 1rem;
+  $spacing-lg: 1.5rem;
+  $spacing-xl: 2rem;
+  $max-width: 1200px;
+  $border-radius: 5px;
+  $transition-speed: 0.3s;
+  
   .medieval-footer {
     background-color: #111111;
     color: var(--white);
     position: relative;
     z-index: 10;
-    padding-bottom: 1.5rem;
-    padding-top: 2rem;
+    padding-bottom: $spacing-lg;
+    padding-top: $spacing-xl;
   }
   
   .footer-content {
-    max-width: 1200px;
+    max-width: $max-width;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    padding: 0 2rem;
+    gap: $spacing-xl;
+    padding: 0 $spacing-xl;
   }
   
   .footer-logo {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: $spacing-md;
+    
+    img:first-child {
+      height: 6rem;
+    }
   }
   
-  .footer-logo img:first-child {
-    height: 6rem;
-  }
-  
-  .footer-links h3 {
-    font-family: "Pirata One", cursive;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    color: var(--red);
+  .footer-links {
+    h3 {
+      font-family: "Pirata One", cursive;
+      font-size: 1.8rem;
+      margin-bottom: $spacing-md;
+      color: var(--red);
+    }
   }
   
   .social-links {
     display: flex;
-    gap: 1.5rem;
+    gap: $spacing-lg;
     flex-wrap: wrap;
-  }
-  
-  .social-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    text-decoration: none;
-    padding: 0.6rem 1.2rem;
-    border: 2px solid transparent;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-    background-color: var(--bg-card);
-  }
-  
-  .social-link:hover {
-    background-color: var(--red);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-  
-  .icon {
-    height: 20px;
-    width: 20px;
-    fill: currentColor;
-    filter: invert(100%);
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      color: white;
+      text-decoration: none;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid transparent;
+      border-radius: $border-radius;
+      transition: all $transition-speed ease;
+      background-color: var(--bg-card);
+      
+      &:hover {
+        background-color: var(--red);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+      
+      .icon {
+        height: 20px;
+        width: 20px;
+        fill: currentColor;
+        filter: invert(100%);
+      }
+    }
   }
   
   .footer-info {
     text-align: center;
-    margin-top: 2rem;
-    padding-top: 1rem;
+    margin-top: $spacing-xl;
+    padding-top: $spacing-md;
     border-top: 1px solid #333;
-    max-width: 1200px;
+    max-width: $max-width;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .admin-link {
-    color: #666;
-    text-decoration: none;
-    font-size: 0.8rem;
-    transition: color 0.3s;
-    padding: 0.25rem 0.5rem;
-  }
-  
-  .admin-link:hover {
-    color: var(--orange);
-    text-decoration: underline;
+    gap: $spacing-sm;
+    
+    .admin-link {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: color $transition-speed;
+      padding: 0.25rem $spacing-sm;
+      
+      &:hover {
+        color: var(--orange);
+        text-decoration: underline;
+      }
+    }
   }
   
   @media (max-width: 768px) {
-
     .footer-content {
-      gap: 1.5rem;
+      gap: $spacing-lg;
     }
     
     .footer-links h3 {
@@ -143,7 +152,7 @@
     }
     
     .social-link {
-      padding: 0.5rem 1rem;
+      padding: $spacing-sm $spacing-md;
     }
   }
 </style>

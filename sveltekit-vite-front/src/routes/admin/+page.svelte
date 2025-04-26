@@ -47,9 +47,12 @@
   </main>
 {/if}
 
-<style>
+<style lang="scss">
+  $section-spacing: 2rem;
+  $border-width: 2px;
+  
   main {
-    padding: 2rem;
+    padding: $section-spacing;
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -58,9 +61,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: $section-spacing;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--dark-red);
+    border-bottom: $border-width solid var(--dark-red);
   }
   
   h1 {
@@ -84,10 +87,10 @@
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
-  }
-  
-  .logout-button:hover {
-    background-color: var(--red);
+    
+    &:hover {
+      background-color: var(--red);
+    }
   }
   
   .return-button {
@@ -98,9 +101,9 @@
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-  }
-  
-  .return-button:hover {
-    background-color: var(--dark-orange);
+    
+    &:hover {
+      background-color: var(--dark-orange);
+    }
   }
 </style>
