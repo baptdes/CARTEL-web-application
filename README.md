@@ -1,11 +1,17 @@
 # 📚🎲 CARTEL - Application de Gestion de Bibliothèque & Ludothèque Étudiante
 
 Bienvenue sur le projet **CARTEL**, l'application web officielle pour gérer le catalogue de la bibliothèque/ludothèque de la bibliothèque & ludothèque étudiante CARTEL. Pour les plus intimes, cette application se nomme :
+
 C - Catalogue
+
 A - Annuellement
+
 R - Ressucité et
+
 T - Téléconsultable d'
+
 E - Elements
+
 L - Ludiques
 
 Cette application permet la gestion de livres et de jeux de société, la consultation du catalogue, ainsi que la suggestion de nouveaux achats par les utilisateurs.
