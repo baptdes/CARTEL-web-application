@@ -37,114 +37,105 @@
   import PointBar from './PointBar.svelte';
 </script>
 
-<style lang="scss">
-  $spacing-sm: 0.5rem;
-  $spacing-md: 1rem;
-  $spacing-lg: 1.5rem;
-  $spacing-xl: 2rem;
-  $max-width: 1200px;
-  $border-radius: 5px;
-  $transition-speed: 0.3s;
-  
+<style>
   .medieval-footer {
     background-color: #111111;
     color: var(--white);
     position: relative;
     z-index: 10;
-    padding-bottom: $spacing-lg;
-    padding-top: $spacing-xl;
+    padding-bottom: 1.5rem;
+    padding-top: 2rem;
   }
   
   .footer-content {
-    max-width: $max-width;
+    max-width: 1200px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: $spacing-xl;
-    padding: 0 $spacing-xl;
+    gap: 2rem;
+    padding: 0 2rem;
   }
   
   .footer-logo {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
-    
-    img:first-child {
-      height: 6rem;
-    }
+    gap: 1rem;
   }
   
-  .footer-links {
-    h3 {
-      font-family: "Pirata One", cursive;
-      font-size: 1.8rem;
-      margin-bottom: $spacing-md;
-      color: var(--red);
-    }
+  .footer-logo img:first-child {
+    height: 6rem;
+  }
+  
+  .footer-links h3 {
+    font-family: "Pirata One", cursive;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: var(--red);
   }
   
   .social-links {
     display: flex;
-    gap: $spacing-lg;
+    gap: 1.5rem;
     flex-wrap: wrap;
-    
-    .social-link {
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-      color: white;
-      text-decoration: none;
-      padding: 0.6rem 1.2rem;
-      border: 2px solid transparent;
-      border-radius: $border-radius;
-      transition: all $transition-speed ease;
-      background-color: var(--bg-card);
-      
-      &:hover {
-        background-color: var(--red);
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-      
-      .icon {
-        height: 20px;
-        width: 20px;
-        fill: currentColor;
-        filter: invert(100%);
-      }
-    }
+  }
+  
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    padding: 0.6rem 1.2rem;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    background-color: var(--bg-card);
+  }
+  
+  .social-link:hover {
+    background-color: var(--red);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .icon {
+    height: 20px;
+    width: 20px;
+    fill: currentColor;
+    filter: invert(100%);
   }
   
   .footer-info {
     text-align: center;
-    margin-top: $spacing-xl;
-    padding-top: $spacing-md;
+    margin-top: 2rem;
+    padding-top: 1rem;
     border-top: 1px solid #333;
-    max-width: $max-width;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-sm;
-    
-    .admin-link {
-      color: #666;
-      text-decoration: none;
-      font-size: 0.8rem;
-      transition: color $transition-speed;
-      padding: 0.25rem $spacing-sm;
-      
-      &:hover {
-        color: var(--orange);
-        text-decoration: underline;
-      }
-    }
+    gap: 0.5rem;
+  }
+  
+  .admin-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .admin-link:hover {
+    color: var(--orange);
+    text-decoration: underline;
   }
   
   @media (max-width: 768px) {
+
     .footer-content {
-      gap: $spacing-lg;
+      gap: 1.5rem;
     }
     
     .footer-links h3 {
@@ -152,7 +143,7 @@
     }
     
     .social-link {
-      padding: $spacing-sm $spacing-md;
+      padding: 0.5rem 1rem;
     }
   }
 </style>

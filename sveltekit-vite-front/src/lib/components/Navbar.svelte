@@ -57,18 +57,7 @@
   </div>
 </nav>
 
-<style lang="scss">
-  $nav-height: 3rem;
-  $shadow-default: 0 4px 10px rgba(0, 0, 0, 0.3);
-  $transition-speed: 0.3s;
-  $logo-height: 3rem;
-  $logo-height-small: 2.5rem;
-  $border-radius: 5px;
-  $spacing-sm: 0.5rem;
-  $spacing-md: 0.75rem;
-  $spacing-lg: 1rem;
-  $spacing-xl: 2rem;
-  
+<style>
   nav {
     position: fixed;
     top: 0;
@@ -76,13 +65,13 @@
     z-index: 1000;
     background-color: #111111;
     color: var(--white);
-    padding: $spacing-md $spacing-md;
-    box-shadow: $shadow-default;
-    transition: transform $transition-speed ease, background-color $transition-speed ease;
-    
-    &.hide {
-      transform: translateY(-100%);
-    }
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+
+  nav.hide {
+    transform: translateY(-100%);
   }
 
   .navbar-container {
@@ -97,24 +86,24 @@
     font-weight: bold;
     max-width: 200px;
     flex-shrink: 0;
-    
-    a {
-      display: flex;
-      align-items: center;
-    }
-    
-    img {
-      width: auto;
-      height: 2rem;
-      
-      &:first-child {
-        height: $logo-height;
-      }
-      
-      &:last-child {
-        height: 2rem;
-      }
-    }
+  }
+
+  .logo a {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo img:first-child {
+    height: 3rem;
+  }
+
+  .logo img:last-child {
+    height: 2rem;
+  }
+
+  .logo img {
+    width: auto;
+    height: 2rem;
   }
 
   .inv {
@@ -122,7 +111,7 @@
   }
 
   .bar {
-    padding: 0 $spacing-xl;
+    padding: 0 2rem;
     flex-grow: 1;
   }
 
@@ -132,34 +121,34 @@
     margin: 0;
     padding: 0;
     background-color: #111111;
-    
-    li {
-      position: relative;
-      margin: 0 $spacing-sm;
-      
-      a {
-        display: block;
-        color: white;
-        text-decoration: none;
-        padding: $spacing-md $spacing-md;
-        border-radius: $border-radius;
-        transition: all $transition-speed ease;
-        border: 2px solid transparent;
-        background-color: var();
-        
-        &:hover {
-          background-color: var(--red);
-          color: white;
-          transform: scale(1.1);
-        }
-      }
-      
-      &.active a {
-        background-color: var(--red);
-        font-weight: bold;
-        border: var(--dark-red) 2px solid;
-      }
-    }
+  }
+
+  .menu li {
+    position: relative;
+    margin: 0 0.5rem;
+  }
+
+  .menu li a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background-color: var();
+  }
+
+  .menu li a:hover {
+    background-color: var(--red);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  .menu li.active a {
+    background-color: var(--red);
+    font-weight: bold;
+    border: var(--dark-red) 2px solid;
   }
 
   .menu-toggle {
@@ -180,16 +169,14 @@
     .logo {
       max-width: auto;
       flex-shrink: 1;
-      
-      img {
-        &:first-child {
-          height: $logo-height-small;
-        }
-        
-        &:last-child {
-          height: 1.5rem;
-        }
-      }
+    }
+
+    .logo img:first-child {
+      height: 2.5rem;
+    }
+
+    .logo img:last-child {
+      height: 1.5rem;
     }
 
     .menu {
@@ -203,26 +190,26 @@
       align-items: center;
       max-height: 0;
       overflow: hidden;
-      transition: max-height $transition-speed ease;
-      box-shadow: $shadow-default;
-      
-      &.open {
-        max-height: 300px;
-        padding-top: $spacing-sm;
-        padding-bottom: $spacing-sm;
-      }
-      
-      li {
-        margin: $spacing-sm 0;
-        text-align: center;
-      }
+      transition: max-height 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .menu li {
+      margin: 0.5rem 0;
+      text-align: center;
+    }
+
+    .menu.open {
+      max-height: 300px;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
     }
 
     .menu-toggle {
       display: block;
       order: 2;
-      padding: $spacing-sm;
-      margin-left: $spacing-sm;
+      padding: 0.5rem;
+      margin-left: 0.5rem;
     }
   }
 </style>

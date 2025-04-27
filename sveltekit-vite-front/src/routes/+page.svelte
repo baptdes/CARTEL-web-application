@@ -24,7 +24,7 @@
     }
   ]);
   
-  const purgeDate = new Date(2023, 5, 30, 18, 0, 0);
+  const purgeDate = new Date(2025, 5, 30, 18, 0, 0);
   
   function handleCardClick(title) {
     console.log(`Clicked on ${title}`);
@@ -74,76 +74,81 @@
   </section>
 </main>
 
-<style lang="scss">
-  $hero-height: 102vh;
-  $content-max-width: 80vw;
-  $recommendation-padding: 3rem;
-  $color-accent: #d77d42;
-  $shadow-strong: 0 0 15px rgba(0, 0, 0, 0.7);
-
+<style>
   /* Hero section */
   .hero {
     background-image: url('/dragon_library.png');
     background-size: cover;
     background-position: center;
-    height: $hero-height;
+    height: 102vh; /* Full page height */
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
+  }
+  
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 80vw;
+  }
+  
+  .hero-content h1 {
+    font-family: "Pirata One", system-ui;
+    font-size: 6rem;
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.8);
+    color: #fff;
+    line-height: 1.2;
+  }
+  
+  .hero-content p {
+    font-size: 2.5rem;
+    font-weight: bold;
+    padding: 1rem;
+    max-width: 80%;
+    margin-top: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .hero-content h1 {
+      font-size: 3.5rem;
+    }
     
-    &-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
-      max-width: $content-max-width;
-      
-      h1 {
-        font-family: "Pirata One", system-ui;
-        font-size: 6rem;
-        margin-bottom: 1rem;
-        text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.8);
-        color: #fff;
-        line-height: 1.2;
-      }
-      
-      p {
-        font-size: 2.5rem;
-        font-weight: bold;
-        padding: 1rem;
-        max-width: 80%;
-        margin-top: 1rem;
-      }
+    .hero-content p {
+      max-width: 90%;
+      font-size: 2rem;
     }
   }
   
   /* Monthly Recommendations Section */
   .monthly-recommendations {
-    padding: $recommendation-padding 2rem;
+    padding: 3rem 2rem;
     background-image: url('ancient_paper_bg.webp');
     background-repeat: no-repeat;
     background-size: 101% 102%;
     background-position: 0.0;
     margin-top: -2rem;
     margin-bottom: -2rem;
+  }
 
-    .frame-container {
-      margin: 0 auto;
-      padding: 2.5rem;
-      position: relative;
-      max-width: $content-max-width;
-    }
-    
-    h2 {
-      text-align: center;
-      font-family: "Pirata One", system-ui;
-      font-size: 3rem;
-      color: #8b4513;
-      margin-bottom: 2rem;
-    }
+  .frame-container {
+    margin: 0 auto;
+    padding: 2.5rem;
+    position: relative;
+    max-width: 80vw;
+  }
+  
+  .monthly-recommendations h2 {
+    text-align: center;
+    font-family: "Pirata One", system-ui;
+    font-size: 3rem;
+    color: #8b4513;
+    margin-bottom: 2rem;
   }
   
   .recommendations-grid {
@@ -163,25 +168,25 @@
     text-align: center;
     position: relative;
     z-index: -2;
-    
-    .countdown-container {
-      position: relative;
-      z-index: 2;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: rgba(0, 0, 0, 0.7);
-      border: 3px solid var(--dark-red);
-      box-shadow: $shadow-strong;
-    }
-    
-    h2 {
-      font-family: "Pirata One", cursive;
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
-      color: var(--red);
-      text-shadow: 2px 2px 5px #000;
-    }
+  }
+  
+  .countdown-container {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid var(--dark-red);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  }
+  
+  .purge-countdown h2 {
+    font-family: "Pirata One", cursive;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--red);
+    text-shadow: 2px 2px 5px #000;
   }
   
   .subtitle {
@@ -191,17 +196,6 @@
   }
   
   @media (max-width: 768px) {
-    .hero-content {
-      h1 {
-        font-size: 3.5rem;
-      }
-      
-      p {
-        max-width: 90%;
-        font-size: 2rem;
-      }
-    }
-    
     .recommendations-grid {
       grid-template-columns: 1fr;
     }
@@ -210,7 +204,10 @@
       padding: 1.5rem;
     }
     
-    .monthly-recommendations h2, 
+    .monthly-recommendations h2 {
+      font-size: 2.5rem;
+    }
+    
     .purge-countdown h2 {
       font-size: 2.5rem;
     }

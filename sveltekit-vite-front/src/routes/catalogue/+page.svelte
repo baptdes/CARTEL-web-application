@@ -49,16 +49,10 @@
   {/if}
 </div>
 
-<style lang="scss">
-  $max-width: 1200px;
-  $spacing-standard: 2rem;
-  $card-min-width: 300px;
-  $border-radius: 8px;
-  $animation-speed: 1s;
-  
+<style>
   .books-catalogue {
-    max-width: $max-width;
-    margin: $spacing-standard auto;
+    max-width: 1200px;
+    margin: 2rem auto;
     padding: 0 1rem;
   }
   
@@ -67,32 +61,32 @@
     font-size: 3rem;
     color: var(--red);
     text-align: center;
-    margin-bottom: $spacing-standard;
+    margin-bottom: 2rem;
   }
   
   .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax($card-min-width, 1fr));
-    gap: $spacing-standard;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
   }
   
   .loading, .error-message, .no-books {
     text-align: center;
     margin: 3rem 0;
-    padding: $spacing-standard;
+    padding: 2rem;
     background-color: rgba(0, 0, 0, 0.2);
-    border-radius: $border-radius;
+    border-radius: 8px;
   }
   
   .loading-spinner {
     display: inline-block;
-    width: $spacing-standard;
-    height: $spacing-standard;
+    width: 2rem;
+    height: 2rem;
     margin-bottom: 1rem;
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     border-top-color: var(--red);
-    animation: spin $animation-speed linear infinite;
+    animation: spin 1s linear infinite;
   }
   
   @keyframes spin {
@@ -103,16 +97,16 @@
   
   .error-message {
     color: #ff6b6b;
-    
-    button {
-      margin-top: 1rem;
-      background-color: var(--red);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-    }
+  }
+  
+  .error-message button {
+    margin-top: 1rem;
+    background-color: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
   }
   
   @media (max-width: 768px) {

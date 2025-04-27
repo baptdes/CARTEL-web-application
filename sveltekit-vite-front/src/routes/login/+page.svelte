@@ -88,20 +88,13 @@
   </div>
 </div>
 
-<style lang="scss">
-  $spacing-sm: 0.5rem;
-  $spacing-md: 1rem;
-  $spacing-lg: 1.5rem;
-  $spacing-xl: 2rem;
-  $border-radius: 8px;
-  $animation-duration: 1s;
-  
+<style>
   .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 4rem);
-    padding: $spacing-xl;
+    padding: 2rem;
     background-image: url('/red_wallpaper.webp');
     background-size: cover;
     background-position: center;
@@ -111,8 +104,8 @@
     width: 100%;
     max-width: 450px;
     background-color: rgba(26, 26, 26, 0.95);
-    border-radius: $border-radius;
-    padding: $spacing-xl;
+    border-radius: 8px;
+    padding: 2rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     border: 2px solid var(--dark-red);
     position: relative;
@@ -120,12 +113,12 @@
   
   .login-header {
     text-align: center;
-    margin-bottom: $spacing-xl;
-    
-    .logo {
-      width: 80px;
-      margin-bottom: $spacing-md;
-    }
+    margin-bottom: 2rem;
+  }
+  
+  .logo {
+    width: 80px;
+    margin-bottom: 1rem;
   }
   
   h1 {
@@ -138,16 +131,16 @@
   .login-form {
     display: flex;
     flex-direction: column;
-    gap: $spacing-lg;
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
+    gap: 1.5rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
   }
   
   label {
-    margin-bottom: $spacing-sm;
+    margin-bottom: 0.5rem;
     color: var(--white);
     font-weight: bold;
   }
@@ -156,37 +149,37 @@
     position: relative;
     display: flex;
     align-items: center;
-    
-    input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 2px solid #444;
-      background-color: #222;
-      color: white;
-      border-radius: 4px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-      
-      &:focus {
-        outline: none;
-        border-color: var(--orange);
-      }
-    }
-    
-    .toggle-password {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      color: #888;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0;
-      
-      &:hover {
-        color: var(--white);
-      }
-    }
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #444;
+    background-color: #222;
+    color: white;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: var(--orange);
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+  }
+  
+  .toggle-password:hover {
+    color: var(--white);
   }
   
   .error-message {
@@ -212,28 +205,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    &:hover {
-      background-color: var(--dark-red);
-      transform: translateY(-2px);
-    }
-    
-    &:disabled {
-      background-color: #555;
-      cursor: not-allowed;
-      transform: none;
-    }
+  }
+  
+  .login-button:hover {
+    background-color: var(--dark-red);
+    transform: translateY(-2px);
+  }
+  
+  .login-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
   }
   
   .loading-spinner {
     display: inline-block;
     width: 1rem;
     height: 1rem;
-    margin-right: $spacing-sm;
+    margin-right: 0.5rem;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     border-top-color: white;
-    animation: spin $animation-duration linear infinite;
+    animation: spin 1s linear infinite;
   }
   
   @keyframes spin {
@@ -243,23 +236,23 @@
   }
   
   .login-footer {
-    margin-top: $spacing-lg;
+    margin-top: 1.5rem;
     text-align: center;
-    
-    a {
-      color: var(--orange);
-      text-decoration: none;
-      font-size: 0.9rem;
-      
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+  }
+  
+  .login-footer a {
+    color: var(--orange);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .login-footer a:hover {
+    text-decoration: underline;
   }
   
   @media (max-width: 480px) {
     .login-card {
-      padding: $spacing-lg;
+      padding: 1.5rem;
     }
     
     h1 {

@@ -63,14 +63,7 @@
   </div>
 </button>
 
-<style lang="scss">
-  $border-radius: 8px;
-  $transition-duration: 0.3s;
-  $shadow-default: 0 5px 15px rgba(0, 0, 0, 0.35);
-  $shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.5);
-  $card-corner-size: 35px;
-  $icon-corner-size: 24px;
-  
+<style>
   /* Reset button styles */
   .card-medieval {
     all: unset;
@@ -79,26 +72,22 @@
     perspective: 1000px;
     margin-bottom: 2rem;
     cursor: pointer;
-    transition: transform $transition-duration ease;
-    
-    &:hover {
-      transform: translateY(-8px) scale(1.02);
-      
-      .card-image {
-        transform: scale(1.1);
-      }
-    }
+    transition: transform 0.3s ease;
+  }
+  
+  .card-medieval:hover {
+    transform: translateY(-8px) scale(1.02);
   }
   
   /* Frame styling */
   .card-frame {
     width: 100%;
     height: 100%;
-    border-radius: $border-radius;
+    border-radius: 8px;
     padding: 8px;
     background-color: var(--frame-color);
     box-shadow: 
-      $shadow-default,
+      0 5px 15px rgba(0, 0, 0, 0.35),
       0 0 0 1px rgba(139, 69, 19, 0.5),
       inset 0 0 8px 2px rgba(255, 255, 255, 0.15);
     position: relative;
@@ -123,13 +112,18 @@
     overflow: hidden;
     border-bottom: 4px solid var(--frame-color);
     position: relative;
-    
-    .card-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
+  }
+
+  /* Image styling */
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .card-medieval:hover .card-image {
+    transform: scale(1.1);
   }
 
   /* Text content */
@@ -138,24 +132,16 @@
     flex: 1;
     position: relative;
     z-index: 2;
-    
-    /* Title styling */
-    .card-title {
-      font-family: 'Pirata One', serif;
-      color: #4a230c;
-      font-size: 1.5rem;
-      margin: 0 0 0.5rem;
-      text-align: center;
-      text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-    }
-    
-    /* Description text */
-    .card-description {
-      font-size: 0.95rem;
-      color: #4d320e;
-      line-height: 1.4;
-      text-align: center;
-    }
+  }
+
+  /* Title styling */
+  .card-title {
+    font-family: 'Pirata One', serif;
+    color: #4a230c;
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    text-align: center;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
   }
 
   /* Rating stars */
@@ -163,74 +149,82 @@
     display: flex;
     justify-content: center;
     margin-bottom: 0.8rem;
-    
-    .star {
-      font-size: 1.2rem;
-      margin: 0 2px;
-      
-      &.full, &.half {
-        color: #d77d42;
-      }
-      
-      &.empty {
-        color: #cca483;
-      }
-    }
+  }
+
+  .star {
+    font-size: 1.2rem;
+    margin: 0 2px;
+  }
+
+  .star.full, .star.half {
+    color: #d77d42;
+  }
+
+  .star.empty {
+    color: #cca483;
+  }
+
+  /* Description text */
+  .card-description {
+    font-size: 0.95rem;
+    color: #4d320e;
+    line-height: 1.4;
+    text-align: center;
   }
 
   /* Decorative corners */
   .corner {
     position: absolute;
-    width: $card-corner-size;
-    height: $card-corner-size;
+    width: 35px;
+    height: 35px;
     z-index: 3;
-    
-    &.top-left {
-      top: 0;
-      left: 0;
-      background-color: var(--frame-color);
-      border-bottom-right-radius: 100%;
-    }
-    
-    &.top-right {
-      top: 0;
-      right: 0;
-      border-bottom-left-radius: 100%;
-      background-color: var(--frame-color);
-    }
-    
-    &.bottom-left {
-      bottom: 0;
-      left: 0;
-      border-top-right-radius: 100%;
-      background-color: var(--frame-color);
-    }
-    
-    &.bottom-right {
-      bottom: 0;
-      right: 0;
-      border-top-left-radius: 100%;
-      background-color: var(--frame-color);
-    }
   }
 
   /* Corner icon styling */
   .icon-corner {
-    width: $icon-corner-size;
-    height: $icon-corner-size;
+    width: 24px;
+    height: 24px;
     position: absolute;
     z-index: 4;
     filter: invert(100%);
-    
-    &.icon-top-right {
-      top: 0;
-      right: 0;
-    }
-    
-    &.icon-bottom-left {
-      bottom: 0;
-      left: 0;
-    }
+  }
+
+  .icon-top-right {
+    top: 0;
+    right: 0;
+  }
+
+  .icon-bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+
+  .top-left {
+    top: 0;
+    left: 0;
+    background-color: var(--frame-color);
+    border-bottom-right-radius: 100%;
+  }
+
+  .top-right {
+    top: 0;
+    right: 0;
+    border-bottom-left-radius: 100%;
+    background-color: var(--frame-color);
+  }
+
+  .bottom-left {
+    bottom: 0;
+    left: 0;
+    border-top-right-radius: 100%;
+    background-color: var(--frame-color);
+  }
+
+  .bottom-right {
+    bottom: 0;
+    right: 0;
+    border-top-left-radius: 100%;
+    background-color: var(--frame-color);
   }
 
   /* Responsive adjustments */
