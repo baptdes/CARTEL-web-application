@@ -1,4 +1,7 @@
 :root {
+  /* We use CSS variables to define our color palette */
+  /* As SCSS variables are not transfered to the others pages*/
+  
   /* Colors */
   --dark-red: #810407;
   --red: #BC2C2C;
