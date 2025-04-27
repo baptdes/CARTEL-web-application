@@ -44,7 +44,6 @@
   @use 'sass:color';
   @use 'sass:math';
 
-  // Variables - Sass feature
   $primary-color: #ff3e00;
   $secondary-color: #ffd900;
   $background-dark: #242424;
@@ -52,7 +51,6 @@
   $spacing-base: 1rem;
   $transition-speed: 0.6s;
   
-  // Mixins - Sass feature
   @mixin card-style {
     background-color: rgba(color.adjust($background-dark, $lightness: -5%), 0.7);
     border-left: 4px solid $primary-color;
@@ -75,7 +73,6 @@
     transition: opacity $transition-speed ease-in-out;
     color: $text-color;
     
-    // Nested selectors - Sass feature
     &.fade-in {
       opacity: 1;
     }
@@ -86,8 +83,7 @@
     margin-bottom: $spacing-base;
     color: $primary-color;
     text-align: center;
-    
-    // Pseudo-element with Sass nesting
+
     &::after {
       content: "";
       display: block;
@@ -113,7 +109,6 @@
     }
   }
 
-  // Using the mixin
   .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -145,13 +140,11 @@
     text-decoration: none;
     transition: background-color 0.3s;
     
-    // Nested hover state - Sass feature
     &:hover {
       background-color: color.adjust($primary-color, $lightness: -10%);
     }
   }
-  
-  // Media query with Sass
+
   @media (max-width: 768px) {
     .features {
       grid-template-columns: 1fr;
