@@ -32,7 +32,7 @@ start-backend:
 	@echo "|||||||||||||||||| Starting Backend... |||||||||||||||||| \n"
 	@echo "To access H2 Console (SQL Console) once Spring Boot is running:"
 	@echo "1. Open your browser and go to http://localhost:8080/h2-console"
-	@echo "2. JDBC URL: jdbc:h2:mem:testdb (or check application properties)"
+	@echo "2. JDBC URL: jdbc:hsqldb:mem:carteldb"
 	@echo "3. Username: sa (default)"
 	@echo "4. Password: (leave empty by default)"
 	@echo "\n |||||||||||||||||| Running Backend... ||||||||||||||||||"
