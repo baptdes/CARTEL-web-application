@@ -43,6 +43,8 @@
         <CardArticle
           title={book.title}
           iconType="/icons/books.svg"
+          imageSrc={book.coverImage}
+          description={book.description}
         />
       {/each}
     </div>
