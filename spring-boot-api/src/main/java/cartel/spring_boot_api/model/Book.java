@@ -15,6 +15,8 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String isbn;
     
     @Column(nullable = false)
     private String title;
@@ -52,6 +54,14 @@ public class Book {
     }
     
     // Getters and setters
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
     public Long getId() {
         return id;
     }
