@@ -40,20 +40,7 @@
     margin: 0 auto;
   }
   
-  .admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--dark-red);
-  }
-  
-  h1 {
-    font-family: "Pirata One", cursive;
-    color: var(--red);
-    margin: 0;
-  }
+
   
   h2 {
     font-family: "Pirata One", cursive;
@@ -61,20 +48,8 @@
     margin-bottom: 1.5rem;
   }
   
-  .logout-button {
-    background-color: var(--dark-red);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
   
-  .logout-button:hover {
-    background-color: var(--red);
-  }
+
   
   .return-button {
     background-color: var(--orange);
