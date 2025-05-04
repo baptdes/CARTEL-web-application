@@ -1,4 +1,5 @@
 <script>
+    import { goto } from '$app/navigation';
   import { adminPageState } from './store.js';
 </script>
 
@@ -7,12 +8,12 @@
     <div class="ext">
       <div class="minbox">
         <div class="Catalogue bouton">
-          <button class="Thebouton" type="button" onclick={()=>$adminPageState=1}><center>Catalogue</center></button>
+          <button class="Thebouton" type="button" onclick={()=>goto('/admin/catalogue')}><center>Catalogue</center></button>
         </div>
       </div>
       <div class="minbox">
         <div class="Course bouton">
-          <button class="Thebouton" type="button" onclick={()=>$adminPageState=2}>Purger Course </button>
+          <button class="Thebouton" type="button" onclick={()=>goto('/admin/purge_course')}>Purger Course </button>
         </div>
       </div>
     </div>
@@ -20,12 +21,12 @@
     <div class="ext">
       <div class="minbox">
         <div class="Tresorerie bouton">
-          <button class="Thebouton" type="button" onclick={()=>$adminPageState=3}>Trésorerie</button>
+          <button class="Thebouton" type="button" onclick={()=>goto('/admin/tresorerie')}>Trésorerie</button>
         </div>
       </div>
       <div class="minbox">
         <div class="Empruntpret bouton">
-          <button class="Thebouton" type="button" onclick={()=>$adminPageState=4}>Emprunt/prêt </button>
+          <button class="Thebouton" type="button" onclick={()=>goto('/admin/emprunt_pret')}>Emprunt/prêt </button>
         </div>
       </div>
     </div>
@@ -33,29 +34,17 @@
 </main>
 
 <style>
-    .Catalogue{
-        background: white;
-        height:10em;
-        width:40em;
-    }
-
-    .Course{
-      background: white;
-      height:10em;
-      width:40em;
-    }
-
-    .Tresorerie{
-      background: white;
-      height:10em;
-      width:40em;
-    }
-
-    .Empruntpret{
-      background: white;
-      height:10em;
-      width:40em;
-    }
+  .Catalogue,
+  .Course,
+  .Tresorerie,
+  .Empruntpret {
+    background: white;
+    height: 10em;
+    width: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+  }
 
     .bouton{
       border-radius: 0.5em;
@@ -66,10 +55,17 @@
     .Thebouton{
       background: rgba(255,255,255,0);
       color :red;
-      font-size: 2em;
-      height:10em;
-      width:40em;
-    }
+      height: 100%; 
+      width: 100%; 
+      border: none; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer;
+      font-size:1.5rem;
+      font-weight: bold;
+      font-family: "Pirata One", cursive;
+  }
 
     .minbox{
       padding: 1em;
@@ -79,9 +75,11 @@
       padding: 0em;
     }
     
-    .boxes{
-      padding: 0em;
-      display: flex;
-    }
+    .boxes {
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 1em; 
+      padding: 0;
+  }
  
 </style>

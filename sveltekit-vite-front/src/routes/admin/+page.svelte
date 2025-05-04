@@ -4,27 +4,13 @@
   import { adminPageState } from './store.js';
   import { isAuthenticated, logout } from '$lib/auth';
   
-  let authenticated = $state(false);
+
   
-  $effect(() => {
-    authenticated = $isAuthenticated;
-    if (!authenticated) {
-      goto('/login');
-    }
-  });
-  
-  function handleLogout() {
-    logout();
-    goto('/login');
-  }
+
 </script>
 
-{#if authenticated}
+
   <main>
-    <div class="admin-header">
-      <h1>Panel d'administration</h1>
-      <button class="logout-button" onclick={handleLogout}>Déconnexion</button>
-    </div>
     
     {#if $adminPageState === 0}
       <Admin/>
@@ -45,7 +31,7 @@
       <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {/if}
   </main>
-{/if}
+
 
 <style>
   main {
