@@ -2,27 +2,13 @@
   let { 
     title = '',
     imageSrc = 'hagitest.jpeg',
-    rating = null,
-    description = "La description s'est perdue dans les méandres du temps.",
+    rating = null, // Keep for backward compatibility but won't use
+    description = null, // Will now use this parameter
     altText = title,
     onClick = () => {}, // Default empty function
     iconType = '/icons/books.svg', // Default icon for articles
     frameColor = 'var(--dark-orange)' // Default frame color
   } = $props();
-
-  function getStars(rating) {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-    
-    return {
-      full: Array(fullStars).fill('★'),
-      half: halfStar ? ['★'] : [],
-      empty: Array(emptyStars).fill('☆')
-    };
-  }
-
-  const stars = $derived(getStars(rating));
 </script>
 
 <button class="card-medieval" onclick={onClick} type="button" aria-label="Card">
@@ -34,22 +20,9 @@
       
       <div class="card-content">
         <h3 class="card-title">{title}</h3>
-        
-        {#if rating !== null}
-          <div class="rating">
-            {#each stars.full as _}
-              <span class="star full">★</span>
-            {/each}
-            {#each stars.half as _}
-              <span class="star half">★</span>
-            {/each}
-            {#each stars.empty as _}
-              <span class="star empty">☆</span>
-            {/each}
-          </div>
+        {#if description}
+          <p class="card-description">{description}</p>
         {/if}
-        
-        <p class="card-description">{description}</p>
       </div>
       
       <!-- Decorative elements with icons -->
@@ -91,6 +64,7 @@
       0 0 0 1px rgba(139, 69, 19, 0.5),
       inset 0 0 8px 2px rgba(255, 255, 255, 0.15);
     position: relative;
+    display: flex;
   }
 
   /* Inner card content */
@@ -108,7 +82,7 @@
   /* Image container */
   .card-image-container {
     width: 100%;
-    height: 200px;
+    max-height: 30vh;
     overflow: hidden;
     border-bottom: 4px solid var(--frame-color);
     position: relative;
@@ -118,7 +92,8 @@
   .card-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Changed to cover to fill the container */
+    object-position: center; /* Center the image */
     transition: transform 0.5s ease;
   }
 
@@ -144,32 +119,20 @@
     text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
   }
 
-  /* Rating stars */
-  .rating {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.8rem;
-  }
-
-  .star {
-    font-size: 1.2rem;
-    margin: 0 2px;
-  }
-
-  .star.full, .star.half {
-    color: #d77d42;
-  }
-
-  .star.empty {
-    color: #cca483;
-  }
-
-  /* Description text */
+  /* Description styling */
   .card-description {
-    font-size: 0.95rem;
-    color: #4d320e;
-    line-height: 1.4;
+    color: #4a230c;
+    font-size: 0.9rem;
+    line-height: 1.3;
     text-align: center;
+    max-height: 8rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    margin-top: 0.5rem;
+    font-style: italic;
   }
 
   /* Decorative corners */
@@ -234,11 +197,9 @@
     }
     
     .card-description {
-      font-size: 0.9rem;
-    }
-    
-    .card-image-container {
-      height: 180px;
+      font-size: 0.85rem;
+      -webkit-line-clamp: 4;
+      max-height: 6rem;
     }
   }
 </style>
