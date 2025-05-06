@@ -24,6 +24,7 @@ public class AdminBookController {
         Book savedBook = bookRepository.save(book);
         return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
+    
     /*
     // Update a book
     @PutMapping("/{id}")

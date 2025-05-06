@@ -56,6 +56,24 @@ public class DataInitializer {
             publisherBookRepository.save(publisher1);
             serieRepository.save(ser1);
             bookRepository.save(book1);
+
+            AuthorBook author2 = new AuthorBook("J.R.R", "Tolkien");
+            Collection<AuthorBook> collauthor2 = new ArrayList<AuthorBook>();
+            collauthor2.add(author2);
+            PublisherBook publisher2 = new PublisherBook("bayard");
+            Illustrator ill2 = new Illustrator("truc", "bidule");
+            Collection<Illustrator> collIll2 = new ArrayList<Illustrator>();
+            collIll2.add(ill2);     
+            Serie ser2 = new Serie("j'aime manger");       
+            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA);
+            book2.setIllustrator(collIll2);
+            book2.setSerie(ser2);
+            
+            authorBookRepository.save(author2);
+            illustratorRepository.save(ill2);
+            publisherBookRepository.save(publisher2);
+            serieRepository.save(ser2);
+            bookRepository.save(book2);
         };
     }
 }

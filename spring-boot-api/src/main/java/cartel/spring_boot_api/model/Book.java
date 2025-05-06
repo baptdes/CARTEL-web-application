@@ -12,6 +12,8 @@ import java.util.Collection;
 
 import org.springframework.security.core.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "books")
 public class Book {
@@ -31,15 +33,18 @@ public class Book {
    
     //auteurs du livre
     @Column(nullable = false)
+    @JsonIgnore
     @ManyToMany
     private Collection<AuthorBook> author;
 
     //éditeur du livre
     @JoinColumn(nullable = false)
+    @JsonIgnore
     @ManyToOne
     private PublisherBook publisher;
 
     //illustrateur du livre
+    @JsonIgnore
     @ManyToMany
     private Collection<Illustrator> illustrator;
     
@@ -62,6 +67,7 @@ public class Book {
     private Integer tome;
 
     //serie
+    @JsonIgnore
     @ManyToOne
     private Serie serie;
 

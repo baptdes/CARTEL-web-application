@@ -13,12 +13,14 @@ import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +50,7 @@ public class PublicBookController {
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
+    
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable String id) {
@@ -56,30 +59,67 @@ public class PublicBookController {
                   .orElse(ResponseEntity.notFound().build());
     }
 
+    // Update a book
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
+        return bookRepository.findById(id)
+                .map(existingBook -> {
+                    existingBook.setTitle(bookDetails.getTitle());
+                    existingBook.setAuthor(bookDetails.getAuthor());
+                    existingBook.setDescription(bookDetails.getDescription());
+                    existingBook.setCoverImage(bookDetails.getCoverImage());
+                    existingBook.setPublicationYear(bookDetails.getPublicationYear());
+                    existingBook.setFormat(bookDetails.getFormat());
+                    existingBook.setSerie(bookDetails.getSerie());
+                    existingBook.setTome(bookDetails.getTome());
+                    existingBook.setIllustrator(bookDetails.getIllustrator());
+                    existingBook.setPublisher(bookDetails.getPublisher());
+                    existingBook.setUpdatedAt(LocalDateTime.now());
+                    
+                    return ResponseEntity.ok(bookRepository.save(existingBook));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Delete a book
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable String id) {
+        return bookRepository.findById(id)
+                .map(book -> {
+                    bookRepository.delete(book);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/search")
     public List<Book> searchBooks(
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) AuthorBook author,
-        @RequestParam(required = false) FormatBook category,
-        @RequestParam(required = false) Illustrator illustrator,
-        @RequestParam(required = false) PublisherBook publisher,
-        @RequestParam(required = false) Serie serie
-    ) {
-        if (title != null && !title.isEmpty()) {
-            return bookRepository.findByTitleContainingIgnoreCase(title);
-        } else if (author != null) {
-            return bookRepository.findByAuthor(author);
-        } else if (category != null) {
-            return bookRepository.findByFormat(category);
-        } else if (illustrator != null) {
-            return bookRepository.findByIllustrator(illustrator);
-        }else if (publisher != null) {
-            return bookRepository.findByPublisher(publisher);
-        }else if (serie != null) {
-            return bookRepository.findBySerie(serie);
-        }
-        return bookRepository.findAll();
+    @RequestParam(required = false) String title,
+    @RequestParam(required = false) Long authorId,
+    @RequestParam(required = false) FormatBook category,
+    @RequestParam(required = false) Long illustratorId,
+    @RequestParam(required = false) Long publisherId,
+    @RequestParam(required = false) Long serieId
+) {
+    if (title != null && !title.isEmpty()) {
+        return bookRepository.findByTitleContainingIgnoreCase(title);
+    } else if (authorId != null) {
+        Optional<AuthorBook> author = authorBookRepository.findById(authorId);
+        return author.map(bookRepository::findByAuthor).orElse(List.of());
+    } else if (category != null) {
+        return bookRepository.findByFormat(category);
+    } else if (illustratorId != null) {
+        Optional<Illustrator> illustrator = illustratorRepository.findById(illustratorId);
+        return illustrator.map(bookRepository::findByIllustrator).orElse(List.of());
+    } else if (publisherId != null) {
+        Optional<PublisherBook> publisher = publisherBookRepository.findById(publisherId);
+        return publisher.map(bookRepository::findByPublisher).orElse(List.of());
+    } else if (serieId != null) {
+        Optional<Serie> serie = serieRepository.findById(serieId);
+        return serie.map(bookRepository::findBySerie).orElse(List.of());
     }
+    return bookRepository.findAll();
+}
     
     @PostMapping("/import/isbn/{isbn}")
     public ResponseEntity<?> addBookByIsbn(@PathVariable String isbn) {
