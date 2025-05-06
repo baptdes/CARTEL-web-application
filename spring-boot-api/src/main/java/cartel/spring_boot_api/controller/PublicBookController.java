@@ -65,6 +65,7 @@ public class PublicBookController {
     }
 
     // Update a book
+    //debut api
     @PutMapping("/update/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
         return bookRepository.findById(id)
