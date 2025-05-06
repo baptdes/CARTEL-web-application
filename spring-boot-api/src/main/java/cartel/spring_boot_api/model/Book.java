@@ -22,6 +22,10 @@ public class Book {
     @Transient
     public enum FormatBook {MANGA,BD,LIVRE}; 
 
+    //énumération des différents langues d'un livre
+    @Transient
+    public enum Langues {FR,EN,JA}; 
+
     //liste des attributs
     //identifiant
     @Id
@@ -66,6 +70,10 @@ public class Book {
     //volume
     private Integer tome;
 
+    //langue
+    @Column(nullable = false)
+    private Langues langue;
+
     //serie
     @JsonIgnore
     @ManyToOne
@@ -85,13 +93,14 @@ public class Book {
     
     // Constructor with required fields
     public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
-    FormatBook format) {
+    FormatBook format,Langues lang) {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
         this.publisher = publisher;
         this.publicationYear = publicationYear;
         this.format = format;
+        this.langue = lang;
         this.createdAt = LocalDateTime.now(); 
 }
 
@@ -203,5 +212,13 @@ public class Book {
 
     public void setSerie(Serie serie) {
         this.serie = serie;
+    }
+
+    public Langues getLangue() {
+        return langue;
+    }
+
+    public void setLangue(Langues langue) {
+        this.langue = langue;
     }
 }

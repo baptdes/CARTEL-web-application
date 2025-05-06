@@ -2,14 +2,23 @@ package cartel.spring_boot_api.config;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Creator;
+import cartel.spring_boot_api.model.Extension;
 import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.JDS;
 import cartel.spring_boot_api.model.PublisherBook;
+import cartel.spring_boot_api.model.PublisherJDS;
 import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Book.FormatBook;
+import cartel.spring_boot_api.model.Book.Langues;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
+import cartel.spring_boot_api.repository.CreatorRepository;
+import cartel.spring_boot_api.repository.ExtensionRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
+import cartel.spring_boot_api.repository.JDSRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
+import cartel.spring_boot_api.repository.PublisherJDSRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
 
 import java.util.ArrayList;
@@ -34,6 +43,14 @@ public class DataInitializer {
     private PublisherBookRepository publisherBookRepository;
     @Autowired
     private SerieRepository serieRepository;
+    @Autowired
+    private JDSRepository jdsRepository;
+    @Autowired
+    private CreatorRepository creatorRepository;
+    @Autowired
+    private ExtensionRepository extensionRepository;
+    @Autowired
+    private PublisherJDSRepository publisherjdsRepository;
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -47,7 +64,7 @@ public class DataInitializer {
             Collection<Illustrator> collIll1 = new ArrayList<Illustrator>();
             collIll1.add(ill1);     
             Serie ser1 = new Serie("j'aime manger");       
-            Book book1 = new Book("9766786786786","c'est parti les amis",collauthor1,publisher1,2015,FormatBook.MANGA);
+            Book book1 = new Book("9766786786786","c'est parti les amis",collauthor1,publisher1,2015,FormatBook.MANGA,Langues.FR);
             book1.setIllustrator(collIll1);
             book1.setSerie(ser1);
             
@@ -65,7 +82,7 @@ public class DataInitializer {
             Collection<Illustrator> collIll2 = new ArrayList<Illustrator>();
             collIll2.add(ill2);     
             Serie ser2 = new Serie("j'aime manger");       
-            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA);
+            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA,Langues.FR);
             book2.setIllustrator(collIll2);
             book2.setSerie(ser2);
             
@@ -74,6 +91,19 @@ public class DataInitializer {
             publisherBookRepository.save(publisher2);
             serieRepository.save(ser2);
             bookRepository.save(book2);
+
+            Creator creator1 = new Creator("Jen", "pi");
+            Collection<Creator> creatorl1 = new ArrayList<Creator>();
+            creatorl1.add(creator1);
+            PublisherJDS publisherj1 = new PublisherJDS("bayard2");
+            JDS jds1 =new JDS("4565456456", "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN);
+            creatorRepository.save(creator1);
+            publisherjdsRepository.save(publisherj1);
+            jdsRepository.save(jds1);
+
+            Extension jds2 = new Extension("4565456458", "Heroes : outside",creatorl1, publisherj1,
+            1110, Langues.EN,jds1);
+            extensionRepository.save(jds2);
         };
     }
 }
