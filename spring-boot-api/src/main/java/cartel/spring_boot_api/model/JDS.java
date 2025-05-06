@@ -1,14 +1,11 @@
 package cartel.spring_boot_api.model;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import cartel.spring_boot_api.model.Book.Langues;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -18,22 +15,22 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jeu")
-@PrimaryKeyJoinColumn( name = "idobject" )
+@PrimaryKeyJoinColumn( name = "barcode" )
 public class JDS extends Item{
 
     //liste des attributs
 
     //temps de jeu moyen
     @Column(nullable = false)
-    private String tempsdejeumoy;
+    private String avgplaytime;
 
     //nombre minimum de joueur
     @Column(nullable = false)
-    private int nbrejrmin;
+    private int nbrplmin;
 
     //nombre maximum de joueur
     @Column(nullable = false)
-    private int nbrejrmax;
+    private int nbrplmax;
     
     //nom du jeu
     @Column(nullable = false)
@@ -50,77 +47,49 @@ public class JDS extends Item{
     @JsonIgnore
     @ManyToOne
     private PublisherJDS publisher;
-    
-    //description petit resumé
-    @Column(length = 2000)
-    private String description;
-    
-    //image de couverture
-    private String coverImage;
-    
-    //année de publication
-    @Column(nullable = false)
-    private Integer publicationYear;
 
-    //langue
-    @Column(nullable = false)
-    private Langues langue;
 
     //extensions
-    @OneToMany(mappedBy ="jeu")
+    @OneToMany(mappedBy ="game")
     private Collection<Extension> extensions;
-
-
-    //date de création de l'entité
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-    
-    //date de dérniére modification de l'entité
-    private LocalDateTime updatedAt;
 
     public JDS() {
     }
 
-    public JDS(String tempsdejeumoy, int nbrejrmin, int nbrejrmax, String name,
-    Collection<Creator> creator, PublisherJDS publisher, Integer publicationYear, Langues langue) {
-        this.tempsdejeumoy = tempsdejeumoy;
-        this.nbrejrmin = nbrejrmin;
-        this.nbrejrmax = nbrejrmax;
-        this.name = name;
+    public JDS(String avgplaytime, int nbrplmin, int nbrplmax, String name,
+    Collection<Creator> creator, PublisherJDS publisher, Integer publicationYear, Langues langue,String barcode) {
+        super(barcode,name,publicationYear,langue);
+        this.avgplaytime = avgplaytime;
+        this.nbrplmin = nbrplmin;
+        this.nbrplmax = nbrplmax;
         this.creator = creator;
         this.publisher = publisher;
-        this.publicationYear = publicationYear;
-        this.langue = langue;
-        this.createdAt = LocalDateTime.now();
     }
 
-    // Pre-update method
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+
+
+    public String getAvgplaytime() {
+        return avgplaytime;
     }
 
-    public String getTempsdejeumoy() {
-        return tempsdejeumoy;
+    public void setAvgplaytime(String avgplaytime) {
+        this.avgplaytime = avgplaytime;
     }
 
-    public void setTempsdejeumoy(String tempsdejeumoy) {
-        this.tempsdejeumoy = tempsdejeumoy;
+    public int getNbrplmin() {
+        return nbrplmin;
     }
 
-    public int getNbrejrmin() {
-        return nbrejrmin;
+    public void setNbrplmin(int nbrplmin) {
+        this.nbrplmin = nbrplmin;
     }
 
-    public void setNbrejrmin(int nbrejrmin) {
-        this.nbrejrmin = nbrejrmin;
+    public int getNbrplmax() {
+        return nbrplmax;
     }
 
-    public int getNbrejrmax() {
-        return nbrejrmax;
-    }
-
-    public void setNbrejrmax(int nbrejrmax) {
-        this.nbrejrmax = nbrejrmax;
+    public void setNbrplmax(int nbrplmax) {
+        this.nbrplmax = nbrplmax;
     }
 
     public String getName() {
@@ -147,60 +116,12 @@ public class JDS extends Item{
         this.publisher = publisher;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCoverImage() {
-        return coverImage;
-    }
-
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
-    }
-
-    public Integer getPublicationYear() {
-        return publicationYear;
-    }
-
-    public void setPublicationYear(Integer publicationYear) {
-        this.publicationYear = publicationYear;
-    }
-
-    public Langues getLangue() {
-        return langue;
-    }
-
-    public void setLangue(Langues langue) {
-        this.langue = langue;
-    }
-
     public Collection<Extension> getExtensions() {
         return extensions;
     }
 
     public void setExtensions(Collection<Extension> extensions) {
         this.extensions = extensions;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
 }

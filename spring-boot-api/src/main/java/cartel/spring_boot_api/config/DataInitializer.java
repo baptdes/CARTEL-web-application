@@ -14,7 +14,7 @@ import cartel.spring_boot_api.model.PublisherJDS;
 import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Exchange;
 import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Book.Langues;
+import cartel.spring_boot_api.model.Item.Langues;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.CartelPersonRepository;
@@ -113,17 +113,17 @@ public class DataInitializer {
             Collection<Creator> creatorl1 = new ArrayList<Creator>();
             creatorl1.add(creator1);
             PublisherJDS publisherj1 = new PublisherJDS("bayard2");
-            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN);
+            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN,"9999999999999");
             creatorRepository.save(creator1);
             publisherjdsRepository.save(publisherj1);
             itemRepository.save(jds1);
 
             Extension jds2 = new Extension( "Heroes : outside",creatorl1, publisherj1,
-            1110, Langues.EN,jds1);
+            1110, Langues.EN,jds1,"999999999999");
             itemRepository.save(jds2);
 
             ItemCopy copyj1 = new ItemCopy(jds1);
-            itemRepository.save(copyj1);
+            itemCopyRepository.save(copyj1);
 
             CartelPerson jean = new CartelPerson("jean", "pierre","jp@gmail.com");
             jean.setCaution(50);

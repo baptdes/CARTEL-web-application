@@ -69,7 +69,7 @@ public class PublicBookController {
     public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
         return bookRepository.findById(id)
                 .map(existingBook -> {
-                    existingBook.setTitle(bookDetails.getTitle());
+                    existingBook.setName(bookDetails.getName());
                     existingBook.setAuthor(bookDetails.getAuthor());
                     existingBook.setDescription(bookDetails.getDescription());
                     existingBook.setCoverImage(bookDetails.getCoverImage());
@@ -108,7 +108,7 @@ public class PublicBookController {
     @RequestParam(required = false) Long serieId
 ) {
     if (title != null && !title.isEmpty()) {
-        return bookRepository.findByTitleContainingIgnoreCase(title);
+        return bookRepository.findByNameContainingIgnoreCase(title);
     } else if (authorFirstName != null) {
         List<Book> authorL = new ArrayList<Book>();
         List<AuthorBook> authorF = authorBookRepository.findByFirstnameContainingIgnoreCase(authorFirstName);
@@ -195,7 +195,7 @@ public class PublicBookController {
             
             // Create a new book object
             Book book = new Book();
-            book.setIsbn(isbn);
+            //book.setBarcode(isbn);
             
             // Extract Dublin Core elements
             NodeList dcElements = document.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "*");
@@ -272,7 +272,7 @@ public class PublicBookController {
             }
             
             // Set the extracted values to the book object
-            book.setTitle(title);
+            book.setName(title);
             //book.setAuthor(author);
             book.setDescription(description);
             book.setPublicationYear(publicationYear);
