@@ -2,11 +2,13 @@ package cartel.spring_boot_api.config;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.CartelPerson;
 import cartel.spring_boot_api.model.Creator;
 import cartel.spring_boot_api.model.Extension;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.model.JDS;
+import cartel.spring_boot_api.model.Loan;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.PublisherJDS;
 import cartel.spring_boot_api.model.Serie;
@@ -14,12 +16,14 @@ import cartel.spring_boot_api.model.Book.FormatBook;
 import cartel.spring_boot_api.model.Book.Langues;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
+import cartel.spring_boot_api.repository.CartelPersonRepository;
 import cartel.spring_boot_api.repository.CreatorRepository;
 import cartel.spring_boot_api.repository.ExtensionRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
 import cartel.spring_boot_api.repository.ItemCopyRepository;
 import cartel.spring_boot_api.repository.ItemRepository;
 import cartel.spring_boot_api.repository.JDSRepository;
+import cartel.spring_boot_api.repository.LoanRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.PublisherJDSRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
@@ -58,6 +62,10 @@ public class DataInitializer {
     private ItemCopyRepository itemCopyRepository;
     @Autowired 
     private ItemRepository itemRepository;
+    @Autowired
+    private CartelPersonRepository cartelPersonRepository;
+    @Autowired
+    private LoanRepository loanRepository;
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -112,6 +120,12 @@ public class DataInitializer {
 
             ItemCopy copyj1 = new ItemCopy(jds1);
             itemRepository.save(copyj1);
+
+            CartelPerson jean = new CartelPerson("jean", "pierre");
+            jean.setCaution(50);
+            cartelPersonRepository.save(jean);
+            Loan loan1 = new Loan(jds1,jean);
+            loanRepository.save(loan1);
         };
     }
 }
