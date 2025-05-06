@@ -1,15 +1,29 @@
 package cartel.spring_boot_api.controller;
 
+import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.Item;
+import cartel.spring_boot_api.model.PublisherBook;
+import cartel.spring_boot_api.model.Serie;
+import cartel.spring_boot_api.model.Book.FormatBook;
+import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
+import cartel.spring_boot_api.repository.IllustratorRepository;
+import cartel.spring_boot_api.repository.ItemRepository;
+import cartel.spring_boot_api.repository.PublisherBookRepository;
+import cartel.spring_boot_api.repository.SerieRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,36 +38,118 @@ import org.w3c.dom.NodeList;
 public class PublicBookController {
 
     @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private AuthorBookRepository authorBookRepository;
+    @Autowired
+    private IllustratorRepository illustratorRepository;
+    @Autowired
+    private PublisherBookRepository publisherBookRepository;
+    @Autowired
+    private SerieRepository serieRepository;
+
 
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<Item> getAllBooks() {
+        return itemRepository.findAll();
     }
+    
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+    public ResponseEntity<Book> getBookById(@PathVariable String id) {
         Optional<Book> book = bookRepository.findById(id);
         return book.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
     }
 
+    // Update a book
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
+        return bookRepository.findById(id)
+                .map(existingBook -> {
+                    existingBook.setTitle(bookDetails.getTitle());
+                    existingBook.setAuthor(bookDetails.getAuthor());
+                    existingBook.setDescription(bookDetails.getDescription());
+                    existingBook.setCoverImage(bookDetails.getCoverImage());
+                    existingBook.setPublicationYear(bookDetails.getPublicationYear());
+                    existingBook.setFormat(bookDetails.getFormat());
+                    existingBook.setSerie(bookDetails.getSerie());
+                    existingBook.setTome(bookDetails.getTome());
+                    existingBook.setIllustrator(bookDetails.getIllustrator());
+                    existingBook.setPublisher(bookDetails.getPublisher());
+                    existingBook.setUpdatedAt(LocalDateTime.now());
+                    
+                    return ResponseEntity.ok(bookRepository.save(existingBook));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Delete a book
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable String id) {
+        return bookRepository.findById(id)
+                .map(book -> {
+                    bookRepository.delete(book);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/search")
     public List<Book> searchBooks(
-        @RequestParam(required = false) String title,
-        @RequestParam(required = false) String author,
-        @RequestParam(required = false) String category
-    ) {
-        if (title != null && !title.isEmpty()) {
-            return bookRepository.findByTitleContainingIgnoreCase(title);
-        } else if (author != null && !author.isEmpty()) {
-            return bookRepository.findByAuthorContainingIgnoreCase(author);
-        } else if (category != null && !category.isEmpty()) {
-            return bookRepository.findByCategoryContainingIgnoreCase(category);
+    @RequestParam(required = false) String title,
+    @RequestParam(required = false) String authorFirstName,
+    @RequestParam(required = false) String authorSurname,
+    @RequestParam(required = false) FormatBook category,
+    @RequestParam(required = false) Long illustratorId,
+    @RequestParam(required = false) Long publisherId,
+    @RequestParam(required = false) Long serieId
+) {
+    if (title != null && !title.isEmpty()) {
+        return bookRepository.findByTitleContainingIgnoreCase(title);
+    } else if (authorFirstName != null) {
+        List<Book> authorL = new ArrayList<Book>();
+        List<AuthorBook> authorF = authorBookRepository.findByFirstnameContainingIgnoreCase(authorFirstName);
+        if(authorSurname != null){
+            List<AuthorBook> authorS  = authorBookRepository.findBySurnameContainingIgnoreCase(authorSurname);
+            for(AuthorBook aF : authorF){
+                for (AuthorBook aS : authorS) {
+                    if(aS.getId()==aF.getId()){
+                        for(Book b : aS.getWrittenBook()){
+                            if(!authorL.contains(b)){
+                                authorL.add(b);
+                            }
+                        }
+                    }
+                }
+            }
+            return authorL;            
+        } else {
+            for(AuthorBook aF : authorF){
+                for(Book b : aF.getWrittenBook()){
+                    if(!authorL.contains(b)){
+                        authorL.add(b);
+                    }
+                }
+            }
         }
-        
-        return bookRepository.findAll();
+        return authorL;
+    } else if (category != null) {
+        return bookRepository.findByFormat(category);
+    } else if (illustratorId != null) {
+        Optional<Illustrator> illustrator = illustratorRepository.findById(illustratorId);
+        return illustrator.map(bookRepository::findByIllustrator).orElse(List.of());
+    } else if (publisherId != null) {
+        Optional<PublisherBook> publisher = publisherBookRepository.findById(publisherId);
+        return publisher.map(bookRepository::findByPublisher).orElse(List.of());
+    } else if (serieId != null) {
+        Optional<Serie> serie = serieRepository.findById(serieId);
+        return serie.map(bookRepository::findBySerie).orElse(List.of());
     }
+    return bookRepository.findAll();
+}
     
     @PostMapping("/import/isbn/{isbn}")
     public ResponseEntity<?> addBookByIsbn(@PathVariable String isbn) {
@@ -70,7 +166,8 @@ public class PublicBookController {
             return ResponseEntity.status(500).body("Failed to import book: " + e.getMessage());
         }
     }
-    
+
+    @Deprecated
     private Book fetchBookDetailsFromExternalApi(String isbn) {
         // Use Dublin Core schema for easier parsing
         String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=%22" + isbn + "%22&recordSchema=dublincore";
@@ -176,12 +273,11 @@ public class PublicBookController {
             
             // Set the extracted values to the book object
             book.setTitle(title);
-            book.setAuthor(author);
+            //book.setAuthor(author);
             book.setDescription(description);
             book.setPublicationYear(publicationYear);
-            book.setCategory(category);
+            //book.setCategory(category);
             book.setCoverImage(coverImage);
-            book.setAvailable(true);
             
             return book;
         } catch (Exception e) {

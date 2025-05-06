@@ -24,10 +24,11 @@ public class AdminBookController {
         Book savedBook = bookRepository.save(book);
         return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
-
+    
+    /*
     // Update a book
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
+    public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
         return bookRepository.findById(id)
                 .map(existingBook -> {
                     existingBook.setTitle(bookDetails.getTitle());
@@ -53,5 +54,5 @@ public class AdminBookController {
                     return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
-    }
+    }*/
 }
