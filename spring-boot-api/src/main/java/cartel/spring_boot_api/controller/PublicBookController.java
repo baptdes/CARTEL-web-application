@@ -1,6 +1,8 @@
 package cartel.spring_boot_api.controller;
 
+import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Book.FormatBook;
 import cartel.spring_boot_api.repository.BookRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class PublicBookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+    public ResponseEntity<Book> getBookById(@PathVariable String id) {
         Optional<Book> book = bookRepository.findById(id);
         return book.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
@@ -41,14 +43,14 @@ public class PublicBookController {
     @GetMapping("/search")
     public List<Book> searchBooks(
         @RequestParam(required = false) String title,
-        @RequestParam(required = false) String author,
-        @RequestParam(required = false) String category
+        @RequestParam(required = false) AuthorBook author,
+        @RequestParam(required = false) FormatBook category
     ) {
         if (title != null && !title.isEmpty()) {
             return bookRepository.findByTitleContainingIgnoreCase(title);
         } else if (author != null && !author.isEmpty()) {
             return bookRepository.findByAuthorContainingIgnoreCase(author);
-        } else if (category != null && !category.isEmpty()) {
+        } else if (category != null) {
             return bookRepository.findByCategoryContainingIgnoreCase(category);
         }
         
@@ -70,7 +72,8 @@ public class PublicBookController {
             return ResponseEntity.status(500).body("Failed to import book: " + e.getMessage());
         }
     }
-    
+
+    @Deprecated
     private Book fetchBookDetailsFromExternalApi(String isbn) {
         // Use Dublin Core schema for easier parsing
         String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=%22" + isbn + "%22&recordSchema=dublincore";
@@ -176,12 +179,11 @@ public class PublicBookController {
             
             // Set the extracted values to the book object
             book.setTitle(title);
-            book.setAuthor(author);
+            //book.setAuthor(author);
             book.setDescription(description);
             book.setPublicationYear(publicationYear);
-            book.setCategory(category);
+            //book.setCategory(category);
             book.setCoverImage(coverImage);
-            book.setAvailable(true);
             
             return book;
         } catch (Exception e) {

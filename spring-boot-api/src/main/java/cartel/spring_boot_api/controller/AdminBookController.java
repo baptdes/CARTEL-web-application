@@ -27,7 +27,7 @@ public class AdminBookController {
 
     // Update a book
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
+    public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
         return bookRepository.findById(id)
                 .map(existingBook -> {
                     existingBook.setTitle(bookDetails.getTitle());
