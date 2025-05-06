@@ -24,7 +24,7 @@ public class AdminBookController {
         Book savedBook = bookRepository.save(book);
         return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
     }
-
+    /*
     // Update a book
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
@@ -53,5 +53,5 @@ public class AdminBookController {
                     return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
-    }
+    }*/
 }

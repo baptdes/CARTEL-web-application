@@ -2,8 +2,15 @@ package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.PublisherBook;
+import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Book.FormatBook;
+import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
+import cartel.spring_boot_api.repository.IllustratorRepository;
+import cartel.spring_boot_api.repository.PublisherBookRepository;
+import cartel.spring_boot_api.repository.SerieRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +34,15 @@ public class PublicBookController {
 
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private AuthorBookRepository authorBookRepository;
+    @Autowired
+    private IllustratorRepository illustratorRepository;
+    @Autowired
+    private PublisherBookRepository publisherBookRepository;
+    @Autowired
+    private SerieRepository serieRepository;
+
 
     @GetMapping
     public List<Book> getAllBooks() {
@@ -44,16 +60,24 @@ public class PublicBookController {
     public List<Book> searchBooks(
         @RequestParam(required = false) String title,
         @RequestParam(required = false) AuthorBook author,
-        @RequestParam(required = false) FormatBook category
+        @RequestParam(required = false) FormatBook category,
+        @RequestParam(required = false) Illustrator illustrator,
+        @RequestParam(required = false) PublisherBook publisher,
+        @RequestParam(required = false) Serie serie
     ) {
         if (title != null && !title.isEmpty()) {
             return bookRepository.findByTitleContainingIgnoreCase(title);
-        } else if (author != null && !author.isEmpty()) {
-            return bookRepository.findByAuthorContainingIgnoreCase(author);
+        } else if (author != null) {
+            return bookRepository.findByAuthor(author);
         } else if (category != null) {
-            return bookRepository.findByCategoryContainingIgnoreCase(category);
+            return bookRepository.findByFormat(category);
+        } else if (illustrator != null) {
+            return bookRepository.findByIllustrator(illustrator);
+        }else if (publisher != null) {
+            return bookRepository.findByPublisher(publisher);
+        }else if (serie != null) {
+            return bookRepository.findBySerie(serie);
         }
-        
         return bookRepository.findAll();
     }
     

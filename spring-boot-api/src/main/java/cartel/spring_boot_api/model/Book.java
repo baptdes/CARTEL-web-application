@@ -1,21 +1,23 @@
 package cartel.spring_boot_api.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.Collection;
+
+import org.springframework.security.core.Transient;
 
 @Entity
 @Table(name = "books")
 public class Book {
 
     //énumération des différents format d'un livre
+    @Transient
     public enum FormatBook {MANGA,BD,LIVRE}; 
 
     //liste des attributs
@@ -30,16 +32,16 @@ public class Book {
     //auteurs du livre
     @Column(nullable = false)
     @ManyToMany
-    private AuthorBook author;
+    private Collection<AuthorBook> author;
 
     //éditeur du livre
-    @Column(nullable = false)
+    @JoinColumn(nullable = false)
     @ManyToOne
     private PublisherBook publisher;
 
     //illustrateur du livre
     @ManyToMany
-    private Illustrator illustrator;
+    private Collection<Illustrator> illustrator;
     
     //description petit resumé
     @Column(length = 2000)
@@ -59,6 +61,10 @@ public class Book {
     //volume
     private Integer tome;
 
+    //serie
+    @ManyToOne
+    private Serie serie;
+
     //date de création de l'entité
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -72,7 +78,7 @@ public class Book {
     }
     
     // Constructor with required fields
-    public Book(String isbn, String title, AuthorBook author, PublisherBook publisher, Integer publicationYear,
+    public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
     FormatBook format) {
         this.isbn = isbn;
         this.title = title;
@@ -82,6 +88,12 @@ public class Book {
         this.format = format;
         this.createdAt = LocalDateTime.now(); 
 }
+
+
+    // Pre-update method
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public String getIsbn() {
         return isbn;
@@ -99,11 +111,11 @@ public class Book {
         this.title = title;
     }
 
-    public AuthorBook getAuthor() {
+    public Collection<AuthorBook> getAuthor() {
         return author;
     }
 
-    public void setAuthor(AuthorBook author) {
+    public void setAuthor(Collection<AuthorBook> author) {
         this.author = author;
     }
 
@@ -115,28 +127,12 @@ public class Book {
         this.publisher = publisher;
     }
 
-    public Illustrator getIllustrator() {
+    public Collection<Illustrator> getIllustrator() {
         return illustrator;
     }
 
-    public void setIllustrator(Illustrator illustrator) {
+    public void setIllustrator(Collection<Illustrator> illustrator) {
         this.illustrator = illustrator;
-    }
-        
-    public Integer getTome() {
-        return tome;
-    }
-
-    public void setTome(Integer tome) {
-        this.tome = tome;
-    }
-
-    public FormatBook getFormat() {
-        return format;
-    }
-
-    public void setFormat(FormatBook format) {
-        this.format = format;
     }
 
     public String getDescription() {
@@ -162,7 +158,23 @@ public class Book {
     public void setPublicationYear(Integer publicationYear) {
         this.publicationYear = publicationYear;
     }
-    
+
+    public FormatBook getFormat() {
+        return format;
+    }
+
+    public void setFormat(FormatBook format) {
+        this.format = format;
+    }
+
+    public Integer getTome() {
+        return tome;
+    }
+
+    public void setTome(Integer tome) {
+        this.tome = tome;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -179,8 +191,11 @@ public class Book {
         this.updatedAt = updatedAt;
     }
 
-    // Pre-update method
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
     }
 }

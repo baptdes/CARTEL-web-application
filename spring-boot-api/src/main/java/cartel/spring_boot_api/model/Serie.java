@@ -11,8 +11,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "publisherbook")
-public class PublisherBook {
+@Table(name = "series")
+public class Serie {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +21,13 @@ public class PublisherBook {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "publisher")
+    @OneToMany(mappedBy = "serie")
     private Collection<Book> publishedBooks;
 
-    public PublisherBook() {
+    public Serie() {
     }
 
-    public PublisherBook(String name) {
+    public Serie(String name) {
         this.name = name;
     }
 
@@ -54,5 +55,4 @@ public class PublisherBook {
         this.publishedBooks = publishedBooks;
     }
 
-    
 }
