@@ -5,6 +5,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import java.time.LocalDateTime;
@@ -16,7 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "books")
-public class Book {
+@PrimaryKeyJoinColumn( name = "idobject" )
+public class Book extends Item{
 
     //énumération des différents format d'un livre
     @Transient
@@ -28,7 +31,7 @@ public class Book {
 
     //liste des attributs
     //identifiant
-    @Id
+    @Column(nullable = false)
     private String isbn;
     
     //titre du livre
@@ -37,18 +40,15 @@ public class Book {
    
     //auteurs du livre
     @Column(nullable = false)
-    @JsonIgnore
     @ManyToMany
     private Collection<AuthorBook> author;
 
     //éditeur du livre
     @JoinColumn(nullable = false)
-    @JsonIgnore
     @ManyToOne
     private PublisherBook publisher;
 
     //illustrateur du livre
-    @JsonIgnore
     @ManyToMany
     private Collection<Illustrator> illustrator;
     

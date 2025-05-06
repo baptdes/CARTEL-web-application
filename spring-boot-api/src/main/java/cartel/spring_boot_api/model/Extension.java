@@ -12,16 +12,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "extension")
-public class Extension { 
+@PrimaryKeyJoinColumn( name = "idobject" )
+public class Extension extends Item{ 
 
     //liste des attributs
-    //identifiant
-    @Id
-    private String barcodes;
     
     //nom du jeu
     @Column(nullable = false)
@@ -70,9 +70,8 @@ public class Extension {
     public Extension() {
     }
 
-    public Extension(String barcode, String name, Collection<Creator> creator, PublisherJDS publisher,
+    public Extension(String name, Collection<Creator> creator, PublisherJDS publisher,
             Integer publicationYear, Langues langue, JDS jeu) {
-        this.barcodes = barcode;
         this.name = name;
         this.creator = creator;
         this.publisher = publisher;
@@ -87,13 +86,6 @@ public class Extension {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public String getBarcode() {
-        return barcodes;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcodes = barcode;
-    }
 
     public String getName() {
         return name;

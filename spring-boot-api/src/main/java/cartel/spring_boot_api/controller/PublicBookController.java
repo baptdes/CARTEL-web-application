@@ -3,12 +3,14 @@ package cartel.spring_boot_api.controller;
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Book.FormatBook;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
+import cartel.spring_boot_api.repository.ItemRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
 
@@ -21,6 +23,7 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,8 @@ import org.w3c.dom.NodeList;
 public class PublicBookController {
 
     @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
     private BookRepository bookRepository;
     @Autowired
     private AuthorBookRepository authorBookRepository;
@@ -47,8 +52,8 @@ public class PublicBookController {
 
 
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<Item> getAllBooks() {
+        return itemRepository.findAll();
     }
     
 
@@ -95,7 +100,8 @@ public class PublicBookController {
     @GetMapping("/search")
     public List<Book> searchBooks(
     @RequestParam(required = false) String title,
-    @RequestParam(required = false) Long authorId,
+    @RequestParam(required = false) String authorFirstName,
+    @RequestParam(required = false) String authorSurname,
     @RequestParam(required = false) FormatBook category,
     @RequestParam(required = false) Long illustratorId,
     @RequestParam(required = false) Long publisherId,
@@ -103,9 +109,33 @@ public class PublicBookController {
 ) {
     if (title != null && !title.isEmpty()) {
         return bookRepository.findByTitleContainingIgnoreCase(title);
-    } else if (authorId != null) {
-        Optional<AuthorBook> author = authorBookRepository.findById(authorId);
-        return author.map(bookRepository::findByAuthor).orElse(List.of());
+    } else if (authorFirstName != null) {
+        List<Book> authorL = new ArrayList<Book>();
+        List<AuthorBook> authorF = authorBookRepository.findByFirstnameContainingIgnoreCase(authorFirstName);
+        if(authorSurname != null){
+            List<AuthorBook> authorS  = authorBookRepository.findBySurnameContainingIgnoreCase(authorSurname);
+            for(AuthorBook aF : authorF){
+                for (AuthorBook aS : authorS) {
+                    if(aS.getId()==aF.getId()){
+                        for(Book b : aS.getWrittenBook()){
+                            if(!authorL.contains(b)){
+                                authorL.add(b);
+                            }
+                        }
+                    }
+                }
+            }
+            return authorL;            
+        } else {
+            for(AuthorBook aF : authorF){
+                for(Book b : aF.getWrittenBook()){
+                    if(!authorL.contains(b)){
+                        authorL.add(b);
+                    }
+                }
+            }
+        }
+        return authorL;
     } else if (category != null) {
         return bookRepository.findByFormat(category);
     } else if (illustratorId != null) {

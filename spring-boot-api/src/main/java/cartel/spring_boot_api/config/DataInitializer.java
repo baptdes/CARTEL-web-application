@@ -5,6 +5,7 @@ import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Creator;
 import cartel.spring_boot_api.model.Extension;
 import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.model.JDS;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.PublisherJDS;
@@ -16,6 +17,8 @@ import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.CreatorRepository;
 import cartel.spring_boot_api.repository.ExtensionRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
+import cartel.spring_boot_api.repository.ItemCopyRepository;
+import cartel.spring_boot_api.repository.ItemRepository;
 import cartel.spring_boot_api.repository.JDSRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.PublisherJDSRepository;
@@ -51,6 +54,10 @@ public class DataInitializer {
     private ExtensionRepository extensionRepository;
     @Autowired
     private PublisherJDSRepository publisherjdsRepository;
+    @Autowired
+    private ItemCopyRepository itemCopyRepository;
+    @Autowired 
+    private ItemRepository itemRepository;
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -72,11 +79,10 @@ public class DataInitializer {
             illustratorRepository.save(ill1);
             publisherBookRepository.save(publisher1);
             serieRepository.save(ser1);
-            bookRepository.save(book1);
+            itemRepository.save(book1);
 
-            AuthorBook author2 = new AuthorBook("J.R.R", "Tolkien");
             Collection<AuthorBook> collauthor2 = new ArrayList<AuthorBook>();
-            collauthor2.add(author2);
+            collauthor2.add(author1);
             PublisherBook publisher2 = new PublisherBook("bayard");
             Illustrator ill2 = new Illustrator("truc", "bidule");
             Collection<Illustrator> collIll2 = new ArrayList<Illustrator>();
@@ -86,24 +92,26 @@ public class DataInitializer {
             book2.setIllustrator(collIll2);
             book2.setSerie(ser2);
             
-            authorBookRepository.save(author2);
             illustratorRepository.save(ill2);
             publisherBookRepository.save(publisher2);
             serieRepository.save(ser2);
-            bookRepository.save(book2);
+            itemRepository.save(book2);
 
             Creator creator1 = new Creator("Jen", "pi");
             Collection<Creator> creatorl1 = new ArrayList<Creator>();
             creatorl1.add(creator1);
             PublisherJDS publisherj1 = new PublisherJDS("bayard2");
-            JDS jds1 =new JDS("4565456456", "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN);
+            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN);
             creatorRepository.save(creator1);
             publisherjdsRepository.save(publisherj1);
-            jdsRepository.save(jds1);
+            itemRepository.save(jds1);
 
-            Extension jds2 = new Extension("4565456458", "Heroes : outside",creatorl1, publisherj1,
+            Extension jds2 = new Extension( "Heroes : outside",creatorl1, publisherj1,
             1110, Langues.EN,jds1);
-            extensionRepository.save(jds2);
+            itemRepository.save(jds2);
+
+            ItemCopy copyj1 = new ItemCopy(jds1);
+            itemRepository.save(copyj1);
         };
     }
 }

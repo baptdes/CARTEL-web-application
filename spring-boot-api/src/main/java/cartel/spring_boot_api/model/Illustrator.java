@@ -2,6 +2,8 @@ package cartel.spring_boot_api.model;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +26,7 @@ public class Illustrator {
     @Column(nullable = false)
     private String firstname;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "illustrator")
     private Collection<Book> drawedBook;
 

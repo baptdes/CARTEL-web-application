@@ -13,16 +13,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jeu")
-public class JDS {
+@PrimaryKeyJoinColumn( name = "idobject" )
+public class JDS extends Item{
 
     //liste des attributs
-    //identifiant
-    @Id
-    private String barcode;
 
     //temps de jeu moyen
     @Column(nullable = false)
@@ -82,9 +81,8 @@ public class JDS {
     public JDS() {
     }
 
-    public JDS(String barcode, String tempsdejeumoy, int nbrejrmin, int nbrejrmax, String name,
+    public JDS(String tempsdejeumoy, int nbrejrmin, int nbrejrmax, String name,
     Collection<Creator> creator, PublisherJDS publisher, Integer publicationYear, Langues langue) {
-        this.barcode = barcode;
         this.tempsdejeumoy = tempsdejeumoy;
         this.nbrejrmin = nbrejrmin;
         this.nbrejrmax = nbrejrmax;
@@ -99,14 +97,6 @@ public class JDS {
     // Pre-update method
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
     }
 
     public String getTempsdejeumoy() {
