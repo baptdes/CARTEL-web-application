@@ -79,6 +79,7 @@ public class Book extends Item{
     @ManyToOne
     private Serie serie;
 
+
     //date de création de l'entité
     @Column(nullable = false)
     private LocalDateTime createdAt;

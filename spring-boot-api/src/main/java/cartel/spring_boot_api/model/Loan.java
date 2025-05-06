@@ -2,42 +2,30 @@ package cartel.spring_boot_api.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name="emprunt")
-public class Loan {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @OneToOne
-    private Item item;
+@PrimaryKeyJoinColumn( name = "idloan" )
+public class Loan extends Exchange{
     
     @ManyToOne
     private CartelPerson borrower;
 
     private LocalDateTime loanDate;
 
+    public Loan(){}
+
     public Loan(Item item, CartelPerson borrower) {
-        this.item = item;
+        super(item);
         this.borrower = borrower;
         this.loanDate = LocalDateTime.now();
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
     }
 
     public CartelPerson getBorrower() {

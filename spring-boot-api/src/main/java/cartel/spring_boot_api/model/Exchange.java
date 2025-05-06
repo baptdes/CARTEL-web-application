@@ -1,7 +1,5 @@
 package cartel.spring_boot_api.model;
 
-import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -10,36 +8,35 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table( name = "Items" )
+@Table(name="non-empruntable")
 @Inheritance( strategy = InheritanceType.JOINED )
-public abstract class Item {
+public abstract class Exchange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idobject;
+    private Long idloan;
 
+    Exchange(Item item){
+        this.item =item;
+    }
+
+    Exchange(){
+        
+    }
+
+    @OneToOne
     @JsonIgnore
-    @OneToMany(mappedBy = "objet")
-    private Collection<ItemCopy> copie;
+    private Item item;
 
-    public int getCopienumb(){
-        return this.copie.size()+1;
+    public Item getItem() {
+        return item;
     }
 
-    @OneToOne(mappedBy ="item")
-    Exchange statut;
-
-    public Exchange getStatut() {
-        return statut;
+    public void setItem(Item item) {
+        this.item = item;
     }
-
-    public void setStatut(Exchange statut) {
-        this.statut = statut;
-    }
-    
 }

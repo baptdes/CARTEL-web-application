@@ -12,6 +12,7 @@ import cartel.spring_boot_api.model.Loan;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.PublisherJDS;
 import cartel.spring_boot_api.model.Serie;
+import cartel.spring_boot_api.model.Exchange;
 import cartel.spring_boot_api.model.Book.FormatBook;
 import cartel.spring_boot_api.model.Book.Langues;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
@@ -27,6 +28,7 @@ import cartel.spring_boot_api.repository.LoanRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.PublisherJDSRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
+import cartel.spring_boot_api.repository.ExchangeRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,6 +68,8 @@ public class DataInitializer {
     private CartelPersonRepository cartelPersonRepository;
     @Autowired
     private LoanRepository loanRepository;
+    @Autowired
+    private ExchangeRepository ExchangeRepository;
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -121,11 +125,11 @@ public class DataInitializer {
             ItemCopy copyj1 = new ItemCopy(jds1);
             itemRepository.save(copyj1);
 
-            CartelPerson jean = new CartelPerson("jean", "pierre");
+            CartelPerson jean = new CartelPerson("jean", "pierre","jp@gmail.com");
             jean.setCaution(50);
             cartelPersonRepository.save(jean);
             Loan loan1 = new Loan(jds1,jean);
-            loanRepository.save(loan1);
+            ExchangeRepository.save(loan1);
         };
     }
 }

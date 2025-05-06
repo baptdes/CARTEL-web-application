@@ -18,11 +18,18 @@ public class CartelPerson {
 
     private String surname;
 
+    private String contact;
+
     private Integer Caution;
 
-    public CartelPerson(String name, String surname) {
+    public CartelPerson(String name, String surname,String contact) {
         this.firstname = name;
         this.surname = surname;
+        this.contact = contact;
+    }
+
+    public CartelPerson(){
+        
     }
 
     public Long getId() {
@@ -41,8 +48,6 @@ public class CartelPerson {
         this.firstname = firstname;
     }
 
-
-
     public String getSurname() {
         return surname;
     }
@@ -58,4 +63,13 @@ public class CartelPerson {
     public void setCaution(Integer caution) {
         Caution = caution;
     }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
 }
