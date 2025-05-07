@@ -282,12 +282,12 @@ public class PublicBookController {
             // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
             String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
             Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
-            String description = descriptionNode.getTextContent();
+            String description = descriptionNode != null ? descriptionNode.getTextContent() : "";
 
             // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
-            String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
-            Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
-            String description = descriptionNode.getTextContent();
+            String languesPath = "//mxc:datafield[@tag='801']/mxc:subfield[@code='a']";
+            Node languesNode = (Node) xpath.evaluate(languesPath, document, XPathConstants.NODE);
+            String langues = languesNode.getTextContent();
 
             //récupération de l'éditeur
             //PublisherBook publisher = findThePublisher(publishername);
@@ -300,6 +300,8 @@ public class PublicBookController {
             System.out.println("publisher : " + publishername);  
             System.out.println("Date : " + pubyr[1]);  
             System.out.println("description :" + description);  
+            System.out.println("description :" + langues);  
+
 
             
             // Extract record identifier for cover image
