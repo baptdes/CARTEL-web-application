@@ -177,158 +177,186 @@ public class PublicBookController {
 
     @Deprecated
     private Book fetchBookDetailsFromExternalApi(String isbn) {
-        // Use Dublin Core schema for easier parsing
-        String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=" + isbn + "";
+        int language = isbn.length()==15 ? isbn.charAt(4) : isbn.charAt(1) ;
+        System.out.println(language);
+        System.out.println(isbn);
+
+        if(language==50){
+            // Use Dublin Core schema for easier parsing
+            String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=" + isbn + "";
         
-        try {
-            // Create RestTemplate for making HTTP requests
-            RestTemplate restTemplate = new RestTemplate();
-            String response = restTemplate.getForObject(bnfApiUrl, String.class);
+            try {
+                // Create RestTemplate for making HTTP requests
+                RestTemplate restTemplate = new RestTemplate();
+                String response = restTemplate.getForObject(bnfApiUrl, String.class);
 
-            // Create DocumentBuilderFactory to parse XML response
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true); // Enable namespace support for Dublin Core
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            InputSource source = new InputSource(new StringReader(response));
-            Document document = builder.parse(source);
+                // Create DocumentBuilderFactory to parse XML response
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true); // Enable namespace support for Dublin Core
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                InputSource source = new InputSource(new StringReader(response));
+                Document document = builder.parse(source);
 
-            // Check if we have any records
-            NodeList records = document.getElementsByTagName("srw:numberOfRecords");
-            if (records.getLength() > 0) {
-                String numberOfRecordsStr = records.item(0).getTextContent();
-                if ("0".equals(numberOfRecordsStr)) {
-                    throw new RuntimeException("No records found for ISBN: " + isbn);
-                }
-            }
-            
-
-            XPathFactory xPathFactory = XPathFactory.newInstance();
-            XPath xpath = xPathFactory.newXPath();
-
-            //Elements of book
-            // Default title in case none is found
-            String title = "Book with ISBN: " + isbn;
-            String coverImage = "";
-            Integer publicationYear = null;
-            String category = "";
-
-            // Déclare les namespaces utilisés
-            xpath.setNamespaceContext(new NamespaceContext() {
-                public String getNamespaceURI(String prefix) {
-                    switch (prefix) {
-                        case "srw": return "http://www.loc.gov/zing/srw/";
-                        case "mxc": return "info:lc/xmlns/marcxchange-v2";
-                        default: return XMLConstants.NULL_NS_URI;
+                // Check if we have any records
+                NodeList records = document.getElementsByTagName("srw:numberOfRecords");
+                if (records.getLength() > 0) {
+                    String numberOfRecordsStr = records.item(0).getTextContent();
+                    if ("0".equals(numberOfRecordsStr)) {
+                        throw new RuntimeException("No records found for ISBN: " + isbn);
                     }
                 }
 
-                public String getPrefix(String uri) { return null; }
-                public Iterator<String> getPrefixes(String uri) { return null; }
-            });
 
-            // Create a new book object
-            Book book = new Book();
-            //book.setBarcode(isbn); 
+                XPathFactory xPathFactory = XPathFactory.newInstance();
+                XPath xpath = xPathFactory.newXPath();
 
-            // XPath pour le titre (datafield tag="200", subfield code="a")
-            String titlePath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='a']";
-            Node titleNode = (Node) xpath.evaluate(titlePath, document, XPathConstants.NODE);
-            title = titleNode != null ? titleNode.getTextContent() : "Titre non trouvé";
+                //Elements of book
+                // Default title in case none is found
+                String title = "Book with ISBN: " + isbn;
 
-            // XPath pour le nom de l'auteur (datafield tag="700", subfield code="a")
-            String authorlastnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='a']";
-            Node authorlastnameNode = (Node) xpath.evaluate(authorlastnamePath, document, XPathConstants.NODE);
-            String authorlastname = authorlastnameNode.getTextContent();
+                // Déclare les namespaces utilisés
+                xpath.setNamespaceContext(new NamespaceContext() {
+                    public String getNamespaceURI(String prefix) {
+                        switch (prefix) {
+                            case "srw": return "http://www.loc.gov/zing/srw/";
+                            case "mxc": return "info:lc/xmlns/marcxchange-v2";
+                            default: return XMLConstants.NULL_NS_URI;
+                        }
+                    }
 
-            // XPath pour le prénom de l'auteur (datafield tag="700", subfield code="b")
-            String authorfirstnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='b']";
-            Node authorfirstnameNode = (Node) xpath.evaluate(authorfirstnamePath, document, XPathConstants.NODE);
-            String authorfirstname = authorfirstnameNode != null ? authorfirstnameNode.getTextContent() : "";
+                    public String getPrefix(String uri) { return null; }
+                    public Iterator<String> getPrefixes(String uri) { return null; }
+                });
 
-            // XPath pour le nom de l'auteur (datafield tag="700", subfield code="a")
-            String authormorePath = "//mxc:datafield[@tag='701']";
-            NodeList authormoreNode = (NodeList) xpath.evaluate(authormorePath, document, XPathConstants.NODESET);
-            List<String> authors = new ArrayList<String>();
-            for (int i = 0; i < authormoreNode.getLength(); i++) {
-                Element datafield = (Element) authormoreNode.item(i);
-                String nom = getSubfield(datafield, "a");
-                String prenom = getSubfield(datafield, "b");
-                authors.add(prenom);
-                authors.add(nom);
+                // Create a new book object
+                Book book = new Book();
+                //book.setBarcode(isbn); 
+
+                // XPath pour le titre (datafield tag="200", subfield code="a")
+                String titlePath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='a']";
+                Node titleNode = (Node) xpath.evaluate(titlePath, document, XPathConstants.NODE);
+                title = titleNode != null ? titleNode.getTextContent() : "Titre non trouvé";
+
+                // XPath pour le nom de l'auteur (datafield tag="700", subfield code="a")
+                String authorlastnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='a']";
+                Node authorlastnameNode = (Node) xpath.evaluate(authorlastnamePath, document, XPathConstants.NODE);
+                String authorlastname = authorlastnameNode.getTextContent();
+
+                // XPath pour le prénom de l'auteur (datafield tag="700", subfield code="b")
+                String authorfirstnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='b']";
+                Node authorfirstnameNode = (Node) xpath.evaluate(authorfirstnamePath, document, XPathConstants.NODE);
+                String authorfirstname = authorfirstnameNode != null ? authorfirstnameNode.getTextContent() : "";
+
+                // XPath pour le nom de l'auteur (datafield tag="700", subfield code="a")
+                String authormorePath = "//mxc:datafield[@tag='701']";
+                NodeList authormoreNode = (NodeList) xpath.evaluate(authormorePath, document, XPathConstants.NODESET);
+                List<String> authors = new ArrayList<String>();
+                for (int i = 0; i < authormoreNode.getLength(); i++) {
+                    Element datafield = (Element) authormoreNode.item(i);
+                    String nom = getSubfield(datafield, "a");
+                    String prenom = getSubfield(datafield, "b");
+                    authors.add(prenom);
+                    authors.add(nom);
+                }
+
+                // XPath pour le nom de l'auteur (datafield tag="700", subfield code="a")
+                String illtradPath = "//mxc:datafield[@tag='702']";
+                NodeList illtradNode = (NodeList) xpath.evaluate(illtradPath, document, XPathConstants.NODESET);
+                List<String> illtrad = new ArrayList<String>();
+                for (int i = 0; i < illtradNode.getLength(); i++) {
+                    Element datafield = (Element) illtradNode.item(i);
+                    String nom = getSubfield(datafield, "a");
+                    String prenom = getSubfield(datafield, "b");
+                    illtrad.add(prenom);
+                    illtrad.add(nom);
+                }
+
+                //récupération de l'auteur
+                //Collection<AuthorBook> listauth = new ArrayList<AuthorBoo
+                //AuthorBook author = findTheAuthor(authorfirstname, authorlastname);
+                //listauth.add(author);
+                /*
+                for (int index = 0; index < authors.size(); index+=2) {
+                    AuthorBook author = findTheAuthor( authors.get(index),  authors.get(index+1));
+                    listauth.add(author);
+                }
+                */
+
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String publishernamePath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='c']";
+                Node publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
+                String publishername = publishernameNode.getTextContent();
+
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String PublicationYearPath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='d']";
+                Node PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
+                String PublicationYear = PublicationYearNode.getTextContent();
+                String[] pubyr = PublicationYear.split(" ");
+
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
+                Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
+                String description = descriptionNode != null ? descriptionNode.getTextContent() : "";
+                descriptionPath = "//mxc:datafield[@tag='329']/mxc:subfield[@code='a']";
+                descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
+                description = descriptionNode != null ? descriptionNode.getTextContent() : "";
+
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String languesPath = "//mxc:datafield[@tag='801']/mxc:subfield[@code='a']";
+                Node languesNode = (Node) xpath.evaluate(languesPath, document, XPathConstants.NODE);
+                String langues = languesNode.getTextContent();
+
+                //récupération de l'éditeur
+                //PublisherBook publisher = findThePublisher(publishername);
+
+                System.out.println("Titre : " + title);
+                System.out.println("Auteur : " + authorfirstname + " " + authorlastname);
+                for (int index = 0; index < authors.size(); index+=2) {
+                    System.out.println("Auteur "+ (index/2)+1 +": " + authors.get(index) + " " + authors.get(index+1));
+                }
+                System.out.println("publisher : " + publishername);  
+                System.out.println("Date : " + pubyr[1]);  
+                System.out.println("description :" + description);  
+                System.out.println("langue :" + langues);
+                System.out.println("traducteur/dessinateur :");
+                for (int index = 0; index < illtrad.size(); index+=2) {
+                    System.out.println(((index/2)+1) +": " + illtrad.get(index) + " " + illtrad.get(index+1));
+                }
+
+                // Extract record identifier for cover image
+                NodeList recordIdentifiers = document.getElementsByTagName("srw:recordIdentifier");
+                String arkId = "";
+                if (recordIdentifiers.getLength() > 0) {
+                    arkId = recordIdentifiers.item(0).getTextContent();
+                    coverImage = "https://catalogue.bnf.fr/couverture?&appName=NE&idArk=" + arkId + "&couverture=1";
+                }
+
+                //process xml
+
+
+                // Set the extracted values to the book object
+                //book.setName(title);
+                //book.setAuthor(listauth);
+                //book.setDescription(description);
+                //book.setPublicationYear(publicationYear);
+                //book.setCategory(category);
+                //book.setLangue(Langues.EN);
+                //book.setCoverImage(coverImage);
+
+                return book;
+            } catch (Exception e) {
+                throw new RuntimeException("Error fetching book details from BnF API: " + e.getMessage(), e);
             }
+        } else if(language==48){
 
-            //récupération de l'auteur
-            //Collection<AuthorBook> listauth = new ArrayList<AuthorBoo
-            //AuthorBook author = findTheAuthor(authorfirstname, authorlastname);
-            //listauth.add(author);
-            /*
-            for (int index = 0; index < authors.size(); index+=2) {
-                AuthorBook author = findTheAuthor( authors.get(index),  authors.get(index+1));
-                listauth.add(author);
-            }
-            */
+        } else if(language==52){
 
-            // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
-            String publishernamePath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='c']";
-            Node publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
-            String publishername = publishernameNode.getTextContent();
-
-            // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
-            String PublicationYearPath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='d']";
-            Node PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
-            String PublicationYear = PublicationYearNode.getTextContent();
-            String[] pubyr = PublicationYear.split(" ");
-
-            // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
-            String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
-            Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
-            String description = descriptionNode != null ? descriptionNode.getTextContent() : "";
-
-            // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
-            String languesPath = "//mxc:datafield[@tag='801']/mxc:subfield[@code='a']";
-            Node languesNode = (Node) xpath.evaluate(languesPath, document, XPathConstants.NODE);
-            String langues = languesNode.getTextContent();
-
-            //récupération de l'éditeur
-            //PublisherBook publisher = findThePublisher(publishername);
-
-            System.out.println("Titre : " + title);
-            System.out.println("Auteur : " + authorfirstname + " " + authorlastname);
-            for (int index = 0; index < authors.size(); index+=2) {
-                System.out.println("Auteur "+ (index/2)+1 +": " + authors.get(index) + " " + authors.get(index+1));
-            }
-            System.out.println("publisher : " + publishername);  
-            System.out.println("Date : " + pubyr[1]);  
-            System.out.println("description :" + description);  
-            System.out.println("description :" + langues);  
-
-
-            
-            // Extract record identifier for cover image
-            NodeList recordIdentifiers = document.getElementsByTagName("srw:recordIdentifier");
-            String arkId = "";
-            if (recordIdentifiers.getLength() > 0) {
-                arkId = recordIdentifiers.item(0).getTextContent();
-                coverImage = "https://catalogue.bnf.fr/couverture?&appName=NE&idArk=" + arkId + "&couverture=1";
-            }
-            
-            //process xml
-            
-            
-            // Set the extracted values to the book object
-            //book.setName(title);
-            //book.setAuthor(listauth);
-            //book.setDescription(description);
-            //book.setPublicationYear(publicationYear);
-            //book.setCategory(category);
-            //book.setLangue(Langues.EN);
-            //book.setCoverImage(coverImage);
-            
-            return book;
-        } catch (Exception e) {
-            throw new RuntimeException("Error fetching book details from BnF API: " + e.getMessage(), e);
+        } else{
+            System.out.println("pays non traité");
         }
+        return null;
     }
+        
 
     private AuthorBook findTheAuthor(String firstname,String surname){
         List<AuthorBook> author = authorBookRepository.findByFirstnameAndSurnameIgnoreCase(firstname,surname);

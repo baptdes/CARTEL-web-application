@@ -54,10 +54,6 @@ public class Book extends Item{
     //volume
     private Integer tome;
 
-    //langue
-    @Column(nullable = false)
-    private Langues langue;
-
     //serie
     @JsonIgnore
     @ManyToOne
@@ -123,14 +119,6 @@ public class Book extends Item{
 
     public void setTome(Integer tome) {
         this.tome = tome;
-    }
-
-    public Langues getLangue() {
-        return langue;
-    }
-
-    public void setLangue(Langues langue) {
-        this.langue = langue;
     }
 
     public Serie getSerie() {
