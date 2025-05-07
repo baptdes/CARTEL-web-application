@@ -65,12 +65,11 @@ public class Book extends Item{
     
     // Constructor with required fields
     public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
-    FormatBook format,Langues lang, Collection<GenreBook> genre) {
+    FormatBook format,Langues lang) {
         super(isbn,title,publicationYear,lang);
         this.author = author;
         this.publisher = publisher;
-        this.format = format; 
-        this.genre = genre; 
+        this.format = format;  
     }
 
     public Collection<AuthorBook> getAuthor() {
