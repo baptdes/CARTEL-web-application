@@ -1,6 +1,7 @@
 package cartel.spring_boot_api.controller;
 
 
+import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Creator;
 import cartel.spring_boot_api.model.JDS;
 import cartel.spring_boot_api.model.PublisherJDS;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -38,7 +42,7 @@ public class PublicJDSController {
     
 
     @GetMapping("/{id}")
-    public ResponseEntity<JDS> getBookById(@PathVariable String id) {
+    public ResponseEntity<JDS> getJDSById(@PathVariable String id) {
         Optional<JDS> jds = jdsRepository.findById(id);
         return jds.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
@@ -65,7 +69,7 @@ public class PublicJDSController {
 
     // Delete a book
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable String id) {
+    public ResponseEntity<Void> deleteJDS(@PathVariable String id) {
         return jdsRepository.findById(id)
                 .map(book -> {
                     jdsRepository.delete(book);
@@ -92,4 +96,14 @@ public class PublicJDSController {
 
     return jdsRepository.findAll();
 }
+
+    @GetMapping("/categories")
+    public List<JDS.CategoryJDS> getAllCategoryJDSs() {
+        List<JDS.CategoryJDS> categories = new ArrayList<>();
+        for (JDS.CategoryJDS category : JDS.CategoryJDS.values()) {
+            categories.add(category);
+        }
+        return categories;
+    }
 }
+
