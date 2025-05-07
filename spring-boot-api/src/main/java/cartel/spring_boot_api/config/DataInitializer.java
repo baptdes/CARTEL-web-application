@@ -117,7 +117,11 @@ public class DataInitializer {
             Collection<Creator> creatorl1 = new ArrayList<Creator>();
             creatorl1.add(creator1);
             PublisherJDS publisherj1 = new PublisherJDS("bayard2");
-            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN,"9999999999999");
+            Collection<JDS.CategoryJDS> category1 = new ArrayList<JDS.CategoryJDS>();
+            category1.add(JDS.CategoryJDS.PLATEAU);
+            category1.add(JDS.CategoryJDS.BLUFF);
+            category1.add(JDS.CategoryJDS.ASYMETRIQUE);
+            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN,"9999999999999", category1);
             creatorRepository.save(creator1);
             publisherjdsRepository.save(publisherj1);
             itemRepository.save(jds1);

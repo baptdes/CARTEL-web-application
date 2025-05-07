@@ -8,6 +8,7 @@ import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Book.FormatBook;
 import cartel.spring_boot_api.model.Item.Langues;
+import cartel.spring_boot_api.model.JDS;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
@@ -385,6 +386,15 @@ public class PublicBookController {
 
         return ResponseEntity.ok(authorList);
 }
+
+    @GetMapping("/genre")
+        public List<Book.GenreBook> getAllGenreBooks() {
+            List<Book.GenreBook> genres = new ArrayList<>();
+            for (Book.GenreBook genre : Book.GenreBook.values()) {
+                genres.add(genre);
+            }
+            return genres;
+        }
 
 
 }

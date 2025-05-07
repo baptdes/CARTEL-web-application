@@ -12,11 +12,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
+import org.springframework.security.core.Transient;
 
 @Entity
 @Table(name = "jeu")
 @PrimaryKeyJoinColumn( name = "barcode" )
 public class JDS extends Item{
+
+
+    //énumération des catégories d'un jeu de société
+    @Transient
+    public enum CategoryJDS {CARTES, PLATEAU, BLUFF, COOPERATIF, JEUSOIREE, COMPETITIF, GRANDJEU, TRIVIA, ADRESSE, ASYMETRIQUE, SE_JOUE_PARTOUT}
+
 
     //liste des attributs
 
@@ -35,6 +42,9 @@ public class JDS extends Item{
     //nom du jeu
     @Column(nullable = false)
     private String name;
+
+    //catégorie du jeu
+    private Collection<CategoryJDS> category;
    
     //auteurs du livre
     @Column(nullable = false)
@@ -57,13 +67,14 @@ public class JDS extends Item{
     }
 
     public JDS(String avgplaytime, int nbrplmin, int nbrplmax, String name,
-    Collection<Creator> creator, PublisherJDS publisher, Integer publicationYear, Langues langue,String barcode) {
+    Collection<Creator> creator, PublisherJDS publisher, Integer publicationYear, Langues langue,String barcode, Collection<CategoryJDS> category) {
         super(barcode,name,publicationYear,langue);
         this.avgplaytime = avgplaytime;
         this.nbrplmin = nbrplmin;
         this.nbrplmax = nbrplmax;
         this.creator = creator;
         this.publisher = publisher;
+        this.category = category;
     }
 
 
@@ -123,5 +134,14 @@ public class JDS extends Item{
     public void setExtensions(Collection<Extension> extensions) {
         this.extensions = extensions;
     }
+
+    public Collection<CategoryJDS> getCategory() {
+        return category;
+    }
+
+    public void setCategory(Collection<CategoryJDS> category) {
+        this.category = category;
+    }
+    
 
 }
