@@ -75,7 +75,7 @@ public class DataInitializer {
     @Profile("dev") // Only run in development mode
     public CommandLineRunner initData() {
         return args -> {
-            AuthorBook author1 = new AuthorBook("J.R.R", "Tolkien");
+            AuthorBook  author1 = new AuthorBook("J.R.R", "Tolkien");
             Collection<AuthorBook> collauthor1 = new ArrayList<AuthorBook>();
             collauthor1.add(author1);
             PublisherBook publisher1 = new PublisherBook("bayard");
