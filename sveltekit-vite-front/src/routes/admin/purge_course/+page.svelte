@@ -8,7 +8,7 @@
 
   <main>
     <h2>Catalogue</h2>
-    <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button>
+    <button class="return-button"  type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button>
   </main>
 
 
