@@ -64,8 +64,8 @@ public class Book extends Item{
         super(isbn,title,publicationYear,lang);
         this.author = author;
         this.publisher = publisher;
-        this.format = format;
-}
+        this.format = format;  
+    }
 
     public Collection<AuthorBook> getAuthor() {
         return author;

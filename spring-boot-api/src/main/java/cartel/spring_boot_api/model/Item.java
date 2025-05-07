@@ -72,7 +72,7 @@ public abstract class Item {
     }
 
     public Item(){
-
+        this.createdAt = LocalDateTime.now();
     }
 
     public Exchange getStatut() {
