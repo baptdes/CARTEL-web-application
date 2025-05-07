@@ -37,6 +37,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -104,6 +106,8 @@ public class PublicBookController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
 
     @GetMapping("/search")
     public List<Book> searchBooks(
@@ -366,5 +370,22 @@ public class PublicBookController {
         }
         return "";
     }
+
+    @GetMapping("/authors")
+    public ResponseEntity<List<Map<String, String>>> getAllAuthors() {
+        List<AuthorBook> authors = authorBookRepository.findAll();
+        List<Map<String, String>> authorList = new ArrayList<>();
+
+        for (AuthorBook author : authors) {
+            Map<String, String> authorMap = new HashMap<>();
+            authorMap.put("firstname", author.getFirstname());
+            authorMap.put("surname", author.getSurname());
+            authorList.add(authorMap);
+        }
+
+        return ResponseEntity.ok(authorList);
+}
+
+
 }
 
