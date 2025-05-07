@@ -22,6 +22,12 @@ public class Book extends Item{
     @Transient
     public enum FormatBook {MANGA,BD,LIVRE}; 
 
+    //énumération des genres d'un livre
+    @Transient
+    public enum GenreBook {ROMAN, POESIE, THEATRE, ESSAI, BD, MANGA, FANTASY, SCIENCE_FICTION, FANTASTIQUE, POLAR, POLICIER, THRILLER, 
+                            HISTORIQUE, BIOGRAPHIE, AUTOBIOGRAPHIE, HUMOUR, HORREUR, AVENTURE, JEUNESSE, CONTES,
+                            NOUVELLES, DRAME, PHILOSOPHIE, RELIGION, EDUCATIF, WESTERN, DYSTOPIE}
+
    
     //auteurs du livre
     @Column(nullable = false)
@@ -42,6 +48,9 @@ public class Book extends Item{
     @Column(nullable = false)
     private FormatBook format;
 
+    //genre du livre
+    private Collection<GenreBook> genre;
+
     //volume
     private Integer tome;
 
@@ -60,11 +69,12 @@ public class Book extends Item{
     
     // Constructor with required fields
     public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
-    FormatBook format,Langues lang) {
+    FormatBook format,Langues lang, Collection<GenreBook> genre) {
         super(isbn,title,publicationYear,lang);
         this.author = author;
         this.publisher = publisher;
-        this.format = format;  
+        this.format = format; 
+        this.genre = genre; 
     }
 
     public Collection<AuthorBook> getAuthor() {
@@ -97,6 +107,14 @@ public class Book extends Item{
 
     public void setFormat(FormatBook format) {
         this.format = format;
+    }
+
+    public Collection<GenreBook> getGenre() {
+        return genre;
+    }
+
+    public void setGenre(Collection<GenreBook> genre) {
+        this.genre = genre;
     }
 
     public Integer getTome() {
