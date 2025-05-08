@@ -1,192 +1,214 @@
 <script>
   import PointBar from '$lib/components/PointBar.svelte';
+  import BookCard from '$lib/components/BookCard.svelte';
+  import { onMount } from 'svelte';
+  import { fetchBooks, fetchFormats } from '$lib/services/bookService';
   
-  // Example data - simplified static version
-  const exampleItems = [
-    {
-      id: 1,
-      title: "Le Seigneur des Anneaux",
-      author: "J.R.R. Tolkien",
-      description: "Une épopée fantastique dans un monde imaginaire où différentes races s'allient pour détruire un anneau maléfique.",
-      coverImage: "https://m.media-amazon.com/images/I/71jLBXtWJWL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1954,
-      category: "Fantasy",
-      available: true,
-      type: "book"
-    },
-    {
-      id: 2,
-      title: "Fondation",
-      author: "Isaac Asimov",
-      description: "Dans un futur lointain, un mathématicien développe une science permettant de prédire l'avenir de l'humanité et d'en altérer le cours.",
-      coverImage: "https://m.media-amazon.com/images/I/81wW3qopnLL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1951,
-      category: "Science Fiction",
-      available: true,
-      type: "book"
-    },
-    {
-      id: 3,
-      title: "Catan",
-      author: "Klaus Teuber",
-      description: "Jeu de stratégie et de développement où les joueurs doivent coloniser une île en construisant des villes et des routes.",
-      coverImage: "https://www.espritjeu.com/upload/image/catan-p-image-65490-grande.jpg",
-      publicationYear: 1995,
-      category: "Jeu de stratégie",
-      available: false,
-      type: "boardgame"
-    },
-    {
-      id: 4,
-      title: "Pandemic",
-      author: "Z-Man Games",
-      description: "Jeu coopératif où les joueurs travaillent ensemble pour arrêter la propagation de maladies mortelles à travers le monde.",
-      coverImage: "https://bienjouets.fr/3314-large_default/pandemic.jpg",
-      publicationYear: 2008,
-      category: "Jeu coopératif",
-      available: true,
-      type: "boardgame"
-    }
+  // State variables
+  let books = $state([]);
+  let categories = $state(["Toutes"]);
+  let isLoading = $state(true);
+  let error = $state(null);
+  let searchQuery = $state('');
+
+  // New state variables for filters (not connected to API)
+  let selectedCat = $state("Toutes");
+  let selectedFormat = $state("all");
+  let selectedPeriod = $state("all");
+  let selectedAvailability = $state("all");
+  
+  // Add sorting state
+  let sortOption = $state("newest");
+  
+  // Sort options
+  const sortOptions = [
+    { value: "newest", label: "Plus récents" },
+    { value: "oldest", label: "Plus anciens" },
+    { value: "az", label: "Titre (A-Z)" },
+    { value: "za", label: "Titre (Z-A)" },
+    { value: "available", label: "Disponibles d'abord" }
   ];
   
-  // Static categories for display only
-  const categories = ["Toutes", "Fantasy", "Science Fiction", "Jeu de stratégie", "Jeu coopératif", "Jeu de cartes"];
+  // Handle search
+  async function handleSearch() {
+    isLoading = true;
+    error = null;
+    try {
+      books = await fetchBooks({ title: searchQuery });
+    } catch (err) {
+      error = err.message || 'Failed to search books';
+    } finally {
+      isLoading = false;
+    }
+  }
+  
+  // Reset search
+  async function resetSearch() {
+    searchQuery = '';
+    isLoading = true;
+    error = null;
+    try {
+      books = await fetchBooks();
+    } catch (err) {
+      error = err.message || 'Failed to reset search';
+    } finally {
+      isLoading = false;
+    }
+  }
+  
+  // Initialize component
+  onMount(async () => {
+    try {
+      // Fetch formats
+      const formats = await fetchFormats();
+      categories = ["Toutes", ...formats];
+      
+      // Fetch books
+      books = await fetchBooks();
+    } catch (err) {
+      error = err.message || 'Failed to load initial data';
+    } finally {
+      isLoading = false;
+    }
+  });
 </script>
 
 <svelte:head>
-  <title>Catalogue | C.A.R.T.E.L</title>
+  <title>Livres | C.A.R.T.E.L</title>
 </svelte:head>
 
-<div class="catalogue-container">
-  <div class="search-container search-top">
-    <div class="search-bar">
+<div class="container">
+  <div class="search">
+    <div class="search-container">
       <input 
         type="text" 
-        placeholder="Rechercher par titre, auteur ou description..."
+        bind:value={searchQuery}
+        placeholder="Rechercher un livre par titre..."
       />
-      <button class="search-button">
+      <button onclick={handleSearch} aria-label="Rechercher">
         🔍
       </button>
     </div>
   </div>
 
-  <div class="catalogue-main">
-    <!-- Left sidebar with filters (non-functional) -->
-    <aside class="filter-panel">
+  <div class="main">
+    <!-- Left sidebar with filters -->
+    <aside>
       <h2>Filtres</h2>
       
-      <div class="filter-section">
-        <h3>Type</h3>
-        <div class="filter-options">
-          <label class="filter-option">
-            <input type="radio" name="type" checked />
-            <span>Tous</span>
-          </label>
-          <label class="filter-option">
-            <input type="radio" name="type" />
-            <span>Livres</span>
-          </label>
-          <label class="filter-option">
-            <input type="radio" name="type" />
-            <span>Jeux de société</span>
-          </label>
-        </div>
-      </div>
-      
-      <div class="filter-section">
+      <div class="section">
         <h3>Catégorie</h3>
-        <div class="filter-options">
-          <select class="filter-select">
+        <div>
+          <select bind:value={selectedCat} title="Sélectionner une catégorie">
             {#each categories as category}
-              <option>{category}</option>
+              <option value={category}>{category}</option>
             {/each}
           </select>
         </div>
       </div>
+
+      <div class="section">
+        <h3>Format</h3>
+        <div>
+          <select bind:value={selectedFormat} title="Sélectionner un format">
+            <option value="all">Tous</option>
+            <option value="manga">Manga</option>
+            <option value="novel">Roman</option>
+            <option value="comic">BD</option>
+          </select>
+        </div>
+      </div>
       
-      <div class="filter-section">
+      <div class="section">
+        <h3>Période de publication</h3>
+        <div>
+          <label>
+            <input type="radio" name="period" value="all" bind:group={selectedPeriod} />
+            <span>Toutes</span>
+          </label>
+          <label>
+            <input type="radio" name="period" value="before1950" bind:group={selectedPeriod} />
+            <span>Avant 1950</span>
+          </label>
+          <label>
+            <input type="radio" name="period" value="1950-1999" bind:group={selectedPeriod} />
+            <span>1950-1999</span>
+          </label>
+          <label>
+            <input type="radio" name="period" value="after2000" bind:group={selectedPeriod} />
+            <span>2000-présent</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="section">
         <h3>Disponibilité</h3>
-        <div class="filter-options">
-          <label class="filter-option">
-            <input type="radio" name="availability" checked />
+        <div>
+          <label>
+            <input type="radio" name="availability" value="all" bind:group={selectedAvailability} />
             <span>Tous</span>
           </label>
-          <label class="filter-option">
-            <input type="radio" name="availability" />
+          <label>
+            <input type="radio" name="availability" value="available" bind:group={selectedAvailability} />
             <span>Disponible</span>
           </label>
-          <label class="filter-option">
-            <input type="radio" name="availability" />
+          <label>
+            <input type="radio" name="availability" value="unavailable" bind:group={selectedAvailability} />
             <span>Non disponible</span>
           </label>
         </div>
       </div>
       
-      <button class="reset-filters">
-        Réinitialiser les filtres
+      <button class="reset" onclick={resetSearch}>
+        Réinitialiser la recherche
       </button>
     </aside>
     
     <!-- Right side content area -->
-    <div class="catalogue-content">
-      <!-- Sorting options bar (non-functional) -->
-      <div class="sort-bar">
-        <div class="sort-options">
-          <span>Trier par:</span>
-          <select>
-            <option>Titre</option>
-            <option>Auteur/Éditeur</option>
-            <option>Année</option>
-            <option>Date d'ajout</option>
-          </select>
-          <button class="sort-direction" aria-label="Toggle sort direction">
-            ↑
-          </button>
+    <div class="content">
+      <div class="info-bar">
+        <div>
+          <span>Catalogue des livres</span>
         </div>
-        <div class="results-count">
-          {exampleItems.length} résultats
+        <div class="sort-container">
+          <label for="sort-select">Trier par:</label>
+          <select id="sort-select" bind:value={sortOption} class="sort-select">
+            {#each sortOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
+          <div>
+            {books.length} résultats
+          </div>
         </div>
       </div>
       
-      <!-- Results display - Static demo items -->
-      <div class="catalogue-results">
-        
-        {#each exampleItems as item}
-          <div class="catalogue-card">
-            <div class="card-image">
-              <img 
-                src={item.coverImage || `/placeholder_${item.type === 'book' ? 'book' : 'game'}.png`}
-                alt={`Couverture de ${item.title}`}
-                loading="lazy"
-              />
-              <div class="item-type-badge">
-                <img src={`/icons/${item.type === 'book' ? 'books' : 'dice'}.svg`} alt={item.type} />
-              </div>
-            </div>
-            
-            <div class="card-content">
-              <div class="card-header">
-                <h3 class="card-title">{item.title}</h3>
-                <div class="availability-badge" class:available={item.available}>
-                  {item.available ? 'Disponible' : 'Indisponible'}
-                </div>
-              </div>
-              
-              <div class="card-author">
-                <strong>{item.type === 'book' ? 'Auteur :' : 'Éditeur :'}</strong> {item.author}
-              </div>
-              
-              <div class="card-year">
-                <strong>Année :</strong> {item.publicationYear}
-              </div>
-              
-              <div class="card-category">
-                <strong>Catégorie :</strong> {item.category}
-              </div>
-              
-              <p class="card-description">{item.description.substring(0, 150)}{item.description.length > 150 ? '...' : ''}</p>
-            </div>
+      <!-- Loading state -->
+      {#if isLoading}
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Chargement des livres...</p>
+        </div>
+      {/if}
+      
+      <!-- Error state -->
+      {#if error}
+        <div class="error">
+          <p>Erreur lors du chargement des données: {error}</p>
+          <button onclick={resetSearch}>Réessayer</button>
+        </div>
+      {/if}
+      
+      <!-- Results display - cards -->
+      <div class="results">
+        {#if !isLoading && books.length === 0}
+          <div class="no-results">
+            <p>Aucun livre trouvé avec les critères actuels.</p>
           </div>
+        {/if}
+        
+        {#each books as book (book.barcode)}
+          <BookCard {book} />
         {/each}
       </div>
     </div>
@@ -194,318 +216,282 @@
 </div>
 
 <style lang="scss">
-  .catalogue-container {
+  .container {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 4rem);
     position: relative;
     padding-bottom: 2rem;
-  }
-  
-  .catalogue-header {
-    text-align: center;
-    padding: 2rem 1rem;
-    background-color: var(--bg-card);
+    padding-top: 2rem;
+    background-image: url('/textures/dark-brown-old-stone-wall.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
     
-    h1 {
-      font-family: "Pirata One", cursive;
-      font-size: 3rem;
-      color: var(--red);
-      margin: 0;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: 0;
     }
     
-    .subtitle {
-      color: var(--text-dark);
-      margin-top: 0.5rem;
+    .search {
+      padding: 1rem;
+      z-index: 100;
+      position: relative;
       margin-bottom: 1.5rem;
-      font-style: italic;
+      
+      .search-container {
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 50px;
+        background-color: #f0e6d2;
+        
+        input {
+          flex: 1;
+          padding: 0.8rem 1.5rem;
+          background-color: transparent;
+          border: 2px solid #d4b483;
+          border-radius: 50px;
+          color: #59280d;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          
+          &::placeholder {
+            color: rgba(89, 40, 13, 0.5);
+          }
+          
+          &:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 2px rgba(199, 112, 49, 0.2);
+          }
+        }
+        
+        button {
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--orange);
+          color: white;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          font-size: 1.1rem;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          
+          &:hover {
+            background-color: var(--dark-orange);
+          }
+        }
+      }
     }
   }
   
-  .catalogue-main {
+  .main {
     display: flex;
     flex: 1;
     padding: 0 1rem;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-  }
-  
-  // Filter panel (left sidebar)
-  .filter-panel {
-    width: 250px;
-    flex-shrink: 0;
-    padding: 1.5rem;
-    background-color: var(--bg-card);
-    border-radius: 8px;
-    margin-right: 1.5rem;
-    height: fit-content;
+    position: relative;
+    z-index: 1;
     
-    h2 {
-      font-family: "Pirata One", cursive;
-      color: var(--orange);
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      font-size: 1.8rem;
-    }
-    
-    h3 {
-      color: var(--white);
-      margin: 0 0 0.8rem 0;
-      font-size: 1.2rem;
-    }
-  }
-  
-  .filter-section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-  
-  .filter-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .filter-option {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    
-    input {
-      margin-right: 0.5rem;
-    }
-    
-    span {
-      color: var(--white);
-    }
-  }
-  
-  .filter-select {
-    width: 100%;
-    padding: 0.5rem;
-    background-color: #333;
-    color: white;
-    border: 1px solid #555;
-    border-radius: 4px;
-    
-    &:focus {
-      outline: none;
-      border-color: var(--orange);
-    }
-  }
-  
-  .reset-filters {
-    width: 100%;
-    padding: 0.6rem;
-    background-color: transparent;
-    color: var(--orange);
-    border: 1px solid var(--orange);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    
-    &:hover {
-      background-color: rgba(199, 112, 49, 0.2);
-    }
-  }
-  
-  // Content area (right side)
-  .catalogue-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  // Sort bar
-  .sort-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: var(--bg-card);
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    
-    .sort-options {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    aside {
+      width: 250px;
+      flex-shrink: 0;
+      padding: 1.5rem;
+      background-color: #2a2a2a; /* Dark background */
+      border: 8px solid var(--dark-orange); /* Keep orange border for consistency */
+      border-radius: 8px;
+      margin-right: 1.5rem;
+      height: fit-content;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
       
-      span {
+      h2 {
+        font-family: "Pirata One", cursive;
         color: var(--white);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       }
       
-      select {
-        padding: 0.5rem;
-        background-color: #333;
-        color: white;
-        border: 1px solid #555;
-        border-radius: 4px;
+      h3 {
+        color: var(--white);
+        margin: 0 0 0.8rem 0;
+        font-size: 1.2rem;
       }
       
-      .sort-direction {
-        background-color: var(--orange);
-        color: white;
-        border: none;
+      .section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(224, 214, 194, 0.2);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        div {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          
+          label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            
+            input {
+              margin-right: 0.5rem;
+            }
+            
+            span {
+              color: #e0d6c2;
+            }
+          }
+          
+          select {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #343434;
+            color: #e0d6c2;
+            border: 1px solid var(--dark-orange);
+            border-radius: 4px;
+            
+            &:focus {
+              outline: none;
+              border-color: var(--orange);
+            }
+          }
+        }
+      }
+      
+      .reset {
+        width: 100%;
+        padding: 0.6rem;
+        background-color: transparent;
+        color: var(--orange);
+        border: 1px solid var(--orange);
         border-radius: 4px;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         cursor: pointer;
         transition: background-color 0.2s;
         
         &:hover {
-          background-color: var(--dark-orange);
+          background-color: rgba(199, 112, 49, 0.2);
+        }
+      }
+    }
+  }
+  
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: #2a2a2a; /* Dark background */
+      border: 2px solid var(--dark-orange);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      color: var(--white);
+      
+      span {
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+      
+      .sort-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        label {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+        }
+        
+        .sort-select {
+          padding: 0.3rem;
+          background-color: #343434;
+          color: var(--white);
+          border: 1px solid var(--dark-orange);
+          border-radius: 4px;
+          font-size: 0.9rem;
+          
+          &:focus {
+            outline: none;
+            border-color: var(--orange);
+          }
+        }
+        
+        div {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+          margin-left: 0.5rem;
+          white-space: nowrap;
         }
       }
     }
     
-    .results-count {
-      color: var(--white);
-      font-size: 0.9rem;
-    }
-  }
-  
-  // Catalog results
-  .catalogue-results {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding-bottom: 1.5rem; // Reduced from 5rem since search bar is now at top
-  }
-  
-  // Catalog cards - updated to work as buttons
-  .catalogue-card {
-    display: flex;
-    background-color: #2a2a2a;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    font-family: inherit;
-    padding: 0;
-    border: none;
-    margin: 0;
-    
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    }
-    
-    &:focus {
-      outline: 2px solid var(--orange);
-      transform: translateY(-4px);
-    }
-  }
-  
-  .card-image {
-    width: 180px;
-    flex-shrink: 0;
-    position: relative;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .item-type-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
+    .results {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      img {
-        width: 18px;
-        height: 18px;
-        filter: invert(1);
-      }
+      flex-direction: column;
+      padding-bottom: 1.5rem;
     }
   }
   
-  .card-content {
-    padding: 1.5rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.8rem;
-  }
-  
-  .card-title {
-    font-family: "Pirata One", cursive;
-    color: var(--red);
-    font-size: 1.5rem;
-    margin: 0;
-  }
-  
-  .availability-badge {
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    background-color: #f44336;
-    color: white;
+  // Loading and error states
+  .loading, .error, .no-results {
+    padding: 2rem;
+    text-align: center;
+    background-color: #2a2a2a; /* Dark background */
+    border: 2px solid var(--dark-orange);
+    border-radius: 8px;
+    margin: 1rem 0;
     
-    &.available {
-      background-color: #4caf50;
+    .spinner {
+      margin: 0 auto 1rem;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(224, 214, 194, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--orange);
+      animation: spin 1s linear infinite;
     }
-  }
-  
-  .card-author,
-  .card-year,
-  .card-category {
-    margin-bottom: 0.5rem;
-    color: #ddd;
     
-    strong {
-      color: var(--orange);
+    p {
+      color: #e0d6c2;
+      margin: 0;
     }
-  }
-  
-  .card-description {
-    margin: 0.8rem 0;
-    line-height: 1.4;
-    color: #bbb;
-    flex: 1;
-  }
-  
-  .card-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1rem;
     
-    .view-details {
+    button {
+      margin-top: 1rem;
       padding: 0.5rem 1rem;
       background-color: var(--orange);
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s;
       
       &:hover {
         background-color: var(--dark-orange);
@@ -513,157 +499,65 @@
     }
   }
   
-  // Loading, error and empty states
-  .loading-state,
-  .error-state,
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    text-align: center;
+  .error {
+    border: 2px solid var(--red);
     
     p {
-      color: var(--white);
-      margin: 1rem 0;
+      color: var(--red);
     }
   }
   
-  .error-state button {
-    padding: 0.5rem 1rem;
-    background-color: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+  .no-results {
+    padding: 3rem;
+    
+    p {
+      font-size: 1.1rem;
+      color: #e0d6c2;
+      font-style: italic;
+    }
   }
   
-  .loader {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    border-top-color: var(--orange);
-    animation: spin 1s infinite linear;
+  .future-note {
+    color: rgba(224, 214, 194, 0.6);
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+    display: block;
   }
   
   @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  // Search bar styling (updated)
-  .search-container {
-    background-color: rgba(26, 26, 26, 0.95);
-    padding: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    z-index: 100;
-    
-    // Special styling for top search bar
-    &.search-top {
-      position: relative;
-      margin-bottom: 1.5rem;
-      border-radius: 0 0 8px 8px;
+    to {
+      transform: rotate(360deg);
     }
   }
   
-  .search-bar {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.5rem;
-    
-    input {
-      flex: 1;
-      padding: 0.8rem 1rem;
-      border: 2px solid var(--dark-red);
-      background-color: #222;
-      color: white;
-      border-radius: 4px;
-      font-size: 1rem;
-      
-      &:focus {
-        outline: none;
-        border-color: var(--red);
-      }
-    }
-    
-    .search-button {
-      padding: 0 1.2rem;
-      background-color: var(--red);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      font-size: 1.2rem;
-      
-      &:hover {
-        background-color: var(--dark-red);
-      }
-    }
-  }
-  
-  // Responsive styles
   @media (max-width: 900px) {
-    .catalogue-main {
+    .main {
       flex-direction: column;
-    }
-    
-    .filter-panel {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: 1.5rem;
-    }
-    
-    .card-image {
-      width: 120px;
-    }
-  }
-  
-  @media (max-width: 600px) {
-    .catalogue-card {
-      flex-direction: column;
-    }
-    
-    .card-image {
-      width: 100%;
-      height: 200px;
-    }
-    
-    .sort-bar {
-      flex-direction: column;
-      gap: 1rem;
       
-      .sort-options {
+      aside {
         width: 100%;
-        justify-content: space-between;
+        margin-right: 0;
+        margin-bottom: 1.5rem;
       }
     }
   }
   
-  .debug-info {
-    background: #333;
-    color: #fff;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    text-align: center;
-    font-style: italic;
-    border-radius: 4px;
-  }
-  
-  .loading-state-example,
-  .empty-state-example {
-    margin-top: 2rem;
-    border-top: 1px dashed #555;
-    padding-top: 2rem;
-    
-    h3 {
-      color: #999;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      text-align: center;
+  @media (max-width: 768px) {
+    .info-bar {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: flex-start;
+      
+      .sort-container {
+        flex-wrap: wrap;
+        width: 100%;
+        
+        div {
+          margin-top: 0.5rem;
+          width: 100%;
+        }
+      }
     }
   }
 </style>

@@ -1,30 +1,8 @@
 <script>
   import PointBar from '$lib/components/PointBar.svelte';
   
-  // Example data - simplified static version
+  // Filtered data to show only board games
   const exampleItems = [
-    {
-      id: 1,
-      title: "Le Seigneur des Anneaux",
-      author: "J.R.R. Tolkien",
-      description: "Une épopée fantastique dans un monde imaginaire où différentes races s'allient pour détruire un anneau maléfique.",
-      coverImage: "https://m.media-amazon.com/images/I/71jLBXtWJWL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1954,
-      category: "Fantasy",
-      available: true,
-      type: "book"
-    },
-    {
-      id: 2,
-      title: "Fondation",
-      author: "Isaac Asimov",
-      description: "Dans un futur lointain, un mathématicien développe une science permettant de prédire l'avenir de l'humanité et d'en altérer le cours.",
-      coverImage: "https://m.media-amazon.com/images/I/81wW3qopnLL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1951,
-      category: "Science Fiction",
-      available: true,
-      type: "book"
-    },
     {
       id: 3,
       title: "Catan",
@@ -34,27 +12,37 @@
       publicationYear: 1995,
       category: "Jeu de stratégie",
       available: false,
-      type: "boardgame"
+      type: "boardgame",
+      publisher: "Kosmos",
+      minPlayers: 3,
+      maxPlayers: 4,
+      playTime: "60-120 min",
+      minAge: 10
     },
     {
       id: 4,
       title: "Pandemic",
-      author: "Z-Man Games",
+      author: "Matt Leacock",
       description: "Jeu coopératif où les joueurs travaillent ensemble pour arrêter la propagation de maladies mortelles à travers le monde.",
       coverImage: "https://bienjouets.fr/3314-large_default/pandemic.jpg",
       publicationYear: 2008,
       category: "Jeu coopératif",
       available: true,
-      type: "boardgame"
+      type: "boardgame",
+      publisher: "Z-Man Games",
+      minPlayers: 2,
+      maxPlayers: 4,
+      playTime: "45 min",
+      minAge: 8
     }
   ];
   
-  // Static categories for display only
-  const categories = ["Toutes", "Fantasy", "Science Fiction", "Jeu de stratégie", "Jeu coopératif", "Jeu de cartes"];
+  // Game-specific categories
+  const categories = ["Toutes", "Stratégie", "Coopératif", "Gestion", "Familial", "Ambiance", "Cartes", "Fantasy", "Aventure"];
 </script>
 
 <svelte:head>
-  <title>Catalogue | C.A.R.T.E.L</title>
+  <title>Jeux de Société | C.A.R.T.E.L</title>
 </svelte:head>
 
 <div class="catalogue-container">
@@ -62,7 +50,7 @@
     <div class="search-bar">
       <input 
         type="text" 
-        placeholder="Rechercher par titre, auteur ou description..."
+        placeholder="Rechercher un jeu par titre, éditeur ou mécaniques..."
       />
       <button class="search-button">
         🔍
@@ -71,27 +59,9 @@
   </div>
 
   <div class="catalogue-main">
-    <!-- Left sidebar with filters (non-functional) -->
+    <!-- Left sidebar with game-specific filters -->
     <aside class="filter-panel">
       <h2>Filtres</h2>
-      
-      <div class="filter-section">
-        <h3>Type</h3>
-        <div class="filter-options">
-          <label class="filter-option">
-            <input type="radio" name="type" checked />
-            <span>Tous</span>
-          </label>
-          <label class="filter-option">
-            <input type="radio" name="type" />
-            <span>Livres</span>
-          </label>
-          <label class="filter-option">
-            <input type="radio" name="type" />
-            <span>Jeux de société</span>
-          </label>
-        </div>
-      </div>
       
       <div class="filter-section">
         <h3>Catégorie</h3>
@@ -101,6 +71,50 @@
               <option>{category}</option>
             {/each}
           </select>
+        </div>
+      </div>
+      
+      <div class="filter-section">
+        <h3>Nombre de joueurs</h3>
+        <div class="filter-options">
+          <label class="filter-option">
+            <input type="radio" name="players" checked />
+            <span>Tous</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="players" />
+            <span>2 joueurs</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="players" />
+            <span>3-4 joueurs</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="players" />
+            <span>5+ joueurs</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="filter-section">
+        <h3>Durée de partie</h3>
+        <div class="filter-options">
+          <label class="filter-option">
+            <input type="radio" name="duration" checked />
+            <span>Toutes</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="duration" />
+            <span>30 min</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="duration" />
+            <span>30-60 min</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="duration" />
+            <span>60+ min</span>
+          </label>
         </div>
       </div>
       
@@ -129,15 +143,15 @@
     
     <!-- Right side content area -->
     <div class="catalogue-content">
-      <!-- Sorting options bar (non-functional) -->
+      <!-- Sorting options bar (game-specific) -->
       <div class="sort-bar">
         <div class="sort-options">
           <span>Trier par:</span>
           <select>
             <option>Titre</option>
-            <option>Auteur/Éditeur</option>
+            <option>Éditeur</option>
             <option>Année</option>
-            <option>Date d'ajout</option>
+            <option>Durée de jeu</option>
           </select>
           <button class="sort-direction" aria-label="Toggle sort direction">
             ↑
@@ -148,19 +162,19 @@
         </div>
       </div>
       
-      <!-- Results display - Static demo items -->
+      <!-- Results display - Board game-specific cards -->
       <div class="catalogue-results">
         
         {#each exampleItems as item}
           <div class="catalogue-card">
             <div class="card-image">
               <img 
-                src={item.coverImage || `/placeholder_${item.type === 'book' ? 'book' : 'game'}.png`}
-                alt={`Couverture de ${item.title}`}
+                src={item.coverImage || "/placeholder_game.png"}
+                alt={`Image de ${item.title}`}
                 loading="lazy"
               />
               <div class="item-type-badge">
-                <img src={`/icons/${item.type === 'book' ? 'books' : 'dice'}.svg`} alt={item.type} />
+                <img src="/icons/dice.svg" alt="Jeu" />
               </div>
             </div>
             
@@ -173,7 +187,11 @@
               </div>
               
               <div class="card-author">
-                <strong>{item.type === 'book' ? 'Auteur :' : 'Éditeur :'}</strong> {item.author}
+                <strong>Créateur :</strong> {item.author}
+              </div>
+              
+              <div class="card-publisher">
+                <strong>Éditeur :</strong> {item.publisher}
               </div>
               
               <div class="card-year">
@@ -181,7 +199,19 @@
               </div>
               
               <div class="card-category">
-                <strong>Catégorie :</strong> {item.category}
+                <strong>Type de jeu :</strong> {item.category}
+              </div>
+              
+              <div class="card-players">
+                <strong>Joueurs :</strong> {item.minPlayers}-{item.maxPlayers}
+              </div>
+              
+              <div class="card-time">
+                <strong>Durée :</strong> {item.playTime}
+              </div>
+              
+              <div class="card-age">
+                <strong>Âge :</strong> {item.minAge}+
               </div>
               
               <p class="card-description">{item.description.substring(0, 150)}{item.description.length > 150 ? '...' : ''}</p>
@@ -200,26 +230,6 @@
     min-height: calc(100vh - 4rem);
     position: relative;
     padding-bottom: 2rem;
-  }
-  
-  .catalogue-header {
-    text-align: center;
-    padding: 2rem 1rem;
-    background-color: var(--bg-card);
-    
-    h1 {
-      font-family: "Pirata One", cursive;
-      font-size: 3rem;
-      color: var(--red);
-      margin: 0;
-    }
-    
-    .subtitle {
-      color: var(--text-dark);
-      margin-top: 0.5rem;
-      margin-bottom: 1.5rem;
-      font-style: italic;
-    }
   }
   
   .catalogue-main {
@@ -379,10 +389,10 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    padding-bottom: 1.5rem; // Reduced from 5rem since search bar is now at top
+    padding-bottom: 1.5rem;
   }
   
-  // Catalog cards - updated to work as buttons
+  // Catalog cards
   .catalogue-card {
     display: flex;
     background-color: #2a2a2a;
@@ -485,6 +495,18 @@
     }
   }
   
+  .card-publisher,
+  .card-players,
+  .card-time,
+  .card-age {
+    margin-bottom: 0.5rem;
+    color: #ddd;
+    
+    strong {
+      color: var(--orange);
+    }
+  }
+  
   .card-description {
     margin: 0.8rem 0;
     line-height: 1.4;
@@ -492,68 +514,7 @@
     flex: 1;
   }
   
-  .card-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1rem;
-    
-    .view-details {
-      padding: 0.5rem 1rem;
-      background-color: var(--orange);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s;
-      
-      &:hover {
-        background-color: var(--dark-orange);
-      }
-    }
-  }
-  
-  // Loading, error and empty states
-  .loading-state,
-  .error-state,
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    text-align: center;
-    
-    p {
-      color: var(--white);
-      margin: 1rem 0;
-    }
-  }
-  
-  .error-state button {
-    padding: 0.5rem 1rem;
-    background-color: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .loader {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    border-top-color: var(--orange);
-    animation: spin 1s infinite linear;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  // Search bar styling (updated)
+  // Search bar styling
   .search-container {
     background-color: rgba(26, 26, 26, 0.95);
     padding: 1rem;
@@ -640,30 +601,6 @@
         width: 100%;
         justify-content: space-between;
       }
-    }
-  }
-  
-  .debug-info {
-    background: #333;
-    color: #fff;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    text-align: center;
-    font-style: italic;
-    border-radius: 4px;
-  }
-  
-  .loading-state-example,
-  .empty-state-example {
-    margin-top: 2rem;
-    border-top: 1px dashed #555;
-    padding-top: 2rem;
-    
-    h3 {
-      color: #999;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      text-align: center;
     }
   }
 </style>
