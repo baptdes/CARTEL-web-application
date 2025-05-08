@@ -1,37 +1,58 @@
 <script>
   import PointBar from '$lib/components/PointBar.svelte';
+  import BookCard from '$lib/components/BookCard.svelte';
+  import { onMount } from 'svelte';
+  import { fetchBooks, fetchFormats } from '$lib/services/bookService';
   
-  // Books
-  const exampleItems = [
-    {
-      id: 1,
-      title: "Le Seigneur des Anneaux",
-      author: "J.R.R. Tolkien",
-      description: "Une épopée fantastique dans un monde imaginaire où différentes races s'allient pour détruire un anneau maléfique.",
-      coverImage: "https://m.media-amazon.com/images/I/71jLBXtWJWL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1954,
-      category: "Fantasy",
-      available: true,
-      type: "book",
-      publisher: "Allen & Unwin",
-      pages: 1178
-    },
-    {
-      id: 2,
-      title: "Fondation",
-      author: "Isaac Asimov",
-      description: "Dans un futur lointain, un mathématicien développe une science permettant de prédire l'avenir de l'humanité et d'en altérer le cours.",
-      coverImage: "https://m.media-amazon.com/images/I/81wW3qopnLL._AC_UF1000,1000_QL80_.jpg",
-      publicationYear: 1951,
-      category: "Science Fiction",
-      available: true,
-      type: "book",
-      publisher: "Gnome Press",
-      pages: 255
+  // State variables
+  let books = $state([]);
+  let categories = $state(["Toutes"]);
+  let isLoading = $state(true);
+  let error = $state(null);
+  let searchQuery = $state('');
+
+  // Handle search
+  async function handleSearch() {
+    isLoading = true;
+    error = null;
+    try {
+      books = await fetchBooks({ title: searchQuery });
+    } catch (err) {
+      error = err.message || 'Failed to search books';
+    } finally {
+      isLoading = false;
     }
-  ];
+  }
   
-  const categories = ["Toutes", "Fantasy", "Science Fiction", "Roman Historique", "Policier", "Biographie", "Manga", "Bande Dessinée"];
+  // Reset search
+  async function resetSearch() {
+    searchQuery = '';
+    isLoading = true;
+    error = null;
+    try {
+      books = await fetchBooks();
+    } catch (err) {
+      error = err.message || 'Failed to reset search';
+    } finally {
+      isLoading = false;
+    }
+  }
+  
+  // Initialize component
+  onMount(async () => {
+    try {
+      // Fetch formats
+      const formats = await fetchFormats();
+      categories = ["Toutes", ...formats];
+      
+      // Fetch books
+      books = await fetchBooks();
+    } catch (err) {
+      error = err.message || 'Failed to load initial data';
+    } finally {
+      isLoading = false;
+    }
+  });
 </script>
 
 <svelte:head>
@@ -43,27 +64,29 @@
     <div>
       <input 
         type="text" 
-        placeholder="Rechercher un livre par titre, auteur ou genre..."
+        bind:value={searchQuery}
+        placeholder="Rechercher un livre par titre..."
       />
-      <button>
+      <button on:click={handleSearch}>
         🔍
       </button>
     </div>
   </div>
 
   <div class="main">
-    <!-- Left sidebar with filters -->
+    <!-- Left sidebar with filters - Will be implemented with API later -->
     <aside>
       <h2>Filtres</h2>
       
       <div class="section">
-        <h3>Genre</h3>
+        <h3>Format</h3>
         <div>
-          <select>
+          <select disabled title="Cette fonctionnalité sera bientôt disponible">
             {#each categories as category}
-              <option>{category}</option>
+              <option value={category}>{category}</option>
             {/each}
           </select>
+          <small class="future-note">Filtre par API à venir</small>
         </div>
       </div>
       
@@ -71,21 +94,22 @@
         <h3>Période de publication</h3>
         <div>
           <label>
-            <input type="radio" name="period" checked />
+            <input type="radio" name="period" value="all" disabled />
             <span>Toutes</span>
           </label>
           <label>
-            <input type="radio" name="period" />
+            <input type="radio" name="period" value="before1950" disabled />
             <span>Avant 1950</span>
           </label>
           <label>
-            <input type="radio" name="period" />
+            <input type="radio" name="period" value="1950-1999" disabled />
             <span>1950-1999</span>
           </label>
           <label>
-            <input type="radio" name="period" />
+            <input type="radio" name="period" value="after2000" disabled />
             <span>2000-présent</span>
           </label>
+          <small class="future-note">Filtre par API à venir</small>
         </div>
       </div>
       
@@ -93,89 +117,64 @@
         <h3>Disponibilité</h3>
         <div>
           <label>
-            <input type="radio" name="availability" checked />
+            <input type="radio" name="availability" value="all" disabled />
             <span>Tous</span>
           </label>
           <label>
-            <input type="radio" name="availability" />
+            <input type="radio" name="availability" value="available" disabled />
             <span>Disponible</span>
           </label>
           <label>
-            <input type="radio" name="availability" />
+            <input type="radio" name="availability" value="unavailable" disabled />
             <span>Non disponible</span>
           </label>
+          <small class="future-note">Filtre par API à venir</small>
         </div>
       </div>
       
-      <button class="reset">
-        Réinitialiser les filtres
+      <button class="reset" on:click={resetSearch}>
+        Réinitialiser la recherche
       </button>
     </aside>
     
     <!-- Right side content area -->
     <div class="content">
-      <!-- Sorting options bar -->
-      <div class="sort">
+      <!-- Basic info bar -->
+      <div class="info-bar">
         <div>
-          <span>Trier par:</span>
-          <select>
-            <option>Titre</option>
-            <option>Auteur</option>
-            <option>Année de publication</option>
-            <option>Nombre de pages</option>
-          </select>
-          <button aria-label="Toggle sort direction">
-            ↑
-          </button>
+          <span>Catalogue des livres</span>
         </div>
         <div>
-          {exampleItems.length} résultats
+          {books.length} résultats
         </div>
       </div>
       
+      <!-- Loading state -->
+      {#if isLoading}
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Chargement des livres...</p>
+        </div>
+      {/if}
+      
+      <!-- Error state -->
+      {#if error}
+        <div class="error">
+          <p>Erreur lors du chargement des données: {error}</p>
+          <button on:click={resetSearch}>Réessayer</button>
+        </div>
+      {/if}
+      
       <!-- Results display - cards -->
       <div class="results">
-        
-        {#each exampleItems as item}
-          <div class="card">
-            <div class="img">
-              <img 
-                src={item.coverImage}
-                alt={`Couverture de ${item.title}`}
-                loading="lazy"
-              />
-              <div class="badge">
-                <img src="/icons/books.svg" alt="Livre" />
-              </div>
-            </div>
-            
-            <div class="info">
-              <div class="header">
-                <h3>{item.title}</h3>
-                <div class:available={item.available}>
-                  {item.available ? 'Disponible' : 'Indisponible'}
-                </div>
-              </div>
-              
-              <div class="meta">
-                <strong>Auteur :</strong> {item.author}
-              </div>
-              
-              <div class="meta">
-                <strong>Année :</strong> {item.publicationYear}
-              </div>
-              
-              <div class="meta">
-                <strong>Genre :</strong> {item.category}
-              </div>
-              
-              <div class="meta">
-                <strong>Éditeur :</strong> {item.publisher}
-              </div>
-              
-              <p>{item.description.substring(0, 150)}{item.description.length > 150 ? '...' : ''}</p>
-            </div>
+        {#if !isLoading && books.length === 0}
+          <div class="no-results">
+            <p>Aucun livre trouvé avec les critères actuels.</p>
           </div>
+        {/if}
+        
+        {#each books as book (book.barcode)}
+          <BookCard {book} />
         {/each}
       </div>
     </div>
@@ -350,7 +349,7 @@
     display: flex;
     flex-direction: column;
     
-    .sort {
+    .info-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -359,40 +358,9 @@
       border-radius: 8px;
       margin-bottom: 1.5rem;
       
-      div:first-child {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        
-        span {
-          color: var(--white);
-        }
-        
-        select {
-          padding: 0.5rem;
-          background-color: #333;
-          color: white;
-          border: 1px solid #555;
-          border-radius: 4px;
-        }
-        
-        button {
-          background-color: var(--orange);
-          color: white;
-          border: none;
-          border-radius: 4px;
-          width: 30px;
-          height: 30px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          
-          &:hover {
-            background-color: var(--dark-orange);
-          }
-        }
+      span {
+        color: var(--white);
+        font-size: 1.1rem;
       }
       
       div:last-child {
@@ -406,117 +374,70 @@
       flex-direction: column;
       gap: 1.5rem;
       padding-bottom: 1.5rem;
+    }
+  }
+  
+  // Loading and error states
+  .loading, .error, .no-results {
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    margin: 1rem 0;
+    
+    .spinner {
+      margin: 0 auto 1rem;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--orange);
+      animation: spin 1s linear infinite;
+    }
+    
+    p {
+      color: var(--white);
+      margin: 0;
+    }
+    
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
       
-      .card {
-        display: flex;
-        background-color: #2a2a2a;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s, box-shadow 0.2s;
-        cursor: pointer;
-        width: 100%;
-        text-align: left;
-        font-family: inherit;
-        padding: 0;
-        border: none;
-        margin: 0;
-        
-        &:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-        
-        &:focus {
-          outline: 2px solid var(--orange);
-          transform: translateY(-4px);
-        }
-        
-        .img {
-          width: 180px;
-          flex-shrink: 0;
-          position: relative;
-          
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          
-          .badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            
-            img {
-              width: 18px;
-              height: 18px;
-              filter: invert(1);
-            }
-          }
-        }
-        
-        .info {
-          padding: 1.5rem;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.8rem;
-            
-            h3 {
-              font-family: "Pirata One", cursive;
-              color: var(--red);
-              font-size: 1.5rem;
-              margin: 0;
-            }
-            
-            div {
-              padding: 0.3rem 0.6rem;
-              border-radius: 4px;
-              font-size: 0.8rem;
-              font-weight: bold;
-              background-color: #f44336;
-              color: white;
-              
-              &.available {
-                background-color: #4caf50;
-              }
-            }
-          }
-          
-          .meta {
-            margin-bottom: 0.5rem;
-            color: #ddd;
-            
-            strong {
-              color: var(--orange);
-            }
-          }
-          
-          p {
-            margin: 0.8rem 0;
-            line-height: 1.4;
-            color: #bbb;
-            flex: 1;
-          }
-        }
+      &:hover {
+        background-color: var(--dark-orange);
       }
     }
   }
   
-  // Responsive styles
+  .error {
+    border: 1px solid var(--red);
+    
+    p {
+      color: var(--red);
+    }
+  }
+  
+  .no-results {
+    padding: 3rem;
+    
+    p {
+      font-size: 1.1rem;
+      color: #aaa;
+    }
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
   @media (max-width: 900px) {
     .main {
       flex-direction: column;
@@ -526,33 +447,14 @@
         margin-right: 0;
         margin-bottom: 1.5rem;
       }
-      
-      .content .results .card .img {
-        width: 120px;
-      }
     }
   }
   
-  @media (max-width: 600px) {
-    .content {
-      .results .card {
-        flex-direction: column;
-        
-        .img {
-          width: 100%;
-          height: 200px;
-        }
-      }
-      
-      .sort {
-        flex-direction: column;
-        gap: 1rem;
-        
-        div:first-child {
-          width: 100%;
-          justify-content: space-between;
-        }
-      }
-    }
+  .future-note {
+    color: #999;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+    display: block;
   }
 </style>
