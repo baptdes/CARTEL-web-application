@@ -11,6 +11,24 @@
   let error = $state(null);
   let searchQuery = $state('');
 
+  // New state variables for filters (not connected to API)
+  let selectedCat = $state("Toutes");
+  let selectedFormat = $state("all");
+  let selectedPeriod = $state("all");
+  let selectedAvailability = $state("all");
+  
+  // Add sorting state
+  let sortOption = $state("newest");
+  
+  // Sort options
+  const sortOptions = [
+    { value: "newest", label: "Plus récents" },
+    { value: "oldest", label: "Plus anciens" },
+    { value: "az", label: "Titre (A-Z)" },
+    { value: "za", label: "Titre (Z-A)" },
+    { value: "available", label: "Disponibles d'abord" }
+  ];
+  
   // Handle search
   async function handleSearch() {
     isLoading = true;
@@ -61,32 +79,43 @@
 
 <div class="container">
   <div class="search">
-    <div>
+    <div class="search-container">
       <input 
         type="text" 
         bind:value={searchQuery}
         placeholder="Rechercher un livre par titre..."
       />
-      <button on:click={handleSearch}>
+      <button onclick={handleSearch} aria-label="Rechercher">
         🔍
       </button>
     </div>
   </div>
 
   <div class="main">
-    <!-- Left sidebar with filters - Will be implemented with API later -->
+    <!-- Left sidebar with filters -->
     <aside>
       <h2>Filtres</h2>
       
       <div class="section">
-        <h3>Format</h3>
+        <h3>Catégorie</h3>
         <div>
-          <select disabled title="Cette fonctionnalité sera bientôt disponible">
+          <select bind:value={selectedCat} title="Sélectionner une catégorie">
             {#each categories as category}
               <option value={category}>{category}</option>
             {/each}
           </select>
-          <small class="future-note">Filtre par API à venir</small>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Format</h3>
+        <div>
+          <select bind:value={selectedFormat} title="Sélectionner un format">
+            <option value="all">Tous</option>
+            <option value="manga">Manga</option>
+            <option value="novel">Roman</option>
+            <option value="comic">BD</option>
+          </select>
         </div>
       </div>
       
@@ -94,22 +123,21 @@
         <h3>Période de publication</h3>
         <div>
           <label>
-            <input type="radio" name="period" value="all" disabled />
+            <input type="radio" name="period" value="all" bind:group={selectedPeriod} />
             <span>Toutes</span>
           </label>
           <label>
-            <input type="radio" name="period" value="before1950" disabled />
+            <input type="radio" name="period" value="before1950" bind:group={selectedPeriod} />
             <span>Avant 1950</span>
           </label>
           <label>
-            <input type="radio" name="period" value="1950-1999" disabled />
+            <input type="radio" name="period" value="1950-1999" bind:group={selectedPeriod} />
             <span>1950-1999</span>
           </label>
           <label>
-            <input type="radio" name="period" value="after2000" disabled />
+            <input type="radio" name="period" value="after2000" bind:group={selectedPeriod} />
             <span>2000-présent</span>
           </label>
-          <small class="future-note">Filtre par API à venir</small>
         </div>
       </div>
       
@@ -117,35 +145,41 @@
         <h3>Disponibilité</h3>
         <div>
           <label>
-            <input type="radio" name="availability" value="all" disabled />
+            <input type="radio" name="availability" value="all" bind:group={selectedAvailability} />
             <span>Tous</span>
           </label>
           <label>
-            <input type="radio" name="availability" value="available" disabled />
+            <input type="radio" name="availability" value="available" bind:group={selectedAvailability} />
             <span>Disponible</span>
           </label>
           <label>
-            <input type="radio" name="availability" value="unavailable" disabled />
+            <input type="radio" name="availability" value="unavailable" bind:group={selectedAvailability} />
             <span>Non disponible</span>
           </label>
-          <small class="future-note">Filtre par API à venir</small>
         </div>
       </div>
       
-      <button class="reset" on:click={resetSearch}>
+      <button class="reset" onclick={resetSearch}>
         Réinitialiser la recherche
       </button>
     </aside>
     
     <!-- Right side content area -->
     <div class="content">
-      <!-- Basic info bar -->
       <div class="info-bar">
         <div>
           <span>Catalogue des livres</span>
         </div>
-        <div>
-          {books.length} résultats
+        <div class="sort-container">
+          <label for="sort-select">Trier par:</label>
+          <select id="sort-select" bind:value={sortOption} class="sort-select">
+            {#each sortOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
+          <div>
+            {books.length} résultats
+          </div>
         </div>
       </div>
       
@@ -161,7 +195,7 @@
       {#if error}
         <div class="error">
           <p>Erreur lors du chargement des données: {error}</p>
-          <button on:click={resetSearch}>Réessayer</button>
+          <button onclick={resetSearch}>Réessayer</button>
         </div>
       {/if}
       
@@ -188,7 +222,8 @@
     min-height: calc(100vh - 4rem);
     position: relative;
     padding-bottom: 2rem;
-    background-image: url('/textures/dark-brown-old-stone-wall.jpg');
+    padding-top: 2rem;
+    background-image: url('/textures/dark-brown-old-stone-wall.png');
     background-size: cover;
     background-attachment: fixed;
     background-position: center;
@@ -200,7 +235,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.2);
       z-index: 0;
     }
     
@@ -209,41 +244,58 @@
       z-index: 100;
       position: relative;
       margin-bottom: 1.5rem;
-      border-radius: 0 0 8px 8px;
       
-      div {
+      .search-container {
         max-width: 800px;
         margin: 0 auto;
+        position: relative;
         display: flex;
-        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 50px;
+        background-color: #f0e6d2;
         
         input {
           flex: 1;
-          padding: 0.8rem 1rem;
-          border: 2px solid var(--dark-red);
-          background-color: #222;
-          color: white;
-          border-radius: 4px;
+          padding: 0.8rem 1.5rem;
+          background-color: transparent;
+          border: 2px solid #d4b483;
+          border-radius: 50px;
+          color: #59280d;
           font-size: 1rem;
+          transition: all 0.3s ease;
+          
+          &::placeholder {
+            color: rgba(89, 40, 13, 0.5);
+          }
           
           &:focus {
             outline: none;
-            border-color: var(--red);
+            border-color: var(--orange);
+            box-shadow: 0 0 0 2px rgba(199, 112, 49, 0.2);
           }
         }
         
         button {
-          padding: 0 1.2rem;
-          background-color: var(--red);
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--orange);
           color: white;
           border: none;
-          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
           transition: background-color 0.2s;
-          font-size: 1.2rem;
+          font-size: 1.1rem;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
           
           &:hover {
-            background-color: var(--dark-red);
+            background-color: var(--dark-orange);
           }
         }
       }
@@ -264,17 +316,20 @@
       width: 250px;
       flex-shrink: 0;
       padding: 1.5rem;
-      background-color: var(--bg-card);
+      background-color: #2a2a2a; /* Dark background */
+      border: 8px solid var(--dark-orange); /* Keep orange border for consistency */
       border-radius: 8px;
       margin-right: 1.5rem;
       height: fit-content;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
       
       h2 {
         font-family: "Pirata One", cursive;
-        color: var(--orange);
+        color: var(--white);
         margin-top: 0;
         margin-bottom: 1.5rem;
         font-size: 1.8rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       }
       
       h3 {
@@ -286,7 +341,7 @@
       .section {
         margin-bottom: 1.5rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(224, 214, 194, 0.2);
         
         &:last-child {
           border-bottom: none;
@@ -307,16 +362,16 @@
             }
             
             span {
-              color: var(--white);
+              color: #e0d6c2;
             }
           }
           
           select {
             width: 100%;
             padding: 0.5rem;
-            background-color: #333;
-            color: white;
-            border: 1px solid #555;
+            background-color: #343434;
+            color: #e0d6c2;
+            border: 1px solid var(--dark-orange);
             border-radius: 4px;
             
             &:focus {
@@ -354,25 +409,53 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem;
-      background-color: var(--bg-card);
+      background-color: #2a2a2a; /* Dark background */
+      border: 2px solid var(--dark-orange);
       border-radius: 8px;
       margin-bottom: 1.5rem;
+      color: var(--white);
       
       span {
-        color: var(--white);
         font-size: 1.1rem;
+        font-weight: bold;
       }
       
-      div:last-child {
-        color: var(--white);
-        font-size: 0.9rem;
+      .sort-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        label {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+        }
+        
+        .sort-select {
+          padding: 0.3rem;
+          background-color: #343434;
+          color: var(--white);
+          border: 1px solid var(--dark-orange);
+          border-radius: 4px;
+          font-size: 0.9rem;
+          
+          &:focus {
+            outline: none;
+            border-color: var(--orange);
+          }
+        }
+        
+        div {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+          margin-left: 0.5rem;
+          white-space: nowrap;
+        }
       }
     }
     
     .results {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
       padding-bottom: 1.5rem;
     }
   }
@@ -381,7 +464,8 @@
   .loading, .error, .no-results {
     padding: 2rem;
     text-align: center;
-    background-color: var(--bg-card);
+    background-color: #2a2a2a; /* Dark background */
+    border: 2px solid var(--dark-orange);
     border-radius: 8px;
     margin: 1rem 0;
     
@@ -389,14 +473,14 @@
       margin: 0 auto 1rem;
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(255, 255, 255, 0.2);
+      border: 3px solid rgba(224, 214, 194, 0.2);
       border-radius: 50%;
       border-top-color: var(--orange);
       animation: spin 1s linear infinite;
     }
     
     p {
-      color: var(--white);
+      color: #e0d6c2;
       margin: 0;
     }
     
@@ -416,7 +500,7 @@
   }
   
   .error {
-    border: 1px solid var(--red);
+    border: 2px solid var(--red);
     
     p {
       color: var(--red);
@@ -428,8 +512,17 @@
     
     p {
       font-size: 1.1rem;
-      color: #aaa;
+      color: #e0d6c2;
+      font-style: italic;
     }
+  }
+  
+  .future-note {
+    color: rgba(224, 214, 194, 0.6);
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+    display: block;
   }
   
   @keyframes spin {
@@ -450,11 +543,21 @@
     }
   }
   
-  .future-note {
-    color: #999;
-    font-size: 0.8rem;
-    font-style: italic;
-    margin-top: 0.25rem;
-    display: block;
+  @media (max-width: 768px) {
+    .info-bar {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: flex-start;
+      
+      .sort-container {
+        flex-wrap: wrap;
+        width: 100%;
+        
+        div {
+          margin-top: 0.5rem;
+          width: 100%;
+        }
+      }
+    }
   }
 </style>
