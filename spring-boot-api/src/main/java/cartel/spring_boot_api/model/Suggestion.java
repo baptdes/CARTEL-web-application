@@ -1,5 +1,6 @@
 package cartel.spring_boot_api.model;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 import org.springframework.security.core.Transient;
@@ -28,12 +29,18 @@ public class Suggestion {
     @Column(nullable = false)
     private TypeSuggestion type;
 
+    //date de création de l'entité
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
     public Suggestion() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Suggestion(String name, TypeSuggestion type) {
         this.name = name;
         this.type = type;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -58,6 +65,14 @@ public class Suggestion {
 
     public void setType(TypeSuggestion type) {
         this.type = type;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
     
 }
