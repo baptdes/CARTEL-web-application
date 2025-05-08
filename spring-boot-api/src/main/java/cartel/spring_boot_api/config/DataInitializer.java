@@ -29,6 +29,8 @@ import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.PublisherJDSRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
 import cartel.spring_boot_api.repository.ExchangeRepository;
+import cartel.spring_boot_api.repository.SuggestionRepository;
+import cartel.spring_boot_api.model.Suggestion;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +72,8 @@ public class DataInitializer {
     private LoanRepository loanRepository;
     @Autowired
     private ExchangeRepository ExchangeRepository;
+    @Autowired
+    private SuggestionRepository suggestionRepository;
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -138,6 +142,10 @@ public class DataInitializer {
             cartelPersonRepository.save(jean);
             Loan loan1 = new Loan(jds1,jean);
             ExchangeRepository.save(loan1);
+
+            Suggestion suggestion1 = new Suggestion("All you need is kill tome 2", Suggestion.TypeSuggestion.MANGA);
+            suggestionRepository.save(suggestion1);
+
         };
     }
 }
