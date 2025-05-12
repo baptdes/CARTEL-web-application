@@ -12,5 +12,8 @@ export default defineConfig({
 			// rewrite: path => path.replace(/^\/api/, '')
 		  }
 		}
-	}
+	},
+	optimizeDeps: {
+        exclude: ['chunk-BCP3RLPO'] // Add the problematic dependency here
+    }
 });
