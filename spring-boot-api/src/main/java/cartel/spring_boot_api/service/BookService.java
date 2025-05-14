@@ -3,8 +3,8 @@ package cartel.spring_boot_api.service;
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Item;
-import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Book.GenreBook;
+import cartel.spring_boot_api.model.Book.BookFormat;
+import cartel.spring_boot_api.model.Book.BookGenre;
 
 import java.util.List;
 import java.util.Map;
@@ -19,32 +19,15 @@ public interface BookService {
      * 
      * @return List of all Item entities
      */
-    List<Item> getAllBooks();
+    List<Book> getAllBooks();
     
     /**
      * Retrieves a book by its ID
      * 
-     * @param id The barcode/ID of the book to retrieve
+     * @param isbn The barcode/ID of the book to retrieve
      * @return An Optional containing the book if found, empty otherwise
      */
-    Optional<Book> getBookById(String id);
-    
-    /**
-     * Updates an existing book with new details
-     * 
-     * @param id The ID of the book to update
-     * @param bookDetails The updated book data
-     * @return The updated Book entity, or null if not found
-     */
-    Book updateBook(String id, Book bookDetails);
-    
-    /**
-     * Deletes a book by its ID
-     * 
-     * @param id The ID of the book to delete
-     * @return true if the book was deleted, false if not found
-     */
-    boolean deleteBook(String id);
+    Optional<Book> getBookByISBN(String id);
     
     /**
      * Filters books based on various criteria with pagination
@@ -67,7 +50,7 @@ public interface BookService {
                           String titleBook, String publisherName,
                           String authorFirstName, String authorSurname,
                           String illustratorFirstName, String illustratorSurname,
-                          FormatBook category, String serieName);
+                          BookFormat category, String serieName);
     
     /**
      * Imports book information from an external API using ISBN
@@ -90,7 +73,7 @@ public interface BookService {
      * 
      * @return List of all genre enum values
      */
-    List<GenreBook> getAllGenreBooks();
+    List<BookGenre> getAllGenreBooks();
     
     /**
      * Finds an author by name or creates a new one if not found

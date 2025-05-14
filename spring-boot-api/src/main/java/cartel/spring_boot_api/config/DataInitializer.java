@@ -3,9 +3,7 @@ package cartel.spring_boot_api.config;
 import cartel.spring_boot_api.model.*;
 import cartel.spring_boot_api.repository.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -37,23 +35,19 @@ public class DataInitializer {
     @Autowired
     private SerieRepository serieRepository;
     @Autowired
-    private JDSRepository jdsRepository;
+    private GameRepository jdsRepository;
     @Autowired
     private CreatorRepository creatorRepository;
     @Autowired
     private ExtensionRepository extensionRepository;
     @Autowired
-    private PublisherJDSRepository publisherjdsRepository;
+    private PublisherGameRepository publisherjdsRepository;
     @Autowired
     private ItemCopyRepository itemCopyRepository;
     @Autowired 
     private ItemRepository itemRepository;
     @Autowired
     private CartelPersonRepository cartelPersonRepository;
-    @Autowired
-    private LoanRepository loanRepository;
-    @Autowired
-    private ExchangeRepository exchangeRepository;
     @Autowired
     private SuggestionRepository suggestionRepository;
 
@@ -68,7 +62,6 @@ public class DataInitializer {
     private final int numJDS = 20;
     private final int numExtensions = 10;
     private final int numCartelPersons = 25;
-    private final int numLoans = 15;
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
 
@@ -88,19 +81,19 @@ public class DataInitializer {
             List<PublisherBook> publishersBook = loadPublisherBookData(numPublishersBook);
             
             System.out.println("Loading Series data...");
-            List<Serie> series = loadSerieData(numSeries);
+            List<Series> series = loadSerieData(numSeries);
             
             System.out.println("Loading Creator data...");
             List<Creator> creators = loadCreatorData(numCreators);
             
             System.out.println("Loading Publisher JDS data...");
-            List<PublisherJDS> publishersJDS = loadPublisherJDSData(numPublishersJDS);
+            List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
             
             System.out.println("Loading Book data...");
             List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series);
             
             System.out.println("Loading JDS data...");
-            List<JDS> jdsList = loadJDSData(numJDS, creators, publishersJDS);
+            List<Game> jdsList = loadJDSData(numJDS, creators, publishersJDS);
             
             System.out.println("Loading Extension data...");
             List<Extension> extensions = loadExtensionData(numExtensions, creators, publishersJDS, jdsList);
@@ -110,9 +103,6 @@ public class DataInitializer {
             
             System.out.println("Loading Item Copy data...");
             List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
-            
-            System.out.println("Loading Loan data...");
-            List<Loan> loans = loadLoanData(numLoans, cartelPersons);
             
             System.out.println("Loading Suggestion data...");
             loadSuggestionData(numSuggestions);
@@ -159,10 +149,10 @@ public class DataInitializer {
         return publishers;
     }
     
-    private List<Serie> loadSerieData(int count) {
-        List<Serie> series = new ArrayList<>();
+    private List<Series> loadSerieData(int count) {
+        List<Series> series = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Serie serie = new Serie(
+            Series serie = new Series(
                 faker.book().title() + " Series"
             );
             serieRepository.save(serie);
@@ -184,10 +174,10 @@ public class DataInitializer {
         return creators;
     }
     
-    private List<PublisherJDS> loadPublisherJDSData(int count) {
-        List<PublisherJDS> publishers = new ArrayList<>();
+    private List<PublisherGame> loadPublisherJDSData(int count) {
+        List<PublisherGame> publishers = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            PublisherJDS publisher = new PublisherJDS(
+            PublisherGame publisher = new PublisherGame(
                 faker.company().name()
             );
             publisherjdsRepository.save(publisher);
@@ -197,14 +187,14 @@ public class DataInitializer {
     }
     
     private List<Book> loadBookData(int count, List<AuthorBook> authors, List<Illustrator> illustrators, 
-                                   List<PublisherBook> publishers, List<Serie> series) {
+                                   List<PublisherBook> publishers, List<Series> series) {
         List<Book> books = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
             // Create random collections
             Collection<AuthorBook> bookAuthors = getRandomSubList(authors, 1, 3);
             Collection<Illustrator> bookIllustrators = getRandomSubList(illustrators, 0, 2);
-            Collection<Book.GenreBook> genres = getRandomGenres();
+            Collection<Book.BookGenre> genres = getRandomGenres();
             
             // Generate ISBN (13 digits)
             String isbn = "978" + IntStream.range(0, 10)
@@ -228,8 +218,8 @@ public class DataInitializer {
             
             // 70% chance to be part of a series
             if (random.nextInt(100) < 70) {
-                book.setSerie(getRandomElement(series));
-                book.setTome(random.nextInt(10) + 1);
+                book.setSeries(getRandomElement(series));
+                book.setVolumeNumber(random.nextInt(10) + 1);
             }
             
             book.setDescription(faker.lorem().paragraph(3));
@@ -242,23 +232,23 @@ public class DataInitializer {
         return books;
     }
     
-    private List<JDS> loadJDSData(int count, List<Creator> creators, List<PublisherJDS> publishers) {
-        List<JDS> jdsList = new ArrayList<>();
+    private List<Game> loadJDSData(int count, List<Creator> creators, List<PublisherGame> publishers) {
+        List<Game> jdsList = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
             Collection<Creator> gameCreators = getRandomSubList(creators, 1, 3);
-            Collection<JDS.CategoryJDS> categories = getRandomCategories();
+            Collection<Game.GameCategories> categories = getRandomCategories();
             
             String barcode = IntStream.range(0, 13)
                 .mapToObj(n -> String.valueOf(random.nextInt(10)))
                 .collect(Collectors.joining());
             
-            String avgPlaytime = random.nextInt(4) + 1 + "h";
+            int avgPlaytime = random.nextInt(4) + 1; // Changed from String to int
             int minPlayers = random.nextInt(3) + 1;
             int maxPlayers = minPlayers + random.nextInt(8);
             
             // Replace faker.game().title() with a more widely available method
-            JDS jds = new JDS(
+            Game jds = new Game(
                 avgPlaytime,
                 minPlayers,
                 maxPlayers,
@@ -281,12 +271,12 @@ public class DataInitializer {
         return jdsList;
     }
     
-    private List<Extension> loadExtensionData(int count, List<Creator> creators, List<PublisherJDS> publishers, List<JDS> jdsList) {
+    private List<Extension> loadExtensionData(int count, List<Creator> creators, List<PublisherGame> publishers, List<Game> jdsList) {
         List<Extension> extensions = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
             Collection<Creator> extCreators = getRandomSubList(creators, 1, 2);
-            JDS baseGame = getRandomElement(jdsList);
+            Game baseGame = getRandomElement(jdsList);
             
             String barcode = IntStream.range(0, 13)
                 .mapToObj(n -> String.valueOf(random.nextInt(10)))
@@ -297,7 +287,7 @@ public class DataInitializer {
                 extCreators,
                 baseGame.getPublisher(),
                 baseGame.getPublicationYear() + random.nextInt(3) + 1,
-                baseGame.getLangue(),
+                baseGame.getLanguage(),
                 baseGame,
                 barcode
             );
@@ -344,28 +334,6 @@ public class DataInitializer {
         }
         
         return copies;
-    }
-    
-    private List<Loan> loadLoanData(int count, List<CartelPerson> persons) {
-        List<Loan> loans = new ArrayList<>();
-        List<Item> availableItems = itemRepository.findAll().stream()
-            .filter(item -> item.getStatut() == null)
-            .collect(Collectors.toList());
-        
-        for (int i = 0; i < Math.min(count, availableItems.size()); i++) {
-            Item item = availableItems.get(i);
-            CartelPerson borrower = getRandomElement(persons);
-            
-            Loan loan = new Loan(item, borrower);
-            
-            // Set a random loan date in the past month
-            loan.setLoanDate(LocalDateTime.now().minusDays(random.nextInt(30)));
-            
-            exchangeRepository.save(loan);
-            loans.add(loan);
-        }
-        
-        return loans;
     }
     
     private void loadSuggestionData(int count) {
@@ -425,13 +393,13 @@ public class DataInitializer {
         return result;
     }
     
-    private Collection<Book.GenreBook> getRandomGenres() {
-        Book.GenreBook[] allGenres = Book.GenreBook.values();
+    private Collection<Book.BookGenre> getRandomGenres() {
+        Book.BookGenre[] allGenres = Book.BookGenre.values();
         int numGenres = random.nextInt(3) + 1;
-        Collection<Book.GenreBook> genres = new ArrayList<>();
+        Collection<Book.BookGenre> genres = new ArrayList<>();
         
         for (int i = 0; i < numGenres; i++) {
-            Book.GenreBook genre;
+            Book.BookGenre genre;
             do {
                 genre = allGenres[random.nextInt(allGenres.length)];
             } while (genres.contains(genre));
@@ -442,13 +410,13 @@ public class DataInitializer {
         return genres;
     }
     
-    private Collection<JDS.CategoryJDS> getRandomCategories() {
-        JDS.CategoryJDS[] allCategories = JDS.CategoryJDS.values();
+    private Collection<Game.GameCategories> getRandomCategories() {
+        Game.GameCategories[] allCategories = Game.GameCategories.values();
         int numCategories = random.nextInt(3) + 1;
-        Collection<JDS.CategoryJDS> categories = new ArrayList<>();
+        Collection<Game.GameCategories> categories = new ArrayList<>();
         
         for (int i = 0; i < numCategories; i++) {
-            JDS.CategoryJDS category;
+            Game.GameCategories category;
             do {
                 category = allCategories[random.nextInt(allCategories.length)];
             } while (categories.contains(category));
@@ -459,13 +427,13 @@ public class DataInitializer {
         return categories;
     }
     
-    private Book.FormatBook getRandomFormatBook() {
-        Book.FormatBook[] formats = Book.FormatBook.values();
+    private Book.BookFormat getRandomFormatBook() {
+        Book.BookFormat[] formats = Book.BookFormat.values();
         return formats[random.nextInt(formats.length)];
     }
     
-    private Item.Langues getRandomLangue() {
-        Item.Langues[] langues = Item.Langues.values();
+    private Item.Languages getRandomLangue() {
+        Item.Languages[] langues = Item.Languages.values();
         return langues[random.nextInt(langues.length)];
     }
     

@@ -5,24 +5,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="copy")
+@Table(name="copies")
 public class ItemCopy{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idcopy;
-
-    public Long getIdcopy() {
-        return idcopy;
-    }
-
-    public void setIdcopy(Long idcopy) {
-        this.idcopy = idcopy;
-    }
+    private Long id;
 
     @ManyToOne
     private Item objet;
@@ -34,6 +25,13 @@ public class ItemCopy{
         this.objet = objet;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Item getObjet() {
         return objet;

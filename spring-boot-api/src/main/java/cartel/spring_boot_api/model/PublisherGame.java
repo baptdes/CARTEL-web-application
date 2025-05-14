@@ -1,8 +1,6 @@
 package cartel.spring_boot_api.model;
 
 import java.util.Collection;
-import java.util.List;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,24 +11,23 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "series")
-public class Serie {
-    
+@Table(name = "publishersGame")
+public class PublisherGame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String serieName;
+    private String name;
 
-    @OneToMany(mappedBy = "serie")
-    private List<Book> seriesItem;
+    @OneToMany(mappedBy = "publisher")
+    private Collection<Game> publishedGames;
 
-    public Serie() {
+    public PublisherGame() {
     }
 
-    public Serie(String name) {
-        this.serieName = name;
+    public PublisherGame(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -41,20 +38,19 @@ public class Serie {
         this.id = id;
     }
 
-    public String getSerieName() {
-        return serieName;
+    public String getName() {
+        return name;
     }
 
-    public void setSerieName(String name) {
-        this.serieName = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<Book> getSerieItem() {
-        return seriesItem;
+    public Collection<Game> getPublishedGames() {
+        return publishedGames;
     }
 
-    public void setSerieItem(List<Book> seriesItem) {
-        this.seriesItem = seriesItem;
+    public void setPublishedGames(Collection<Game> publishedGames) {
+        this.publishedGames = publishedGames;
     }
-
 }

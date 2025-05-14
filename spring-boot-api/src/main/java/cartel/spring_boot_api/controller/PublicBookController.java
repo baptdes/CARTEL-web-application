@@ -1,9 +1,8 @@
 package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.Book;
-import cartel.spring_boot_api.model.Item;
-import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Book.GenreBook;
+import cartel.spring_boot_api.model.Book.BookFormat;
+import cartel.spring_boot_api.model.Book.BookGenre;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,46 +28,21 @@ public class PublicBookController {
      * @return List of all books in the system
      */
     @GetMapping
-    public List<Item> getAllBooks() {
+    public List<Book> getAllBooks() {
         return bookService.getAllBooks();
     }
 
     /**
      * Retrieves a specific book by ID
      * 
-     * @param id The ID/barcode of the book to retrieve
+     * @param isnb The ID/barcode of the book to retrieve
      * @return ResponseEntity containing the book if found, or 404 Not Found
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable String id) {
-        return bookService.getBookById(id)
+    @GetMapping("/{isbn}")
+    public ResponseEntity<Book> getBookByISBN(@PathVariable String isbn) {
+        return bookService.getBookByISBN(isbn)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Updates an existing book
-     * 
-     * @param id The ID of the book to update
-     * @param bookDetails The updated book data
-     * @return ResponseEntity with updated book if successful, or 404 Not Found
-     */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable String id, @RequestBody Book bookDetails) {
-        Book updatedBook = bookService.updateBook(id, bookDetails);
-        return updatedBook != null ? ResponseEntity.ok(updatedBook) : ResponseEntity.notFound().build();
-    }
-
-    /**
-     * Deletes a book by its ID
-     * 
-     * @param id The ID of the book to delete
-     * @return ResponseEntity with 200 OK if deleted, or 404 Not Found
-     */
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable String id) {
-        boolean deleted = bookService.deleteBook(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
@@ -100,7 +74,7 @@ public class PublicBookController {
             @RequestParam(required = false) String authorSurname,
             @RequestParam(required = false) String illustratorFirstName,
             @RequestParam(required = false) String illustratorSurname,
-            @RequestParam(required = false) FormatBook category,
+            @RequestParam(required = false) BookFormat category,
             @RequestParam(required = false) String serieName) {
         
         return bookService.filterBooks(pageNumber, pageSize, asc, sortBy, titleBook, 
@@ -109,15 +83,15 @@ public class PublicBookController {
     }
 
     /**
-     * Get book details by ISBN code
+     * Get book details by ISBN code from BNF API
      * 
-     * @param isbn The ISBN code of the book to import
+     * @param isbn The ISBN code of the book
      * @return 
      */
-    @PostMapping("/import/isbn/{isbn}")
-    public ResponseEntity<Book> addBookByIsbn(@PathVariable String isbn) {
-        Book book = bookService.getBookWithISBN(isbn);
-        return book != null ? ResponseEntity.ok(book) : ResponseEntity.notFound().build();
+    @PostMapping("/bnf/{isbn}")
+    public ResponseEntity<Book> getBookFromBNF(@PathVariable String isbn) {
+        // TODO : Wait for Tom code
+        return ResponseEntity.notFound().build();
     }
 
     /**
@@ -136,7 +110,7 @@ public class PublicBookController {
      * @return List of all genre enum values
      */
     @GetMapping("/genre")
-    public List<GenreBook> getAllGenreBooks() {
+    public List<BookGenre> getAllGenreBooks() {
         return bookService.getAllGenreBooks();
     }
 }

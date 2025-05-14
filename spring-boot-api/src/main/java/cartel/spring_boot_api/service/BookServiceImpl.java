@@ -2,18 +2,12 @@ package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
-import cartel.spring_boot_api.model.Illustrator;
-import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.PublisherBook;
-import cartel.spring_boot_api.model.Serie;
-import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Book.GenreBook;
+import cartel.spring_boot_api.model.Book.BookFormat;
+import cartel.spring_boot_api.model.Book.BookGenre;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
-import cartel.spring_boot_api.repository.IllustratorRepository;
-import cartel.spring_boot_api.repository.ItemRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
-import cartel.spring_boot_api.repository.SerieRepository;
 import static cartel.spring_boot_api.specification.BookSpecification.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +26,6 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.*;
 import java.io.StringReader;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,9 +35,6 @@ import java.util.Optional;
 
 @Service
 public class BookServiceImpl implements BookService {
-
-    @Autowired
-    private ItemRepository itemRepository;
     
     @Autowired
     private BookRepository bookRepository;
@@ -53,53 +43,21 @@ public class BookServiceImpl implements BookService {
     private AuthorBookRepository authorBookRepository;
     
     @Autowired
-    private IllustratorRepository illustratorRepository;
-    
-    @Autowired
     private PublisherBookRepository publisherBookRepository;
-    
-    @Autowired
-    private SerieRepository serieRepository;
 
     @Override
-    public List<Item> getAllBooks() {
-        return itemRepository.findAll();
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
     }
 
     @Override
-    public Optional<Book> getBookById(String id) {
-        return bookRepository.findById(id);
-    }
-
-    @Override
-    public Book updateBook(String id, Book bookDetails) {
-        return bookRepository.findById(id)
-                .map(existingBook -> {
-                    existingBook.setName(bookDetails.getName());
-                    existingBook.setAuthor(bookDetails.getAuthor());
-                    existingBook.setDescription(bookDetails.getDescription());
-                    existingBook.setCoverImage(bookDetails.getCoverImage());
-                    existingBook.setPublicationYear(bookDetails.getPublicationYear());
-                    existingBook.setFormat(bookDetails.getFormat());
-                    existingBook.setSerie(bookDetails.getSerie());
-                    existingBook.setTome(bookDetails.getTome());
-                    existingBook.setIllustrator(bookDetails.getIllustrator());
-                    existingBook.setPublisher(bookDetails.getPublisher());
-                    existingBook.setUpdatedAt(LocalDateTime.now());
-                    
-                    return bookRepository.save(existingBook);
-                })
-                .orElse(null);
-    }
-
-    @Override
-    public boolean deleteBook(String id) {
-        return bookRepository.findById(id)
-                .map(book -> {
-                    bookRepository.delete(book);
-                    return true;
-                })
-                .orElse(false);
+    public Optional<Book> getBookByISBN(String id) {
+        List<Book> books = bookRepository.findByBarcode(id);
+        if (books.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(books.get(0));
+        }
     }
 
     @Override
@@ -107,7 +65,7 @@ public class BookServiceImpl implements BookService {
                                  String titleBook, String publisherName,
                                  String authorFirstName, String authorSurname,
                                  String illustratorFirstName, String illustratorSurname,
-                                 FormatBook category, String serieName) {
+                                 BookFormat category, String serieName) {
         Pageable page = asc ? 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) : 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
@@ -141,9 +99,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<GenreBook> getAllGenreBooks() {
-        List<GenreBook> genres = new ArrayList<>();
-        for (GenreBook genre : GenreBook.values()) {
+    public List<BookGenre> getAllGenreBooks() {
+        List<BookGenre> genres = new ArrayList<>();
+        for (BookGenre genre : BookGenre.values()) {
             genres.add(genre);
         }
         return genres;

@@ -1,18 +1,13 @@
 package cartel.spring_boot_api.specification;
 
-import java.util.List;
-
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
-import cartel.spring_boot_api.model.Serie;
-import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Book.GenreBook;
+import cartel.spring_boot_api.model.Series;
+import cartel.spring_boot_api.model.Book.BookFormat;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Path;
 
 
 public class BookSpecification {
@@ -23,7 +18,7 @@ public class BookSpecification {
     }
 
     // Filter books by their category.
-    public static Specification<Book> categoryEqual(FormatBook category) {
+    public static Specification<Book> categoryEqual(BookFormat category) {
         return (book, query, builder) -> builder.equal(book.get("format"), category);
     }
 
@@ -45,7 +40,7 @@ public class BookSpecification {
 	// Filter by serie name.
     public static Specification<Book> fromSerieByName(String serieName) {
         return (root, query, builder) -> {
-            Join<Book,Serie> serieBook = root.join("serie");
+            Join<Book,Series> serieBook = root.join("serie");
             return builder.like(serieBook.get("serieName"), "%" + serieName + "%");
         };
     }

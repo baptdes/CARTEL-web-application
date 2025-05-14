@@ -26,9 +26,10 @@ public class Illustrator {
     @Column(nullable = false)
     private String firstname;
 
+    // Books the illustrator has illustrated
     @JsonIgnore
     @ManyToMany(mappedBy = "illustrator")
-    private Collection<Book> drawedBook;
+    private Collection<Book> illustratedBooks;
 
 
     public Illustrator() {
@@ -63,13 +64,11 @@ public class Illustrator {
         this.firstname = firstname;
     }
 
-    public Collection<Book> getDrawedBook() {
-        return drawedBook;
+    public Collection<Book> getIllustratedBooks() {
+        return illustratedBooks;
     }
 
-    public void setDrawedBook(Collection<Book> drawedBook) {
-        this.drawedBook = drawedBook;
+    public void setIllustratedBooks(Collection<Book> illustratedBooks) {
+        this.illustratedBooks = illustratedBooks;
     }
-
-    
 }
