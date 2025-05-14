@@ -251,7 +251,7 @@ public class DataInitializer {
                 avgPlaytime,
                 minPlayers,
                 maxPlayers,
-                faker.overwatch().hero(),
+                faker.music().genre() + " " + faker.overwatch().hero(),
                 gameCreators,
                 getRandomElement(publishers),
                 faker.number().numberBetween(1995, 2023),

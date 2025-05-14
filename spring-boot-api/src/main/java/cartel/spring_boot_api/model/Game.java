@@ -33,9 +33,6 @@ public class Game extends Item{
     // Max number of players
     @Column(nullable = false)
     private int maxPlayers;
-    
-    @Column(nullable = false)
-    private String name;
 
     private Collection<GameCategories> categories;
     
@@ -94,14 +91,6 @@ public class Game extends Item{
 
     public void setMaxPlayers(int nbrplmax) {
         this.maxPlayers = nbrplmax;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Collection<Creator> getCreators() {
