@@ -8,7 +8,7 @@
   $effect(() => {
     authenticated = $isAuthenticated;
     if (!authenticated) {
-      // goto('/login');
+      goto('/login');
     }
   });
 
