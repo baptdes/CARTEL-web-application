@@ -1,13 +1,10 @@
-<script>
-  // You can add any logic here if needed later
-</script>
-
 <div class="construction-container">
   <div class="construction-content">
     <h1>Page En Construction</h1>
     <div class="icon">🚧</div>
     <p>Cette page est actuellement en cours de développement.</p>
     <p>Merci pour votre patience.</p>
+
   </div>
 </div>
 
