@@ -1,45 +1,29 @@
 <script>
-  import { goto } from '$app/navigation';
- import { adminPageState } from '../store.js';
- import { isAuthenticated, logout } from '$lib/auth';
-
+  import { goto } from "$app/navigation";
+  import { adminPageState } from "../store.js";
+  import { isAuthenticated, logout } from "$lib/auth";
+  import DoubleText from "$lib/misc/DoubleText.svelte";
+  import StackText from "$lib/misc/StackText.svelte";
+  import PointBar from "$lib/misc/PointBar.svelte";
 </script>
 
+<main>
+  <DoubleText text="Purge" size="4em" />
+  <!-- <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button> -->
 
-  <main>
-    <h2>Catalogue</h2>
-    <button class="return-button"  type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button>
-  </main>
+  <PointBar Color="var(--accent)" width="70%" />
 
+  <StackText/>
+</main>
 
+<style lang="scss">
 
-<style>
-  h2 {
-    font-family: "Pirata One", cursive;
-    color: var(--orange);
-    margin-bottom: 1.5rem;
+  @use "/src/lib/sass/base" as base;
+
+  main {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-
-  .return-button {
-    background-color: var(--orange);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-    .logout-button {
-    background-color: var(--dark-red);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
-
 </style>
-
