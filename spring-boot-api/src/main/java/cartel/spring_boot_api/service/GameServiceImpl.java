@@ -1,10 +1,10 @@
 package cartel.spring_boot_api.service;
 
-import cartel.spring_boot_api.model.Creator;
+import cartel.spring_boot_api.model.AuthorGame;
 import cartel.spring_boot_api.model.Game;
 import cartel.spring_boot_api.model.PublisherGame;
 import cartel.spring_boot_api.model.Game.GameCategories;
-import cartel.spring_boot_api.repository.CreatorRepository;
+import cartel.spring_boot_api.repository.AuthorGameRepository;
 import cartel.spring_boot_api.repository.GameRepository;
 import cartel.spring_boot_api.repository.PublisherGameRepository;
 import static cartel.spring_boot_api.specification.GameSpecification.*;
@@ -30,7 +30,7 @@ public class GameServiceImpl implements GameService {
     private GameRepository gameRepository;
     
     @Autowired
-    private CreatorRepository creatorRepository;
+    private AuthorGameRepository creatorRepository;
     
     @Autowired
     private PublisherGameRepository publisherGameRepository;
@@ -76,10 +76,10 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public List<Map<String, String>> getAllCreators() {
-        List<Creator> creators = creatorRepository.findAll();
+        List<AuthorGame> creators = creatorRepository.findAll();
         List<Map<String, String>> creatorList = new ArrayList<>();
         
-        for (Creator creator : creators) {
+        for (AuthorGame creator : creators) {
             Map<String, String> creatorMap = new HashMap<>();
             creatorMap.put("firstname", creator.getFirstname());
             creatorMap.put("surname", creator.getSurname());
@@ -99,10 +99,10 @@ public class GameServiceImpl implements GameService {
     }
     
     @Override
-    public Creator findOrCreateCreator(String firstname, String surname) {
-        List<Creator> creator = creatorRepository.findByFirstnameAndSurnameIgnoreCase(firstname, surname);
+    public AuthorGame findOrCreateCreator(String firstname, String surname) {
+        List<AuthorGame> creator = creatorRepository.findByFirstnameAndSurnameIgnoreCase(firstname, surname);
         if (creator.isEmpty()) {
-            Creator newCreator = new Creator(surname, firstname); 
+            AuthorGame newCreator = new AuthorGame(surname, firstname); 
             return creatorRepository.save(newCreator);
         } else {
             if (creator.size() == 1) {

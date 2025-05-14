@@ -37,7 +37,7 @@ public class DataInitializer {
     @Autowired
     private GameRepository jdsRepository;
     @Autowired
-    private CreatorRepository creatorRepository;
+    private AuthorGameRepository creatorRepository;
     @Autowired
     private ExtensionRepository extensionRepository;
     @Autowired
@@ -84,7 +84,7 @@ public class DataInitializer {
             List<Series> series = loadSerieData(numSeries);
             
             System.out.println("Loading Creator data...");
-            List<Creator> creators = loadCreatorData(numCreators);
+            List<AuthorGame> creators = loadCreatorData(numCreators);
             
             System.out.println("Loading Publisher JDS data...");
             List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
@@ -161,10 +161,10 @@ public class DataInitializer {
         return series;
     }
     
-    private List<Creator> loadCreatorData(int count) {
-        List<Creator> creators = new ArrayList<>();
+    private List<AuthorGame> loadCreatorData(int count) {
+        List<AuthorGame> creators = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Creator creator = new Creator(
+            AuthorGame creator = new AuthorGame(
                 faker.name().lastName(),
                 faker.name().firstName()
             );
@@ -232,11 +232,11 @@ public class DataInitializer {
         return books;
     }
     
-    private List<Game> loadJDSData(int count, List<Creator> creators, List<PublisherGame> publishers) {
+    private List<Game> loadJDSData(int count, List<AuthorGame> creators, List<PublisherGame> publishers) {
         List<Game> jdsList = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
-            Collection<Creator> gameCreators = getRandomSubList(creators, 1, 3);
+            Collection<AuthorGame> gameCreators = getRandomSubList(creators, 1, 3);
             Collection<Game.GameCategories> categories = getRandomCategories();
             
             String barcode = IntStream.range(0, 13)
@@ -270,11 +270,11 @@ public class DataInitializer {
         return jdsList;
     }
     
-    private List<Extension> loadExtensionData(int count, List<Creator> creators, List<PublisherGame> publishers, List<Game> jdsList) {
+    private List<Extension> loadExtensionData(int count, List<AuthorGame> creators, List<PublisherGame> publishers, List<Game> jdsList) {
         List<Extension> extensions = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
-            Collection<Creator> extCreators = getRandomSubList(creators, 1, 2);
+            Collection<AuthorGame> extCreators = getRandomSubList(creators, 1, 2);
             Game baseGame = getRandomElement(jdsList);
             
             String barcode = IntStream.range(0, 13)

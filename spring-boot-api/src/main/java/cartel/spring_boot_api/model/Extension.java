@@ -24,7 +24,7 @@ public class Extension extends Item{
     @Column(nullable = false)
     @JsonIgnore
     @ManyToMany
-    private Collection<Creator> creators;
+    private Collection<AuthorGame> creators;
 
     @JoinColumn(nullable = false)
     @JsonIgnore
@@ -40,7 +40,7 @@ public class Extension extends Item{
     public Extension() {
     }
 
-    public Extension(String name, Collection<Creator> creators, PublisherGame publisher,
+    public Extension(String name, Collection<AuthorGame> creators, PublisherGame publisher,
             Integer publicationYear, Languages langue, Game game,String barcode) {
         super(barcode,name,publicationYear,langue);
         this.creators = creators;
@@ -56,11 +56,11 @@ public class Extension extends Item{
         this.name = name;
     }
 
-    public Collection<Creator> getCreators() {
+    public Collection<AuthorGame> getCreators() {
         return creators;
     }
 
-    public void setCreators(Collection<Creator> creators) {
+    public void setCreators(Collection<AuthorGame> creators) {
         this.creators = creators;
     }
 

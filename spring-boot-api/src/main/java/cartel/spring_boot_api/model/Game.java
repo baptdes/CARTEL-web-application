@@ -36,11 +36,10 @@ public class Game extends Item{
 
     private Collection<GameCategories> categories;
     
-    // Games creators
     @Column(nullable = false)
     @JsonIgnore
     @ManyToMany
-    private Collection<Creator> creators;
+    private Collection<AuthorGame> authors;
 
     // Game publisher
     @JoinColumn(nullable = false)
@@ -57,12 +56,12 @@ public class Game extends Item{
     }
 
     public Game(int avgPlaytime, int nbrplmin, int nbrplmax, String name,
-    Collection<Creator> creator, PublisherGame publisher, Integer publicationYear, Languages langue,String barcode, Collection<GameCategories> category) {
+    Collection<AuthorGame> creator, PublisherGame publisher, Integer publicationYear, Languages langue,String barcode, Collection<GameCategories> category) {
         super(barcode,name,publicationYear,langue);
         this.avgPlaytime = avgPlaytime;
         this.minPlayers = nbrplmin;
         this.maxPlayers = nbrplmax;
-        this.creators = creator;
+        this.authors = creator;
         this.publisher = publisher;
         this.categories = category;
     }
@@ -93,12 +92,12 @@ public class Game extends Item{
         this.maxPlayers = nbrplmax;
     }
 
-    public Collection<Creator> getCreators() {
-        return creators;
+    public Collection<AuthorGame> getAuthors() {
+        return authors;
     }
 
-    public void setCreators(Collection<Creator> creator) {
-        this.creators = creator;
+    public void setAuthors(Collection<AuthorGame> creator) {
+        this.authors = creator;
     }
 
     public PublisherGame getPublisher() {

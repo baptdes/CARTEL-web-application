@@ -1,6 +1,6 @@
 package cartel.spring_boot_api.service;
 
-import cartel.spring_boot_api.model.Creator;
+import cartel.spring_boot_api.model.AuthorGame;
 import cartel.spring_boot_api.model.Game;
 import cartel.spring_boot_api.model.Game.GameCategories;
 
@@ -24,5 +24,5 @@ public interface GameService {
     
     List<GameCategories> getAllGameCategories();
     
-    Creator findOrCreateCreator(String firstname, String surname);
+    AuthorGame findOrCreateCreator(String firstname, String surname);
 }

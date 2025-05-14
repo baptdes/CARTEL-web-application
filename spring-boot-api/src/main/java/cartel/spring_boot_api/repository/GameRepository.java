@@ -1,6 +1,6 @@
 package cartel.spring_boot_api.repository;
 
-import cartel.spring_boot_api.model.Creator;
+import cartel.spring_boot_api.model.AuthorGame;
 import cartel.spring_boot_api.model.Game;
 import cartel.spring_boot_api.model.PublisherGame;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface GameRepository extends JpaRepository<Game, String>, JpaSpecificationExecutor<Game> {
     List<Game> findByNameContainingIgnoreCase(String name);
-    List<Game> findByCreators(Creator creator);
+    List<Game> findByAuthors(AuthorGame author);
     List<Game> findByPublisher(PublisherGame publisher);
     List<Game> findByBarcode(String barcode);
 }
