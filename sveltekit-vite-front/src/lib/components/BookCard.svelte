@@ -121,15 +121,9 @@
   }
 
   /* Card layout for the book structure */
-  .card-content {
-    padding: 1.5rem 2.5rem;  /* Increased horizontal padding from 1.5rem to 2.5rem */
-    flex: 1;
-    position: relative;
-    z-index: 2;
-  }
-
   .card-layout {
     display: flex;
+    padding: 1.5rem 1rem;
     
     .img {
       width: 180px;
@@ -145,63 +139,63 @@
         transition: transform 0.5s ease;
       }
     }
+  }
+  
+  .card-medieval:hover .img img {
+    transform: scale(1.05);
+  }
+  
+  .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     
-    .card-medieval:hover .img img {
-      transform: scale(1.05);
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+      
+      h3 {
+        font-family: "Pirata One", cursive;
+        color: #4a230c;
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+      }
+      
+      div {
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        background-color: #8B2E2E;
+        color: white;
+        border: 1px solid #6e2e2e;
+        box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.3);
+        
+        &.available {
+          background-color: #5B8B2E;
+          border: 1px solid #4a7a1d;
+        }
+      }
     }
     
-    .info {
+    .meta {
+      margin-bottom: 0.5rem;
+      color: #4a230c;
+      
+      strong {
+        color: #8B4513;
+      }
+    }
+    
+    p {
+      margin: 0.8rem 0;
+      line-height: 1.4;
+      color: #4a230c;
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.8rem;
-        
-        h3 {
-          font-family: "Pirata One", cursive;
-          color: #4a230c;
-          font-size: 1.5rem;
-          margin: 0;
-          text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-        }
-        
-        div {
-          padding: 0.3rem 0.6rem;
-          border-radius: 4px;
-          font-size: 0.8rem;
-          font-weight: bold;
-          background-color: #8B2E2E;
-          color: white;
-          border: 1px solid #6e2e2e;
-          box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.3);
-          
-          &.available {
-            background-color: #5B8B2E;
-            border: 1px solid #4a7a1d;
-          }
-        }
-      }
-      
-      .meta {
-        margin-bottom: 0.5rem;
-        color: #4a230c;
-        
-        strong {
-          color: #8B4513;
-        }
-      }
-      
-      p {
-        margin: 0.8rem 0;
-        line-height: 1.4;
-        color: #4a230c;
-        flex: 1;
-        font-style: italic;
-      }
+      font-style: italic;
     }
   }
 
