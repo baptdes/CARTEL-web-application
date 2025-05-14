@@ -243,16 +243,15 @@ public class DataInitializer {
                 .mapToObj(n -> String.valueOf(random.nextInt(10)))
                 .collect(Collectors.joining());
             
-            int avgPlaytime = random.nextInt(4) + 1; // Changed from String to int
+            int avgPlaytime = random.nextInt(4) + 1;
             int minPlayers = random.nextInt(3) + 1;
             int maxPlayers = minPlayers + random.nextInt(8);
             
-            // Replace faker.game().title() with a more widely available method
-            Game jds = new Game(
+            Game game = new Game(
                 avgPlaytime,
                 minPlayers,
                 maxPlayers,
-                faker.app().name() + " " + faker.company().buzzword(),
+                faker.overwatch().hero(),
                 gameCreators,
                 getRandomElement(publishers),
                 faker.number().numberBetween(1995, 2023),
@@ -261,11 +260,11 @@ public class DataInitializer {
                 categories
             );
             
-            jds.setDescription(faker.lorem().paragraph(2));
-            jds.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
+            game.setDescription(faker.lorem().paragraph(2));
+            game.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
             
-            itemRepository.save(jds);
-            jdsList.add(jds);
+            itemRepository.save(game);
+            jdsList.add(game);
         }
         
         return jdsList;
@@ -283,7 +282,7 @@ public class DataInitializer {
                 .collect(Collectors.joining());
             
             Extension extension = new Extension(
-                baseGame.getName() + ": " + faker.marketing().buzzwords(),
+                baseGame.getName() + ": " + faker.marketing().buzzwords(), // Ensure name is not null
                 extCreators,
                 baseGame.getPublisher(),
                 baseGame.getPublicationYear() + random.nextInt(3) + 1,

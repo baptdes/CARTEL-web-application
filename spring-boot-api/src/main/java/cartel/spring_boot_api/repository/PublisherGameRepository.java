@@ -9,5 +9,5 @@ import cartel.spring_boot_api.model.PublisherGame;
 
 @Repository
 public interface PublisherGameRepository extends JpaRepository<PublisherGame, Long>{
-    List<PublisherGame> findByNameContainingIgnoreCase(String name);
+    List<PublisherGame> findByNameIgnoreCase(String name);
 }
