@@ -23,16 +23,6 @@ public class PublicBookController {
     private BookService bookService;
 
     /**
-     * Retrieves all books
-     * 
-     * @return List of all books in the system
-     */
-    @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
-    }
-
-    /**
      * Retrieves a specific book by ID
      * 
      * @param isnb The ID/barcode of the book to retrieve
@@ -62,10 +52,10 @@ public class PublicBookController {
      * @param serieName Filter by series name
      * @return List of books matching the criteria
      */
-    @GetMapping("/filterBooks")
+    @GetMapping
     public List<Book> filterBooks(
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "20") int pageSize,
             @RequestParam(defaultValue = "true") boolean asc,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(required = false) String titleBook,

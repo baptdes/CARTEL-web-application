@@ -38,7 +38,7 @@
             </div>
             
             <div class="meta">
-              <strong>Auteur :</strong> {formatAuthor(book) || 'Non spécifié'}
+              <strong>{book.authors && Array.isArray(book.authors) && book.authors.length > 1 ? 'Auteurs' : 'Auteur'} :</strong> {formatAuthor(book) || 'Non spécifié'}
             </div>
             
             <div class="meta">

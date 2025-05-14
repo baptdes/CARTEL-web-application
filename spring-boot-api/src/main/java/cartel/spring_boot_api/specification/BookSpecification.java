@@ -56,7 +56,7 @@ public class BookSpecification {
     // Filter by author first name.
     public static Specification<Book> fromAuthorByFirstName(String authorFirstName) {
         return (root, query, builder) -> {
-            Join<Book,AuthorBook> authorBook = root.join("author");
+            Join<Book,AuthorBook> authorBook = root.join("authors");
             return builder.like(authorBook.get("firstname"), "%" + authorFirstName + "%");
         };
     }
@@ -64,7 +64,7 @@ public class BookSpecification {
     // Filter by author last name.
     public static Specification<Book> fromAuthorBySurname(String authorSurname) {
         return (root, query, builder) -> {
-            Join<Book,AuthorBook> authorBook = root.join("author");
+            Join<Book,AuthorBook> authorBook = root.join("authors");
             return builder.like(authorBook.get("surname"), "%" + authorSurname + "%");
         };
     }
