@@ -7,6 +7,7 @@ import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Serie;
 import cartel.spring_boot_api.model.Book.FormatBook;
+import cartel.spring_boot_api.model.Book.GenreBook;
 import cartel.spring_boot_api.model.Item.Langues;
 import cartel.spring_boot_api.model.JDS;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
@@ -15,6 +16,16 @@ import cartel.spring_boot_api.repository.IllustratorRepository;
 import cartel.spring_boot_api.repository.ItemRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import cartel.spring_boot_api.repository.SerieRepository;
+import static cartel.spring_boot_api.specification.BookSpecification.titleLike;
+import static cartel.spring_boot_api.specification.BookSpecification.fromSerieByName;
+import static cartel.spring_boot_api.specification.BookSpecification.fromPublisherByName;
+import static cartel.spring_boot_api.specification.BookSpecification.fromAuthorByFirstName;
+import static cartel.spring_boot_api.specification.BookSpecification.fromAuthorBySurname;
+import static cartel.spring_boot_api.specification.BookSpecification.fromIllustratorByFirstName;
+import static cartel.spring_boot_api.specification.BookSpecification.fromIllustratorBySurname;
+// import static cartel.spring_boot_api.specification.BookSpecification.genreIn;
+import static cartel.spring_boot_api.specification.BookSpecification.categoryEqual;
+
 
 import org.w3c.dom.*;
 
@@ -24,6 +35,11 @@ import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 import org.xml.sax.InputSource;
 import java.io.StringReader;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -108,7 +124,35 @@ public class PublicBookController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    @GetMapping("/filterBooks")
+    public List<Book> filterBooks (
+    @RequestParam(defaultValue = "0") int pageNumber,
+    @RequestParam(defaultValue = "10") int pageSize,
+    @RequestParam(defaultValue = "true") boolean asc,
+    @RequestParam(defaultValue = "name") String sortBy,
+    @RequestParam(required = false) String titleBook,
+    // @RequestParam(required = false) GenreBook genre,
+    @RequestParam(required = false) String publisherName,
+    @RequestParam(required = false) String authorFirstName,
+    @RequestParam(required = false) String authorSurname,
+    @RequestParam(required = false) String illustratorFirstName,
+    @RequestParam(required = false) String illustratorSurname,
+    @RequestParam(required = false) FormatBook category,
+    @RequestParam(required = false) String serieName
+    ) {
+        Pageable page = asc? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)): PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+        Specification<Book> filters = ((titleBook == null)? titleLike(""):titleLike(titleBook))
+            .and((serieName == null)? null:fromSerieByName(serieName))
+            // .and((genre == null)? null:genreIn(genre))
+            .and((category == null)? null:categoryEqual(category))
+            .and((publisherName == null)? null:fromPublisherByName(publisherName))
+            .and((authorSurname == null)? null:fromAuthorBySurname(authorSurname))
+            .and((authorFirstName == null)? null:fromAuthorByFirstName(authorFirstName))
+            .and((illustratorSurname == null)? null:fromIllustratorBySurname(illustratorSurname))
+            .and((illustratorFirstName == null)? null:fromIllustratorByFirstName(illustratorFirstName));
+        Page<Book> pageBook = bookRepository.findAll(filters, page);
+        return pageBook.getContent();
+    }
 
     @GetMapping("/search")
     public List<Book> searchBooks(
