@@ -3,18 +3,29 @@
  */
 
 /**
- * Fetch books from API
+ * Fetch books from API with all available filters
  * @param {Object} params - Query parameters
  * @returns {Promise<Array>} List of books
  */
 export async function fetchBooks(params = {}) {
   try {
-    let url = '/api/public/books';
+    const queryParams = new URLSearchParams();
     
-    // Simple search by title only - rest will be handled by API
-    if (params.title) {
-      url = `/api/public/books/search?title=${encodeURIComponent(params.title)}`;
-    }
+    // Add all possible filter parameters from PublicBookController
+    if (params.pageNumber !== undefined) queryParams.append('pageNumber', params.pageNumber);
+    if (params.pageSize !== undefined) queryParams.append('pageSize', params.pageSize);
+    if (params.asc !== undefined) queryParams.append('asc', params.asc);
+    if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params.title) queryParams.append('titleBook', params.title);
+    if (params.publisherName) queryParams.append('publisherName', params.publisherName);
+    if (params.authorFirstName) queryParams.append('authorFirstName', params.authorFirstName);
+    if (params.authorSurname) queryParams.append('authorSurname', params.authorSurname);
+    if (params.illustratorFirstName) queryParams.append('illustratorFirstName', params.illustratorFirstName);
+    if (params.illustratorSurname) queryParams.append('illustratorSurname', params.illustratorSurname);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.serieName) queryParams.append('serieName', params.serieName);
+    
+    const url = `/api/public/books${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     
     const response = await fetch(url);
     
@@ -22,9 +33,7 @@ export async function fetchBooks(params = {}) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
     
-    const data = await response.json();
-
-    return data;
+    return await response.json();
   } catch (err) {
     console.error('Error fetching books:', err);
     throw err;
@@ -32,10 +41,49 @@ export async function fetchBooks(params = {}) {
 }
 
 /**
- * Fetch book formats from API
- * @returns {Promise<Array>} List of book formats
+ * Get a specific book by ISBN
+ * @param {string} isbn - The ISBN of the book
+ * @returns {Promise<Object>} Book details
  */
-export async function fetchFormats() {
+export async function getBookByISBN(isbn) {
+  try {
+    const response = await fetch(`/api/public/books/${isbn}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error(`Error fetching book with ISBN ${isbn}:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Fetch all authors from the system
+ * @returns {Promise<Array>} List of authors
+ */
+export async function getAllAuthors() {
+  try {
+    const response = await fetch('/api/public/books/authors');
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Failed to fetch authors:", err);
+    throw err;
+  }
+}
+
+/**
+ * Fetch book genres from API
+ * @returns {Promise<Array>} List of book genres
+ */
+export async function fetchGenres() {
   try {
     const response = await fetch('/api/public/books/genre');
     
@@ -45,7 +93,7 @@ export async function fetchFormats() {
     
     return await response.json();
   } catch (err) {
-    console.error("Failed to fetch formats:", err);
+    console.error("Failed to fetch genres:", err);
     throw err;
   }
 }
@@ -56,11 +104,11 @@ export async function fetchFormats() {
  * @returns {string} Formatted author string
  */
 export function formatAuthor(book) {
-  if (!book.author || !Array.isArray(book.author) || book.author.length === 0) {
+  if (!book.authors || !Array.isArray(book.authors) || book.authors.length === 0) {
     return 'Auteur inconnu';
   }
   
-  return book.author.map(author => 
+  return book.authors.map(author => 
     `${author.firstname || ''} ${author.surname || ''}`.trim()
   ).join(', ');
 }
@@ -86,8 +134,10 @@ export function formatGenre(book) {
 }
 
 /**
- * Check if a book is available
+ * If the book is avaivable
+ * @param {Object} book - Book object
+ * @returns {boolean} True if the book is available, false otherwise
  */
 export function isBookAvailable(book) {
-  return !(book.statut && book.statut.borrower);
+  return true; // Placeholder for actual availability logic
 }

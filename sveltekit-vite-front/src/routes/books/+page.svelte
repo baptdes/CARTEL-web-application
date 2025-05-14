@@ -2,39 +2,65 @@
   import PointBar from '$lib/components/PointBar.svelte';
   import BookCard from '$lib/components/BookCard.svelte';
   import { onMount } from 'svelte';
-  import { fetchBooks, fetchFormats } from '$lib/services/bookService';
+  import { fetchBooks, fetchGenres, getAllAuthors } from '$lib/services/bookService';
   
   // State variables
   let books = $state([]);
-  let categories = $state(["Toutes"]);
+  let genres = $state([]);
+  let formats = $state([]);
+  let authors = $state([]);
   let isLoading = $state(true);
   let error = $state(null);
   let searchQuery = $state('');
 
-  // New state variables for filters (not connected to API)
-  let selectedCat = $state("Toutes");
-  let selectedFormat = $state("all");
-  let selectedPeriod = $state("all");
-  let selectedAvailability = $state("all");
+  // Filter state variables
+  let selectedGenre = $state("ALL");
+  let selectedFormat = $state("ALL");
+  let selectedAuthor = $state("ALL");
+  let selectedPublisher = $state("");
   
-  // Add sorting state
-  let sortOption = $state("newest");
+  // Pagination
+  let pageNumber = $state(0);
+  let pageSize = $state(20);
   
-  // Sort options
+  // Sort options - Define before sortOption
   const sortOptions = [
-    { value: "newest", label: "Plus récents" },
-    { value: "oldest", label: "Plus anciens" },
-    { value: "az", label: "Titre (A-Z)" },
-    { value: "za", label: "Titre (Z-A)" },
-    { value: "available", label: "Disponibles d'abord" }
+    { value: "name_asc", label: "Titre (A-Z)", field: "name", asc: true },
+    { value: "name_desc", label: "Titre (Z-A)", field: "name", asc: false },
+    { value: "year_desc", label: "Plus récents", field: "publicationYear", asc: false },
+    { value: "year_asc", label: "Plus anciens", field: "publicationYear", asc: true },
   ];
   
-  // Handle search
+  // Add sorting state with string key instead of object
+  let sortOption = $state(sortOptions[0].value);
+  
+  // Handle search with filters
   async function handleSearch() {
     isLoading = true;
     error = null;
     try {
-      books = await fetchBooks({ title: searchQuery });
+      // Find the selected sort option
+      const selectedSort = sortOptions.find(option => option.value === sortOption);
+      
+      // Construct query parameters based on filters
+      const params = {
+        pageNumber,
+        pageSize,
+        asc: selectedSort.asc,
+        sortBy: selectedSort.field,
+      };
+      
+      // Add filters if they're set
+      if (searchQuery) params.title = searchQuery;
+      if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
+      if (selectedAuthor && selectedAuthor !== "ALL") {
+        const [firstName, surname] = selectedAuthor.split('|');
+        params.authorFirstName = firstName;
+        params.authorSurname = surname;
+      }
+      if (selectedFormat && selectedFormat !== "ALL") params.category = selectedFormat;
+      
+      books = await fetchBooks(params);
     } catch (err) {
       error = err.message || 'Failed to search books';
     } finally {
@@ -45,10 +71,22 @@
   // Reset search
   async function resetSearch() {
     searchQuery = '';
+    selectedGenre = "ALL";
+    selectedFormat = "ALL";
+    selectedAuthor = "ALL";
+    selectedPublisher = "";
+    sortOption = sortOptions[0].value; // Reset to first option
+    pageNumber = 0;
+    
     isLoading = true;
     error = null;
     try {
-      books = await fetchBooks();
+      books = await fetchBooks({
+        pageNumber: 0,
+        pageSize,
+        asc: true,
+        sortBy: "name"
+      });
     } catch (err) {
       error = err.message || 'Failed to reset search';
     } finally {
@@ -59,12 +97,22 @@
   // Initialize component
   onMount(async () => {
     try {
-      // Fetch formats
-      const formats = await fetchFormats();
-      categories = ["Toutes", ...formats];
+      // Fetch genres and formats
+      genres = await fetchGenres();
       
-      // Fetch books
-      books = await fetchBooks();
+      // Extract available book formats from the enum
+      formats = ["MANGA", "BD", "LIVRE"];
+      
+      // Fetch authors
+      authors = await getAllAuthors();
+      
+      // Fetch books with default parameters
+      books = await fetchBooks({
+        pageNumber: 0,
+        pageSize,
+        asc: true,
+        sortBy: "name"
+      });
     } catch (err) {
       error = err.message || 'Failed to load initial data';
     } finally {
@@ -84,8 +132,9 @@
         type="text" 
         bind:value={searchQuery}
         placeholder="Rechercher un livre par titre..."
+        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
       />
-      <button onclick={handleSearch} aria-label="Rechercher">
+      <button on:click={handleSearch} aria-label="Rechercher">
         🔍
       </button>
     </div>
@@ -97,11 +146,12 @@
       <h2>Filtres</h2>
       
       <div class="section">
-        <h3>Catégorie</h3>
+        <h3>Genre</h3>
         <div>
-          <select bind:value={selectedCat} title="Sélectionner une catégorie">
-            {#each categories as category}
-              <option value={category}>{category}</option>
+          <select bind:value={selectedGenre} title="Sélectionner un genre">
+            <option value="ALL">Tous les genres</option>
+            {#each genres as genre}
+              <option value={genre}>{genre}</option>
             {/each}
           </select>
         </div>
@@ -110,56 +160,46 @@
       <div class="section">
         <h3>Format</h3>
         <div>
-          <select bind:value={selectedFormat} title="Sélectionner un format">
-            <option value="all">Tous</option>
-            <option value="manga">Manga</option>
-            <option value="novel">Roman</option>
-            <option value="comic">BD</option>
+            <select bind:value={selectedFormat} title="Sélectionner un format">
+            <option value="ALL">Tous les formats</option>
+            {#each formats as format}
+              <option value={format}>{format === "LIVRE" ? "Livre" : format === "BD" ? "Bande Dessinée" : format}</option>
+            {/each}
+            </select>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h3>Auteur</h3>
+        <div>
+          <select bind:value={selectedAuthor} title="Sélectionner un auteur">
+            <option value="ALL">Tous les auteurs</option>
+            {#each authors as author}
+              <option value={`${author.firstname || ''}|${author.surname || ''}`}>
+                {(author.firstname || '') + ' ' + (author.surname || '')}
+              </option>
+            {/each}
           </select>
         </div>
       </div>
       
       <div class="section">
-        <h3>Période de publication</h3>
+        <h3>Éditeur</h3>
         <div>
-          <label>
-            <input type="radio" name="period" value="all" bind:group={selectedPeriod} />
-            <span>Toutes</span>
-          </label>
-          <label>
-            <input type="radio" name="period" value="before1950" bind:group={selectedPeriod} />
-            <span>Avant 1950</span>
-          </label>
-          <label>
-            <input type="radio" name="period" value="1950-1999" bind:group={selectedPeriod} />
-            <span>1950-1999</span>
-          </label>
-          <label>
-            <input type="radio" name="period" value="after2000" bind:group={selectedPeriod} />
-            <span>2000-présent</span>
-          </label>
+          <input 
+            type="text" 
+            bind:value={selectedPublisher} 
+            placeholder="Nom de l'éditeur"
+            class="publisher-input"
+          />
         </div>
       </div>
       
-      <div class="section">
-        <h3>Disponibilité</h3>
-        <div>
-          <label>
-            <input type="radio" name="availability" value="all" bind:group={selectedAvailability} />
-            <span>Tous</span>
-          </label>
-          <label>
-            <input type="radio" name="availability" value="available" bind:group={selectedAvailability} />
-            <span>Disponible</span>
-          </label>
-          <label>
-            <input type="radio" name="availability" value="unavailable" bind:group={selectedAvailability} />
-            <span>Non disponible</span>
-          </label>
-        </div>
-      </div>
+      <button class="apply-filters" on:click={handleSearch}>
+        Appliquer les filtres
+      </button>
       
-      <button class="reset" onclick={resetSearch}>
+      <button class="reset" on:click={resetSearch}>
         Réinitialiser la recherche
       </button>
     </aside>
@@ -172,14 +212,11 @@
         </div>
         <div class="sort-container">
           <label for="sort-select">Trier par:</label>
-          <select id="sort-select" bind:value={sortOption} class="sort-select">
+          <select id="sort-select" bind:value={sortOption} class="sort-select" on:change={handleSearch}>
             {#each sortOptions as option}
               <option value={option.value}>{option.label}</option>
             {/each}
           </select>
-          <div>
-            {books.length} résultats
-          </div>
         </div>
       </div>
       
@@ -195,7 +232,7 @@
       {#if error}
         <div class="error">
           <p>Erreur lors du chargement des données: {error}</p>
-          <button onclick={resetSearch}>Réessayer</button>
+          <button on:click={resetSearch}>Réessayer</button>
         </div>
       {/if}
       
@@ -211,6 +248,29 @@
           <BookCard {book} />
         {/each}
       </div>
+      
+      <!-- Pagination controls -->
+      {#if books.length > 0}
+        <div class="pagination">
+          <button 
+            disabled={pageNumber === 0} 
+            on:click={() => { pageNumber -= 1; handleSearch(); }}
+            class="pagination-button"
+          >
+            &laquo; Précédent
+          </button>
+          
+          <span class="page-info">Page {pageNumber + 1}</span>
+          
+          <button 
+            disabled={books.length < pageSize}
+            on:click={() => { pageNumber += 1; handleSearch(); }}
+            class="pagination-button"
+          >
+            Suivant &raquo;
+          </button>
+        </div>
+      {/if}
     </div>
   </div>
 </div>
@@ -382,6 +442,23 @@
         }
       }
       
+      .apply-filters {
+        width: 100%;
+        padding: 0.8rem;
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        margin-bottom: 1rem;
+        
+        &:hover {
+          background-color: var(--dark-orange);
+        }
+      }
+      
       .reset {
         width: 100%;
         padding: 0.6rem;
@@ -550,6 +627,53 @@
           width: 100%;
         }
       }
+    }
+  }
+  
+  .publisher-input {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 1rem;
+    
+    .pagination-button {
+      padding: 0.5rem 1rem;
+      background-color: #343434;
+      color: #e0d6c2;
+      border: 1px solid var(--dark-orange);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover:not(:disabled) {
+        background-color: var(--dark-orange);
+        color: white;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    .page-info {
+      color: #e0d6c2;
+      font-size: 0.9rem;
     }
   }
 </style>
