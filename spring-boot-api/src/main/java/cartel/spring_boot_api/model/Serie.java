@@ -1,6 +1,8 @@
 package cartel.spring_boot_api.model;
 
 import java.util.Collection;
+import java.util.List;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,16 +21,16 @@ public class Serie {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String serieName;
 
     @OneToMany(mappedBy = "serie")
-    private Collection<Book> seriesitem;
+    private List<Book> seriesItem;
 
     public Serie() {
     }
 
     public Serie(String name) {
-        this.name = name;
+        this.serieName = name;
     }
 
     public Long getId() {
@@ -39,20 +41,20 @@ public class Serie {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getSerieName() {
+        return serieName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSerieName(String name) {
+        this.serieName = name;
     }
 
-    public Collection<Book> getPublishedBooks() {
-        return seriesitem;
+    public List<Book> getSerieItem() {
+        return seriesItem;
     }
 
-    public void setPublishedBooks(Collection<Book> seriesitem) {
-        this.seriesitem = seriesitem;
+    public void setSerieItem(List<Book> seriesItem) {
+        this.seriesItem = seriesItem;
     }
 
 }
