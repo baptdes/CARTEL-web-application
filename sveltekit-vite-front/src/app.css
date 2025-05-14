@@ -9,7 +9,15 @@
   --orange: #C77031;
   --white: #ffffff;
   
+  /* Admin Colors */
+  --primary: #FFFFFF;
+  --secondary: #7E7F7C;
+  --tertiary: #4A4A4A;
+  --accent: #FF3D00;
+  --back: #000000;
+
   /* Background Colors */
+  --bg-black: #0e0e0e;
   --bg-dark: #242424;
   --bg-card: #1a1a1a;
   
@@ -17,7 +25,7 @@
   --text-dark: rgba(255, 255, 255, 0.87);
   --text-light: #213547;
 
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Avenir, Helvetica Neue, system-ui, Arial, sans-serif;
   font-weight: 400;
 
   color-scheme: light dark;
@@ -28,6 +36,21 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: Helvetica Neue;
+  src: url('/src/assets/font/HelveticaNeue-Black.otf') format('opentype');
+}
+
+@font-face {
+  font-family: Guisol;
+  src: url('/src/assets/font/Guisol.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Apocalypse Grunge;
+  src: url('/src/assets/font/Apocalypse Grunge.ttf') format('truetype');
 }
 
 a {

@@ -69,3 +69,6 @@
     display: grid
     grid-template-columns: repeat($columns, 1fr)
     gap: $gap
+
+@mixin thres($threshold: 50%, $blur: 0px)
+    filter: blur($blur) brightness(calc(100% + $threshold)) grayscale(100%) contrast(1000%);

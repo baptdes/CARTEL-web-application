@@ -174,7 +174,7 @@
                 loading="lazy"
               />
               <div class="item-type-badge">
-                <img src="/icons/dice.svg" alt="Jeu" />
+                <img src="/icons/dice.svg" style="image-rendering: crisp-edges;" alt="Jeu" />
               </div>
             </div>
             

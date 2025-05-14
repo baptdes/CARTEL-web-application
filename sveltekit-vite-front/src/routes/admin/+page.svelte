@@ -48,9 +48,6 @@
     margin-bottom: 1.5rem;
   }
   
-  
-
-  
   .return-button {
     background-color: var(--orange);
     color: white;

@@ -1,0 +1,25 @@
+@use "./mixins";
+
+.admin-button {
+    background-color: var(--back);
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: bold;
+    transition:
+      border 1s,
+      color 1s;
+  }
+
+  .admin-button:hover {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .accent-colorize {
+    filter: brightness(0%) invert(31%) sepia(97%) saturate(3292%) hue-rotate(1deg) brightness(101%) contrast(107%);
+  }
+
+  

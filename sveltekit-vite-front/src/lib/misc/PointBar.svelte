@@ -8,10 +8,12 @@
     export let showEndDot = true;    
     export let startDotSrc = null;   
     export let endDotSrc = null;     
-    export let imageScale = 1;       
+    export let imageScale = 1;
+    export let startImageScale = {imageScale};  
+    export let endImageScale = {imageScale};       
 </script>
 
-<div class="point-bar-container" style="width: {width}">
+<div class="point-bar-container" style="width: {width};">
     {#if showStartDot}
     <div 
         class="dot start-dot" 
@@ -23,7 +25,7 @@
         "
     >
         {#if startDotSrc}
-            <div class="img-container" style="--scale: {imageScale}">
+            <div class="img-container" style="--scale: {startImageScale}">
                 <img src={startDotSrc} alt="start dot" class="dot-image" />
             </div>
         {/if}
@@ -46,7 +48,7 @@
         "
     >
         {#if endDotSrc}
-            <div class="img-container" style="--scale: {imageScale}">
+            <div class="img-container" style="--scale: {endImageScale}">
                 <img src={endDotSrc} alt="end dot" class="dot-image" />
             </div>
         {/if}
@@ -56,6 +58,8 @@
 
 <style>
     .point-bar-container {
+        align-self: center;
+        justify-self: center;
         position: relative;
         display: block;
         margin: 1rem 0;
