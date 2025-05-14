@@ -85,7 +85,7 @@ public class DataInitializer {
             Collection<Book.GenreBook> genre1 = new ArrayList<Book.GenreBook>();
             genre1.add(Book.GenreBook.FANTASY);
             Serie ser1 = new Serie("j'aime manger");       
-            Book book1 = new Book("9766786786786","c'est parti les amis",collauthor1,publisher1,2015,FormatBook.MANGA,Langues.FR, genre1);
+            Book book1 = new Book("9766786786786","c'est parti les amis",collauthor1,publisher1,2015,FormatBook.MANGA,Langues.FR);
             book1.setIllustrator(collIll1);
             book1.setSerie(ser1);
             
@@ -104,7 +104,7 @@ public class DataInitializer {
             Collection<Book.GenreBook> genre2 = new ArrayList<Book.GenreBook>();
             genre2.add(Book.GenreBook.AVENTURE);
             Serie ser2 = new Serie("j'aime manger");       
-            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA,Langues.FR, genre2);
+            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA,Langues.FR);
             book2.setIllustrator(collIll2);
             book2.setSerie(ser2);
             

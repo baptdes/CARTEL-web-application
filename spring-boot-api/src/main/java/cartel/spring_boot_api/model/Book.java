@@ -60,7 +60,7 @@ public class Book extends Item{
     private Serie serie;
 
     public Book(){
-
+        super();
     }
     
     // Constructor with required fields

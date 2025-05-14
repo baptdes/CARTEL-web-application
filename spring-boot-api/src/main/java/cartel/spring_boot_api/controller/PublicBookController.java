@@ -235,7 +235,7 @@ public class PublicBookController {
 
                 // Create a new book object
                 Book book = new Book();
-                //book.setBarcode(isbn); 
+                book.setBarcode(isbn); 
 
                 // XPath pour le titre (datafield tag="200", subfield code="a")
                 String titlePath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='a']";
@@ -277,15 +277,13 @@ public class PublicBookController {
                 }
 
                 //récupération de l'auteur
-                //Collection<AuthorBook> listauth = new ArrayList<AuthorBoo
-                //AuthorBook author = findTheAuthor(authorfirstname, authorlastname);
-                //listauth.add(author);
-                /*
+                Collection<AuthorBook> listauth = new ArrayList<AuthorBook>();
+                AuthorBook author = findTheAuthor(authorfirstname, authorlastname);
+                listauth.add(author);
                 for (int index = 0; index < authors.size(); index+=2) {
-                    AuthorBook author = findTheAuthor( authors.get(index),  authors.get(index+1));
-                    listauth.add(author);
+                    AuthorBook authorp = findTheAuthor( authors.get(index),  authors.get(index+1));
+                    listauth.add(authorp);
                 }
-                */
 
                 // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
                 String publishernamePath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='c']";
@@ -311,22 +309,39 @@ public class PublicBookController {
                 Node languesNode = (Node) xpath.evaluate(languesPath, document, XPathConstants.NODE);
                 String langues = languesNode.getTextContent();
 
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String seriePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='t']";
+                Node serieNode = (Node) xpath.evaluate(seriePath, document, XPathConstants.NODE);
+                String serie = serieNode != null ? serieNode.getTextContent() : "";
+
+                // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
+                String volumePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='v']";
+                Node volumeNode = (Node) xpath.evaluate(volumePath, document, XPathConstants.NODE);
+                String volumeS = volumeNode != null ? volumeNode.getTextContent() : "";
+                int volume = volumeNode != null ? Integer.valueOf(volumeS):0;
+
+                System.out.println("erreur");
+
                 //récupération de l'éditeur
-                //PublisherBook publisher = findThePublisher(publishername);
+                PublisherBook publisher = findThePublisher(publishername);
 
                 System.out.println("Titre : " + title);
                 System.out.println("Auteur : " + authorfirstname + " " + authorlastname);
                 for (int index = 0; index < authors.size(); index+=2) {
                     System.out.println("Auteur "+ (index/2)+1 +": " + authors.get(index) + " " + authors.get(index+1));
                 }
+                int pubyear = Integer.valueOf(pubyr[1]);
                 System.out.println("publisher : " + publishername);  
-                System.out.println("Date : " + pubyr[1]);  
+                System.out.println("Date : " + pubyear);  
                 System.out.println("description :" + description);  
                 System.out.println("langue :" + langues);
                 System.out.println("traducteur/dessinateur :");
                 for (int index = 0; index < illtrad.size(); index+=2) {
                     System.out.println(((index/2)+1) +": " + illtrad.get(index) + " " + illtrad.get(index+1));
                 }
+                System.out.println("série :" + serie);
+                System.out.println("Volume :" + volume);
+                String coverImage = "";
 
                 // Extract record identifier for cover image
                 NodeList recordIdentifiers = document.getElementsByTagName("srw:recordIdentifier");
@@ -340,13 +355,14 @@ public class PublicBookController {
 
 
                 // Set the extracted values to the book object
-                //book.setName(title);
-                //book.setAuthor(listauth);
-                //book.setDescription(description);
-                //book.setPublicationYear(publicationYear);
-                //book.setCategory(category);
-                //book.setLangue(Langues.EN);
-                //book.setCoverImage(coverImage);
+                book.setName(title);
+                book.setAuthor(listauth);
+                book.setDescription(description);
+                book.setPublisher(publisher);
+                book.setPublicationYear(pubyear);
+                book.setFormat(FormatBook.LIVRE);
+                book.setLangue(Langues.FR);
+                book.setCoverImage(coverImage);
 
                 return book;
             } catch (Exception e) {
@@ -364,9 +380,11 @@ public class PublicBookController {
         
 
     private AuthorBook findTheAuthor(String firstname,String surname){
-        List<AuthorBook> author = authorBookRepository.findByFirstnameAndSurnameIgnoreCase(firstname,surname);
+            List<AuthorBook> author = authorBookRepository.findByFirstnameAndSurnameIgnoreCase(firstname,surname);
         if(author.isEmpty()){
-            return new AuthorBook(surname,firstname);
+            AuthorBook auth = new AuthorBook(surname,firstname);
+            authorBookRepository.save(auth);
+            return auth;
         }else{
             if(author.size()==1){
                 return author.getFirst();
@@ -379,7 +397,9 @@ public class PublicBookController {
     private PublisherBook findThePublisher(String name){
         List<PublisherBook> publisher = publisherBookRepository.findByNameIgnoreCase(name);
         if(publisher.isEmpty()){
-            return new PublisherBook(name);
+            PublisherBook pub = new PublisherBook(name);
+            publisherBookRepository.save(pub);
+            return pub;
         }else{
             if(publisher.size()==1){
                 return publisher.getFirst();
