@@ -10,6 +10,5 @@ import java.util.List;
 
 @Repository
 public interface CreatorRepository extends JpaRepository<Creator, Long> {
-    List<Creator> findBySurnameContainingIgnoreCase(String surname);
-    List<Creator> findByFirstnameContainingIgnoreCase(String firstname);
+    List<Creator> findByFirstnameAndSurnameIgnoreCase(String firstname, String surname);
 }

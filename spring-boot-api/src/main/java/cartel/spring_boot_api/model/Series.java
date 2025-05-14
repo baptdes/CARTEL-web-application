@@ -1,6 +1,6 @@
 package cartel.spring_boot_api.model;
 
-import java.util.Collection;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +11,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "publisherjds")
-public class PublisherJDS {
+@Table(name = "series")
+public class Series {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,13 +21,13 @@ public class PublisherJDS {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "publisher")
-    private Collection<JDS> publishedJDS;
+    @OneToMany(mappedBy = "series")
+    private List<Book> volumes;
 
-    public PublisherJDS() {
+    public Series() {
     }
 
-    public PublisherJDS(String name) {
+    public Series(String name) {
         this.name = name;
     }
 
@@ -46,13 +47,12 @@ public class PublisherJDS {
         this.name = name;
     }
 
-    public Collection<JDS> getPublishedJDS() {
-        return publishedJDS;
+    public List<Book> getVolumes() {
+        return volumes;
     }
 
-    public void setPublishedJDS(Collection<JDS> publishedJDS) {
-        this.publishedJDS = publishedJDS;
+    public void setVolumes(List<Book> volumes) {
+        this.volumes = volumes;
     }
 
-    
 }

@@ -27,6 +27,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     runtimeOnly 'org.hsqldb:hsqldb'
 	runtimeOnly 'com.h2database:h2'
+    implementation 'net.datafaker:datafaker:1.9.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

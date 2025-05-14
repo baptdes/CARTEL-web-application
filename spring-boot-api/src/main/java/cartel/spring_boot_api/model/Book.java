@@ -18,50 +18,42 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @PrimaryKeyJoinColumn( name = "barcode" )
 public class Book extends Item{
 
-    //énumération des différents format d'un livre
     @Transient
-    public enum FormatBook {MANGA,BD,LIVRE}; 
+    public enum BookFormat {MANGA,BD,LIVRE};
 
-    //énumération des genres d'un livre
     @Transient
-    public enum GenreBook {ROMAN, POESIE, THEATRE, ESSAI, FANTASY, SCIENCE_FICTION, FANTASTIQUE, POLAR, POLICIER, THRILLER, 
+    public enum BookGenre {ROMAN, POESIE, THEATRE, ESSAI, FANTASY, SCIENCE_FICTION, FANTASTIQUE, POLAR, POLICIER, THRILLER, 
                             HISTORIQUE, BIOGRAPHIE, AUTOBIOGRAPHIE, HUMOUR, HORREUR, AVENTURE, JEUNESSE, CONTES,
                             NOUVELLES, DRAME, PHILOSOPHIE, RELIGION, EDUCATIF, WESTERN, DYSTOPIE, SHONEN, SEINEN, SHOJO, COMICS, FRANCOBELGE}
 
-   
-    //auteurs du livre
+    // Book author
     @Column(nullable = false)
     @ManyToMany
-    private Collection<AuthorBook> author;
+    private Collection<AuthorBook> authors;
 
-    //éditeur du livre
+    // Book publisher
     @JoinColumn(nullable = false)
     @ManyToOne
     private PublisherBook publisher;
 
-    //illustrateur du livre
+    // Book illustrator
     @ManyToMany
     private Collection<Illustrator> illustrator;
     
-    
-    //format du livre
+    // Book format
     @Column(nullable = false)
-    private FormatBook format;
+    private BookFormat format;
 
-    //genre du livre
-    private Collection<GenreBook> genre;
+    // Book genre
+    private Collection<BookGenre> genre;
 
-    //volume
-    private Integer tome;
+    // Volume number
+    private Integer volumeNumber;
 
-    //langue
-    @Column(nullable = false)
-    private Langues langue;
-
-    //serie
+    // Series
     @JsonIgnore
     @ManyToOne
-    private Serie serie;
+    private Series series;
 
     public Book(){
 
@@ -69,20 +61,20 @@ public class Book extends Item{
     
     // Constructor with required fields
     public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
-    FormatBook format,Langues lang, Collection<GenreBook> genre) {
+    BookFormat format,Languages lang, Collection<BookGenre> genre) {
         super(isbn,title,publicationYear,lang);
-        this.author = author;
+        this.authors = author;
         this.publisher = publisher;
         this.format = format; 
         this.genre = genre; 
     }
 
-    public Collection<AuthorBook> getAuthor() {
-        return author;
+    public Collection<AuthorBook> getAuthors() {
+        return authors;
     }
 
-    public void setAuthor(Collection<AuthorBook> author) {
-        this.author = author;
+    public void setAuthors(Collection<AuthorBook> author) {
+        this.authors = author;
     }
 
     public PublisherBook getPublisher() {
@@ -101,44 +93,35 @@ public class Book extends Item{
         this.illustrator = illustrator;
     }
 
-    public FormatBook getFormat() {
+    public BookFormat getFormat() {
         return format;
     }
 
-    public void setFormat(FormatBook format) {
+    public void setFormat(BookFormat format) {
         this.format = format;
     }
 
-    public Collection<GenreBook> getGenre() {
+    public Collection<BookGenre> getGenre() {
         return genre;
     }
 
-    public void setGenre(Collection<GenreBook> genre) {
+    public void setGenre(Collection<BookGenre> genre) {
         this.genre = genre;
     }
 
-    public Integer getTome() {
-        return tome;
+    public Integer getVolumeNumber() {
+        return volumeNumber;
     }
 
-    public void setTome(Integer tome) {
-        this.tome = tome;
+    public void setVolumeNumber(Integer tome) {
+        this.volumeNumber = tome;
     }
 
-    public Langues getLangue() {
-        return langue;
+    public Series getSeries() {
+        return series;
     }
 
-    public void setLangue(Langues langue) {
-        this.langue = langue;
+    public void setSeries(Series series) {
+        this.series = series;
     }
-
-    public Serie getSerie() {
-        return serie;
-    }
-
-    public void setSerie(Serie serie) {
-        this.serie = serie;
-    }
-
 }

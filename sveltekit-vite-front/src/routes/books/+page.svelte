@@ -469,19 +469,27 @@
     border-radius: 8px;
     margin: 1rem 0;
     
-    .spinner {
-      margin: 0 auto 1rem;
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(224, 214, 194, 0.2);
-      border-radius: 50%;
-      border-top-color: var(--orange);
-      animation: spin 1s linear infinite;
-    }
-    
     p {
       color: #e0d6c2;
       margin: 0;
+    }
+  }
+  
+  .loading .spinner {
+    margin: 0 auto 1rem;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(224, 214, 194, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--orange);
+    animation: spin 1s linear infinite;
+  }
+  
+  .error {
+    border: 2px solid var(--red);
+    
+    p {
+      color: var(--red);
     }
     
     button {
@@ -499,14 +507,6 @@
     }
   }
   
-  .error {
-    border: 2px solid var(--red);
-    
-    p {
-      color: var(--red);
-    }
-  }
-  
   .no-results {
     padding: 3rem;
     
@@ -515,14 +515,6 @@
       color: #e0d6c2;
       font-style: italic;
     }
-  }
-  
-  .future-note {
-    color: rgba(224, 214, 194, 0.6);
-    font-size: 0.8rem;
-    font-style: italic;
-    margin-top: 0.25rem;
-    display: block;
   }
   
   @keyframes spin {

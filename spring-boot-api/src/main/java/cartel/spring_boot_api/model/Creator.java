@@ -24,8 +24,9 @@ public class Creator {
     @Column(nullable = false)
     private String firstname;
 
-    @ManyToMany(mappedBy = "creator")
-    private Collection<JDS> createdJDS;
+    // Games the creator has created
+    @ManyToMany(mappedBy = "creators")
+    private Collection<Game> createdGames;
 
     public Creator() {
     }
@@ -59,12 +60,12 @@ public class Creator {
         this.firstname = firstname;
     }
 
-    public Collection<JDS> getCreatedJDS() {
-        return createdJDS;
+    public Collection<Game> getCreatedGames() {
+        return createdGames;
     }
 
-    public void setCreatedJDS(Collection<JDS> createdJDS) {
-        this.createdJDS = createdJDS;
+    public void setCreatedGames(Collection<Game> createdGames) {
+        this.createdGames = createdGames;
     }
     
 }
