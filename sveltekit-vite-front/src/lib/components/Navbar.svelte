@@ -5,8 +5,7 @@
   const menuItems = $state([
     { href: '/', label: 'Accueil' },
     { href: '/about', label: "C'est quoi ce bordel ?" },
-    { href: '/books', label: 'Livres' },
-    { href: '/games', label: 'Jeux de société' },
+    { href: '/catalog', label: 'Catalogue' },
     { href: '/suggestion', label: 'Suggestion' }
   ]);
 

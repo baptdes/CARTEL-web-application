@@ -2,9 +2,9 @@ package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.Book.BookFormat;
-import cartel.spring_boot_api.model.Book.BookGenre;
 
 import java.util.List;
 import java.util.Map;
@@ -44,13 +44,14 @@ public interface BookService {
      * @param illustratorSurname Filter by illustrator last name
      * @param category Filter by book format category
      * @param serieName Filter by series name
+     * @param genreName Filter by genre name
      * @return List of books matching the criteria
      */
     List<Book> filterBooks(int pageNumber, int pageSize, boolean asc, String sortBy,
                           String titleBook, String publisherName,
                           String authorFirstName, String authorSurname,
                           String illustratorFirstName, String illustratorSurname,
-                          BookFormat category, String serieName);
+                          BookFormat category, String serieName, String genreName);
     
     /**
      * Imports book information from an external API using ISBN
@@ -69,11 +70,11 @@ public interface BookService {
     List<Map<String, String>> getAllAuthors();
     
     /**
-     * Returns all available book genres
+     * Returns all available book genre names
      * 
-     * @return List of all genre enum values
+     * @return List of all genre names as strings
      */
-    List<BookGenre> getAllGenreBooks();
+    List<String> getAllGenres();
     
     /**
      * Finds an author by name or creates a new one if not found

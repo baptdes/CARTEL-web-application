@@ -21,11 +21,6 @@ public class Book extends Item{
     @Transient
     public enum BookFormat {MANGA,BD,LIVRE};
 
-    @Transient
-    public enum BookGenre {ROMAN, POESIE, THEATRE, ESSAI, FANTASY, SCIENCE_FICTION, FANTASTIQUE, POLAR, POLICIER, THRILLER, 
-                            HISTORIQUE, BIOGRAPHIE, AUTOBIOGRAPHIE, HUMOUR, HORREUR, AVENTURE, JEUNESSE, CONTES,
-                            NOUVELLES, DRAME, PHILOSOPHIE, RELIGION, EDUCATIF, WESTERN, DYSTOPIE, SHONEN, SEINEN, SHOJO, COMICS, FRANCOBELGE}
-
     // Book author
     @Column(nullable = false)
     @ManyToMany
@@ -45,7 +40,8 @@ public class Book extends Item{
     private BookFormat format;
 
     // Book genre
-    private Collection<BookGenre> genre;
+    @ManyToMany
+    private Collection<Genre> genres;
 
     // Volume number
     private Integer volumeNumber;
@@ -61,12 +57,12 @@ public class Book extends Item{
     
     // Constructor with required fields
     public Book(String isbn, String title, Collection<AuthorBook> author, PublisherBook publisher, Integer publicationYear,
-    BookFormat format,Languages lang, Collection<BookGenre> genre) {
+    BookFormat format,Languages lang, Collection<Genre> genre) {
         super(isbn,title,publicationYear,lang);
         this.authors = author;
         this.publisher = publisher;
         this.format = format; 
-        this.genre = genre; 
+        this.genres = genre; 
     }
 
     public Collection<AuthorBook> getAuthors() {
@@ -101,12 +97,12 @@ public class Book extends Item{
         this.format = format;
     }
 
-    public Collection<BookGenre> getGenre() {
-        return genre;
+    public Collection<Genre> getGenres() {
+        return genres;
     }
 
-    public void setGenre(Collection<BookGenre> genre) {
-        this.genre = genre;
+    public void setGenre(Collection<Genre> genre) {
+        this.genres = genre;
     }
 
     public Integer getVolumeNumber() {

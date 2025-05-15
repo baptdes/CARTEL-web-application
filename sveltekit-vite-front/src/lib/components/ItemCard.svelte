@@ -1,15 +1,56 @@
 <script>
-  import { formatAuthor, formatPublisher, formatGenre, isBookAvailable } from '$lib/services/bookService';
+  import { formatAuthor, formatPublisher as formatBookPublisher, formatGenre, isBookAvailable } from '$lib/services/bookService';
+  import { formatCreator, formatPublisher as formatGamePublisher, formatCategories, formatPlayerCount, formatPlaytime, isGameAvailable } from '$lib/services/gameService';
 
-  let { book } = $props();
+  let { item, type = 'book' } = $props();
   
   function handleClick() {
-    // TODO : Create a page for book details
-    console.log('Book clicked');
+    // TODO : Create a page for item details
+    console.log(`${type} clicked`, item);
   }
 
+  // Determine availability based on item type
+  const isAvailable = type === 'book' ? isBookAvailable(item) : isGameAvailable(item);
+
   // Default frame color based on availability
-  const frameColor = isBookAvailable(book) ? 'var(--dark-orange)' : '#6e2e2e';
+  const frameColor = isAvailable ? 'var(--dark-orange)' : '#6e2e2e';
+
+  // Format methods based on item type
+  function getTitle() {
+    return item.name || `Un troll 🧌 a mangé le titre de ce ${type === 'book' ? 'livre' : 'jeu'}`;
+  }
+
+  function getPublisher() {
+    return type === 'book' ? formatBookPublisher(item) : formatGamePublisher(item);
+  }
+
+  function getCreatorInfo() {
+    if (type === 'book') {
+      return {
+        label: item.authors && Array.isArray(item.authors) && item.authors.length > 1 ? 'Auteurs' : 'Auteur',
+        value: formatAuthor(item)
+      };
+    } else {
+      return {
+        label: item.creators && Array.isArray(item.creators) && item.creators.length > 1 ? 'Créateurs' : 'Créateur',
+        value: formatCreator(item)
+      };
+    }
+  }
+
+  function getCategoryInfo() {
+    if (type === 'book') {
+      return {
+        label: 'Genre',
+        value: formatGenre(item)
+      };
+    } else {
+      return {
+        label: 'Catégories',
+        value: formatCategories(item)
+      };
+    }
+  }
 </script>
 
 <button 
@@ -23,42 +64,51 @@
         <div class="card-layout">
           <div class="img">
             <img 
-              src={book.coverImage || "/placeholder_book.png"}
-              alt={`Couverture de ${book.name || 'Livre sans titre'}`}
+              src={item.coverImage || (type === 'book' ? "/placeholder_book.png" : "/placeholder_game.png")}
+              alt={`Couverture de ${item.name || (type === 'book' ? 'Livre sans titre' : 'Jeu sans titre')}`}
               loading="lazy"
             />
           </div>
           
           <div class="info">
             <div class="header">
-              <h3>{book.name || `Un troll 🧌 a mangé le titre de ce livre`}</h3>
-              <div class:available={isBookAvailable(book)}>
-                {isBookAvailable(book) ? 'Disponible' : 'Indisponible'}
+              <h3>{getTitle()}</h3>
+              <div class:available={isAvailable}>
+                {isAvailable ? 'Disponible' : 'Indisponible'}
               </div>
             </div>
             
             <div class="meta">
-              <strong>{book.authors && Array.isArray(book.authors) && book.authors.length > 1 ? 'Auteurs' : 'Auteur'} :</strong> {formatAuthor(book) || 'Non spécifié'}
+              <strong>{getCreatorInfo().label} :</strong> {getCreatorInfo().value || 'Non spécifié'}
             </div>
             
             <div class="meta">
-              <strong>Année :</strong> {book.publicationYear || 'Non spécifié'}
+              <strong>Année :</strong> {item.publicationYear || 'Non spécifié'}
+            </div>
+            
+            {#if type === 'book'}
+              <div class="meta">
+                <strong>Format :</strong> {item.format || 'Non spécifié'}
+              </div>
+            {:else}
+              <div class="meta">
+                <strong>Joueurs :</strong> {formatPlayerCount(item)}
+              </div>
+              <div class="meta">
+                <strong>Durée :</strong> {formatPlaytime(item)}
+              </div>
+            {/if}
+            
+            <div class="meta">
+              <strong>{getCategoryInfo().label} :</strong> {getCategoryInfo().value}
             </div>
             
             <div class="meta">
-              <strong>Format :</strong> {book.format || 'Non spécifié'}
+              <strong>Éditeur :</strong> {getPublisher()}
             </div>
             
-            <div class="meta">
-              <strong>Genre :</strong> {formatGenre(book)}
-            </div>
-            
-            <div class="meta">
-              <strong>Éditeur :</strong> {formatPublisher(book)}
-            </div>
-            
-            <p>{book.description ? 
-                (book.description.substring(0, 150) + (book.description.length > 150 ? '...' : '')) : 
+            <p>{item.description ? 
+                (item.description.substring(0, 150) + (item.description.length > 150 ? '...' : '')) : 
                 'Aucune description disponible.'}</p>
           </div>
         </div>
@@ -120,7 +170,7 @@
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
   }
 
-  /* Card layout for the book structure */
+  /* Card layout for the item structure */
   .card-layout {
     display: flex;
     padding: 1.5rem 1rem;
