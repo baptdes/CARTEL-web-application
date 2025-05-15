@@ -6,7 +6,8 @@
     { href: '/', label: 'Accueil' },
     { href: '/about', label: "C'est quoi ce bordel ?" },
     { href: '/books', label: 'Livres' },
-    { href: '/games', label: 'Jeux de société' }
+    { href: '/games', label: 'Jeux de société' },
+    { href: '/suggestion', label: 'Suggestion' }
   ]);
 
   let isMenuOpen = $state(false);
