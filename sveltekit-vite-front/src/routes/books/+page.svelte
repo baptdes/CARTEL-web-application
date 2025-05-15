@@ -59,6 +59,7 @@
         params.authorSurname = surname;
       }
       if (selectedFormat && selectedFormat !== "ALL") params.category = selectedFormat;
+      if (selectedGenre && selectedGenre !== "ALL") params.genreName = selectedGenre;
       
       books = await fetchBooks(params);
     } catch (err) {

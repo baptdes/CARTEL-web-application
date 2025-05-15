@@ -1,8 +1,8 @@
 package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Book.BookFormat;
-import cartel.spring_boot_api.model.Book.BookGenre;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +65,12 @@ public class PublicBookController {
             @RequestParam(required = false) String illustratorFirstName,
             @RequestParam(required = false) String illustratorSurname,
             @RequestParam(required = false) BookFormat category,
-            @RequestParam(required = false) String serieName) {
+            @RequestParam(required = false) String serieName,
+            @RequestParam(required = false) String genreName) {
         
         return bookService.filterBooks(pageNumber, pageSize, asc, sortBy, titleBook, 
                 publisherName, authorFirstName, authorSurname, illustratorFirstName, 
-                illustratorSurname, category, serieName);
+                illustratorSurname, category, serieName, genreName);
     }
 
     /**
@@ -97,10 +98,10 @@ public class PublicBookController {
     /**
      * Retrieves all available book genres
      * 
-     * @return List of all genre enum values
+     * @return List of all genre names
      */
-    @GetMapping("/genre")
-    public List<BookGenre> getAllGenreBooks() {
-        return bookService.getAllGenreBooks();
+    @GetMapping("/genres")
+    public List<String> getAllGenres() {
+        return bookService.getAllGenres();
     }
 }

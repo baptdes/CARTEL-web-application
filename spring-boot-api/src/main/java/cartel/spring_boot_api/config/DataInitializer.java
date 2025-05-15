@@ -50,6 +50,8 @@ public class DataInitializer {
     private CartelPersonRepository cartelPersonRepository;
     @Autowired
     private SuggestionRepository suggestionRepository;
+    @Autowired
+    private GenreRepository genreRepository;
 
     // Number of entities to generate
     private final int numAuthors = 20;
@@ -64,12 +66,16 @@ public class DataInitializer {
     private final int numCartelPersons = 25;
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
+    private final int numGenres = 15;
 
     @Bean
     @Profile("dev") // Only run in development mode
     public CommandLineRunner initData() {
         return args -> {
             System.out.println("Seeding database for development environment...");
+            
+            System.out.println("Loading Genre data...");
+            List<Genre> genres = loadGenreData(numGenres);
             
             System.out.println("Loading Author Book data...");
             List<AuthorBook> authors = loadAuthorBookData(numAuthors);
@@ -90,7 +96,7 @@ public class DataInitializer {
             List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
             
             System.out.println("Loading Book data...");
-            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series);
+            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series, genres);
             
             System.out.println("Loading JDS data...");
             List<Game> jdsList = loadJDSData(numJDS, creators, publishersJDS);
@@ -109,6 +115,35 @@ public class DataInitializer {
             
             System.out.println("Seeding completed!");
         };
+    }
+    
+    private List<Genre> loadGenreData(int count) {
+        String[] genreNames = {
+            "Fantasy", "Science Fiction", "Mystery", "Thriller", "Romance", 
+            "Horror", "Adventure", "Historical Fiction", "Biography", "Self-Help",
+            "Dystopian", "Young Adult", "Comic", "Manga", "Crime", "Philosophy",
+            "Poetry", "Drama", "Cookbook", "Children's"
+        };
+        
+        List<Genre> genres = new ArrayList<>();
+        
+        // Use the predefined names first
+        for (int i = 0; i < Math.min(count, genreNames.length); i++) {
+            Genre genre = new Genre();
+            genre.setName(genreNames[i]);
+            genreRepository.save(genre);
+            genres.add(genre);
+        }
+        
+        // If we need more genres than predefined names, generate random ones
+        for (int i = genreNames.length; i < count; i++) {
+            Genre genre = new Genre();
+            genre.setName(faker.book().genre());
+            genreRepository.save(genre);
+            genres.add(genre);
+        }
+        
+        return genres;
     }
     
     private List<AuthorBook> loadAuthorBookData(int count) {
@@ -187,14 +222,14 @@ public class DataInitializer {
     }
     
     private List<Book> loadBookData(int count, List<AuthorBook> authors, List<Illustrator> illustrators, 
-                                   List<PublisherBook> publishers, List<Series> series) {
+                                   List<PublisherBook> publishers, List<Series> series, List<Genre> genres) {
         List<Book> books = new ArrayList<>();
         
         for (int i = 0; i < count; i++) {
             // Create random collections
             Collection<AuthorBook> bookAuthors = getRandomSubList(authors, 1, 3);
             Collection<Illustrator> bookIllustrators = getRandomSubList(illustrators, 0, 2);
-            Collection<Book.BookGenre> genres = getRandomGenres();
+            Collection<Genre> bookGenres = getRandomSubList(genres, 1, 3);
             
             // Generate ISBN (13 digits)
             String isbn = "978" + IntStream.range(0, 10)
@@ -209,7 +244,7 @@ public class DataInitializer {
                 faker.number().numberBetween(1990, 2023),
                 getRandomFormatBook(),
                 getRandomLangue(),
-                genres
+                bookGenres
             );
             
             if (bookIllustrators.size() > 0) {
@@ -390,23 +425,6 @@ public class DataInitializer {
         }
         
         return result;
-    }
-    
-    private Collection<Book.BookGenre> getRandomGenres() {
-        Book.BookGenre[] allGenres = Book.BookGenre.values();
-        int numGenres = random.nextInt(3) + 1;
-        Collection<Book.BookGenre> genres = new ArrayList<>();
-        
-        for (int i = 0; i < numGenres; i++) {
-            Book.BookGenre genre;
-            do {
-                genre = allGenres[random.nextInt(allGenres.length)];
-            } while (genres.contains(genre));
-            
-            genres.add(genre);
-        }
-        
-        return genres;
     }
     
     private Collection<Game.GameCategories> getRandomCategories() {
