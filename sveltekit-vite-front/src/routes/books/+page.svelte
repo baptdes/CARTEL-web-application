@@ -1,6 +1,6 @@
 <script>
   import PointBar from '$lib/components/PointBar.svelte';
-  import BookCard from '$lib/components/BookCard.svelte';
+  import ItemCard from '$lib/components/ItemCard.svelte';
   import { onMount } from 'svelte';
   import { fetchBooks, fetchGenres, getAllAuthors } from '$lib/services/bookService';
   
@@ -246,7 +246,7 @@
         {/if}
         
         {#each books as book (book.barcode)}
-          <BookCard {book} />
+          <ItemCard item={book} type="book" />
         {/each}
       </div>
       

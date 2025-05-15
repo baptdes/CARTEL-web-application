@@ -17,11 +17,6 @@ public class PublicGameController {
 
     @Autowired
     private GameService gameService;
-
-    @GetMapping
-    public List<Game> getAllGames() {
-        return gameService.getAllGames();
-    }
     
     @GetMapping("/{barcode}")
     public ResponseEntity<Game> getGameByBarcode(@PathVariable String barcode) {
@@ -30,7 +25,7 @@ public class PublicGameController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/filterGames")
+    @GetMapping
     public List<Game> filterGames(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,

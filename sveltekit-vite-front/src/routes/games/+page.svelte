@@ -1,45 +1,730 @@
-<div class="construction-container">
-  <div class="construction-content">
-    <h1>Page En Construction</h1>
-    <div class="icon">🚧</div>
-    <p>Cette page est actuellement en cours de développement.</p>
-    <p>Merci pour votre patience.</p>
+<script>
+  import PointBar from '$lib/components/PointBar.svelte';
+  import ItemCard from '$lib/components/ItemCard.svelte';
+  import { onMount } from 'svelte';
+  import { fetchGames, getAllGameCategories, getAllCreators } from '$lib/services/gameService';
+  
+  // State variables
+  let games = $state([]);
+  let categories = $state([]);
+  let creators = $state([]);
+  let isLoading = $state(true);
+  let error = $state(null);
+  let searchQuery = $state('');
 
+  // Filter state variables
+  let selectedCategory = $state("ALL");
+  let selectedCreator = $state("ALL");
+  let selectedPublisher = $state("");
+  let minPlayers = $state("");
+  let maxPlayers = $state("");
+  let minPlaytime = $state("");
+  let maxPlaytime = $state("");
+  
+  // Pagination
+  let pageNumber = $state(0);
+  let pageSize = $state(20);
+  
+  // Sort options - Define before sortOption
+  const sortOptions = [
+    { value: "name_asc", label: "Titre (A-Z)", field: "name", asc: true },
+    { value: "name_desc", label: "Titre (Z-A)", field: "name", asc: false },
+    { value: "year_desc", label: "Plus récents", field: "publicationYear", asc: false },
+    { value: "year_asc", label: "Plus anciens", field: "publicationYear", asc: true },
+  ];
+  
+  // Add sorting state with string key instead of object
+  let sortOption = $state(sortOptions[0].value);
+  
+  // Handle search with filters
+  async function handleSearch() {
+    isLoading = true;
+    error = null;
+    try {
+      // Find the selected sort option
+      const selectedSort = sortOptions.find(option => option.value === sortOption);
+      
+      // Construct query parameters based on filters
+      const params = {
+        pageNumber,
+        pageSize,
+        asc: selectedSort.asc,
+        sortBy: selectedSort.field,
+      };
+      
+      // Add filters if they're set
+      if (searchQuery) params.titleGame = searchQuery;
+      if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
+      if (selectedCreator && selectedCreator !== "ALL") {
+        const [firstName, surname] = selectedCreator.split('|');
+        params.creatorFirstName = firstName;
+        params.creatorSurname = surname;
+      }
+      if (selectedCategory && selectedCategory !== "ALL") params.category = selectedCategory;
+      if (minPlayers && !isNaN(parseInt(minPlayers))) params.minPlayers = parseInt(minPlayers);
+      if (maxPlayers && !isNaN(parseInt(maxPlayers))) params.maxPlayers = parseInt(maxPlayers);
+      if (minPlaytime && !isNaN(parseInt(minPlaytime))) params.minPlaytime = parseInt(minPlaytime);
+      if (maxPlaytime && !isNaN(parseInt(maxPlaytime))) params.maxPlaytime = parseInt(maxPlaytime);
+      
+      games = await fetchGames(params);
+    } catch (err) {
+      error = err.message || 'Failed to search games';
+    } finally {
+      isLoading = false;
+    }
+  }
+  
+  // Reset search
+  async function resetSearch() {
+    searchQuery = '';
+    selectedCategory = "ALL";
+    selectedCreator = "ALL";
+    selectedPublisher = "";
+    minPlayers = "";
+    maxPlayers = "";
+    minPlaytime = "";
+    maxPlaytime = "";
+    sortOption = sortOptions[0].value; // Reset to first option
+    pageNumber = 0;
+    
+    isLoading = true;
+    error = null;
+    try {
+      games = await fetchGames({
+        pageNumber: 0,
+        pageSize,
+        asc: true,
+        sortBy: "name"
+      });
+    } catch (err) {
+      error = err.message || 'Failed to reset search';
+    } finally {
+      isLoading = false;
+    }
+  }
+  
+  // Initialize component
+  onMount(async () => {
+    try {
+      // Fetch categories
+      categories = await getAllGameCategories();
+      
+      // Fetch creators
+      creators = await getAllCreators();
+      
+      // Fetch games with default parameters
+      games = await fetchGames({
+        pageNumber: 0,
+        pageSize,
+        asc: true,
+        sortBy: "name"
+      });
+    } catch (err) {
+      error = err.message || 'Failed to load initial data';
+    } finally {
+      isLoading = false;
+    }
+  });
+</script>
+
+<svelte:head>
+  <title>Jeux de société | C.A.R.T.E.L</title>
+</svelte:head>
+
+<div class="container">
+  <div class="search">
+    <div class="search-container">
+      <input 
+        type="text" 
+        bind:value={searchQuery}
+        placeholder="Rechercher un jeu par titre..."
+        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+      />
+      <button on:click={handleSearch} aria-label="Rechercher">
+        🔍
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Left sidebar with filters -->
+    <aside>
+      <h2>Filtres</h2>
+      
+      <div class="section">
+        <h3>Catégorie</h3>
+        <div>
+          <select bind:value={selectedCategory} title="Sélectionner une catégorie">
+            <option value="ALL">Toutes les catégories</option>
+            {#each categories as category}
+              <option value={category}>{category}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Créateur</h3>
+        <div>
+          <select bind:value={selectedCreator} title="Sélectionner un créateur">
+            <option value="ALL">Tous les créateurs</option>
+            {#each creators as creator}
+              <option value={`${creator.firstname || ''}|${creator.surname || ''}`}>
+                {(creator.firstname || '') + ' ' + (creator.surname || '')}
+              </option>
+            {/each}
+          </select>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h3>Éditeur</h3>
+        <div>
+          <input 
+            type="text" 
+            bind:value={selectedPublisher} 
+            placeholder="Nom de l'éditeur"
+            class="publisher-input"
+          />
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Nombre de joueurs</h3>
+        <div class="range-inputs">
+          <input 
+            type="number"
+            bind:value={minPlayers}
+            placeholder="Min"
+            min="1"
+            class="number-input"
+          />
+          <span class="range-separator">à</span>
+          <input 
+            type="number"
+            bind:value={maxPlayers}
+            placeholder="Max"
+            min="1"
+            class="number-input"
+          />
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Durée (minutes)</h3>
+        <div class="range-inputs">
+          <input 
+            type="number"
+            bind:value={minPlaytime}
+            placeholder="Min"
+            min="1"
+            class="number-input"
+          />
+          <span class="range-separator">à</span>
+          <input 
+            type="number"
+            bind:value={maxPlaytime}
+            placeholder="Max"
+            min="1"
+            class="number-input"
+          />
+        </div>
+      </div>
+      
+      <button class="apply-filters" on:click={handleSearch}>
+        Appliquer les filtres
+      </button>
+      
+      <button class="reset" on:click={resetSearch}>
+        Réinitialiser la recherche
+      </button>
+    </aside>
+    
+    <!-- Right side content area -->
+    <div class="content">
+      <div class="info-bar">
+        <div>
+          <span>Catalogue des jeux de société</span>
+        </div>
+        <div class="sort-container">
+          <label for="sort-select">Trier par:</label>
+          <select id="sort-select" bind:value={sortOption} class="sort-select" on:change={handleSearch}>
+            {#each sortOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
+        </div>
+      </div>
+      
+      <!-- Loading state -->
+      {#if isLoading}
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Chargement des jeux...</p>
+        </div>
+      {/if}
+      
+      <!-- Error state -->
+      {#if error}
+        <div class="error">
+          <p>Erreur lors du chargement des données: {error}</p>
+          <button on:click={resetSearch}>Réessayer</button>
+        </div>
+      {/if}
+      
+      <!-- Results display - cards -->
+      <div class="results">
+        {#if !isLoading && games.length === 0}
+          <div class="no-results">
+            <p>Aucun jeu trouvé avec les critères actuels.</p>
+          </div>
+        {/if}
+        
+        {#each games as game (game.barcode)}
+          <ItemCard item={game} type="game" />
+        {/each}
+      </div>
+      
+      <!-- Pagination controls -->
+      {#if games.length > 0}
+        <div class="pagination">
+          <button 
+            disabled={pageNumber === 0} 
+            on:click={() => { pageNumber -= 1; handleSearch(); }}
+            class="pagination-button"
+          >
+            &laquo; Précédent
+          </button>
+          
+          <span class="page-info">Page {pageNumber + 1}</span>
+          
+          <button 
+            disabled={games.length < pageSize}
+            on:click={() => { pageNumber += 1; handleSearch(); }}
+            class="pagination-button"
+          >
+            Suivant &raquo;
+          </button>
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
-<style>
-  .construction-container {
+<style lang="scss">
+  .container {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 4rem);
+    position: relative;
+    padding-bottom: 2rem;
+    padding-top: 2rem;
+    background-image: url('/textures/dark-brown-old-stone-wall.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: 0;
+    }
+    
+    .search {
+      padding: 1rem;
+      z-index: 100;
+      position: relative;
+      margin-bottom: 1.5rem;
+      
+      .search-container {
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 50px;
+        background-color: #f0e6d2;
+        
+        input {
+          flex: 1;
+          padding: 0.8rem 1.5rem;
+          background-color: transparent;
+          border: 2px solid #d4b483;
+          border-radius: 50px;
+          color: #59280d;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          
+          &::placeholder {
+            color: rgba(89, 40, 13, 0.5);
+          }
+          
+          &:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 2px rgba(199, 112, 49, 0.2);
+          }
+        }
+        
+        button {
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--orange);
+          color: white;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          font-size: 1.1rem;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          
+          &:hover {
+            background-color: var(--dark-orange);
+          }
+        }
+      }
+    }
+  }
+  
+  .main {
+    display: flex;
+    flex: 1;
+    padding: 0 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    
+    aside {
+      width: 250px;
+      flex-shrink: 0;
+      padding: 1.5rem;
+      background-color: #2a2a2a; /* Dark background */
+      border: 8px solid var(--dark-orange); /* Keep orange border for consistency */
+      border-radius: 8px;
+      margin-right: 1.5rem;
+      height: fit-content;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+      
+      h2 {
+        font-family: "Pirata One", cursive;
+        color: var(--white);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      
+      h3 {
+        color: var(--white);
+        margin: 0 0 0.8rem 0;
+        font-size: 1.2rem;
+      }
+      
+      .section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(224, 214, 194, 0.2);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        div {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          
+          label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            
+            input {
+              margin-right: 0.5rem;
+            }
+            
+            span {
+              color: #e0d6c2;
+            }
+          }
+          
+          select {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #343434;
+            color: #e0d6c2;
+            border: 1px solid var(--dark-orange);
+            border-radius: 4px;
+            
+            &:focus {
+              outline: none;
+              border-color: var(--orange);
+            }
+          }
+        }
+      }
+      
+      .apply-filters {
+        width: 100%;
+        padding: 0.8rem;
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        margin-bottom: 1rem;
+        
+        &:hover {
+          background-color: var(--dark-orange);
+        }
+      }
+      
+      .reset {
+        width: 100%;
+        padding: 0.6rem;
+        background-color: transparent;
+        color: var(--orange);
+        border: 1px solid var(--orange);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        
+        &:hover {
+          background-color: rgba(199, 112, 49, 0.2);
+        }
+      }
+    }
+  }
+  
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: #2a2a2a; /* Dark background */
+      border: 2px solid var(--dark-orange);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      color: var(--white);
+      
+      span {
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+      
+      .sort-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        label {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+        }
+        
+        .sort-select {
+          padding: 0.3rem;
+          background-color: #343434;
+          color: var(--white);
+          border: 1px solid var(--dark-orange);
+          border-radius: 4px;
+          font-size: 0.9rem;
+          
+          &:focus {
+            outline: none;
+            border-color: var(--orange);
+          }
+        }
+        
+        div {
+          color: #e0d6c2;
+          font-size: 0.9rem;
+          margin-left: 0.5rem;
+          white-space: nowrap;
+        }
+      }
+    }
+    
+    .results {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 1.5rem;
+    }
+  }
+  
+  // Loading and error states
+  .loading, .error, .no-results {
+    padding: 2rem;
+    text-align: center;
+    background-color: #2a2a2a; /* Dark background */
+    border: 2px solid var(--dark-orange);
+    border-radius: 8px;
+    margin: 1rem 0;
+    
+    p {
+      color: #e0d6c2;
+      margin: 0;
+    }
+  }
+  
+  .loading .spinner {
+    margin: 0 auto 1rem;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(224, 214, 194, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--orange);
+    animation: spin 1s linear infinite;
+  }
+  
+  .error {
+    border: 2px solid var(--red);
+    
+    p {
+      color: var(--red);
+    }
+    
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: var(--dark-orange);
+      }
+    }
+  }
+  
+  .no-results {
+    padding: 3rem;
+    
+    p {
+      font-size: 1.1rem;
+      color: #e0d6c2;
+      font-style: italic;
+    }
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .main {
+      flex-direction: column;
+      
+      aside {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .info-bar {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: flex-start;
+      
+      .sort-container {
+        flex-wrap: wrap;
+        width: 100%;
+        
+        div {
+          margin-top: 0.5rem;
+          width: 100%;
+        }
+      }
+    }
+  }
+  
+  .publisher-input, .number-input {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+  }
+
+  .range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .range-separator {
+      color: #e0d6c2;
+      font-size: 0.9rem;
+    }
+
+    .number-input {
+      flex: 1;
+    }
+  }
+  
+  .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
-    text-align: center;
-    padding: 2rem;
-  }
-
-  .construction-content {
-    max-width: 600px;
-    padding: 2rem;
-    border-radius: 8px;
-    background-color: #f8f9fa;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  h1 {
-    color: #e63946;
-    margin-bottom: 1rem;
-    font-size: 2.5rem;
-  }
-
-  .icon {
-    font-size: 5rem;
-    margin: 1.5rem 0;
-  }
-
-  p {
-    font-size: 1.2rem;
-    color: #495057;
-    margin: 0.5rem 0;
+    margin-top: 1.5rem;
+    gap: 1rem;
+    
+    .pagination-button {
+      padding: 0.5rem 1rem;
+      background-color: #343434;
+      color: #e0d6c2;
+      border: 1px solid var(--dark-orange);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover:not(:disabled) {
+        background-color: var(--dark-orange);
+        color: white;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    .page-info {
+      color: #e0d6c2;
+      font-size: 0.9rem;
+    }
   }
 </style>
