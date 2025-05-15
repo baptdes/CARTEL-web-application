@@ -61,7 +61,7 @@ public class DataInitializer {
     private final int numBooks = 30;
     private final int numCreators = 12;
     private final int numPublishersJDS = 8;
-    private final int numJDS = 20;
+    private final int numJDS = 30;
     private final int numExtensions = 10;
     private final int numCartelPersons = 25;
     private final int numSuggestions = 10;
