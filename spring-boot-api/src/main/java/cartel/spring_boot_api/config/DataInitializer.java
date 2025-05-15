@@ -105,7 +105,7 @@ public class DataInitializer {
             List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
             
             System.out.println("Loading Suggestion data...");
-            loadSuggestionData(numSuggestions);
+            //loadSuggestionData(numSuggestions);
             
             System.out.println("Seeding completed!");
         };
@@ -334,7 +334,7 @@ public class DataInitializer {
         
         return copies;
     }
-    
+    /* 
     private void loadSuggestionData(int count) {
         String[] suggestionNames = {
             "Harry Potter and the Cursed Child",
@@ -370,7 +370,7 @@ public class DataInitializer {
             suggestionRepository.save(suggestion);
         }
     }
-    
+    */
     // Helper methods
     private <T> T getRandomElement(List<T> list) {
         return list.get(random.nextInt(list.size()));
