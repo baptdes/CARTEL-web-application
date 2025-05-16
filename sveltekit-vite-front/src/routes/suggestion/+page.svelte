@@ -47,6 +47,7 @@
       suggestionName = '';
       suggestionReason = '';
       showBookForm = false;
+      setTimeout(() => {submitMessage = '';}, 3000);
     } catch (e) {
       submitMessage = "Erreur lors de l'envoi de la suggestion.";
     } finally {
@@ -169,6 +170,7 @@
     border: 1px solid var(--orange);
     font-size: 1rem;
   }
+
 
   .submit-btn {
     background-color: var(--orange);
