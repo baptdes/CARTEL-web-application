@@ -26,4 +26,21 @@ public class PublicSuggestionController {
         return new ResponseEntity<>(savedSuggestion, HttpStatus.CREATED);
     }
 
+    // Get all suggestions
+    @GetMapping
+    public ResponseEntity<Iterable<Suggestion>> getAllSuggestions() {
+        Iterable<Suggestion> suggestions = suggestionRepository.findAll();
+        return new ResponseEntity<>(suggestions, HttpStatus.OK);
+    }
+
+    // delete a suggestion
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSuggestion(@PathVariable Long id) {
+        if (suggestionRepository.existsById(id)) {
+            suggestionRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

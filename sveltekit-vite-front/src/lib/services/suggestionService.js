@@ -27,3 +27,33 @@ export async function createSuggestion(suggestion) {
 
   return await response.json();
 }
+
+
+/**
+ * Fetch all suggestions from the API.
+ * @returns {Promise<Array>} List of suggestions
+ */
+export async function fetchAllSuggestions() {
+  const response = await fetch('/api/public/suggestions');
+  if (!response.ok) {
+    throw new Error('Erreur lors de la récupération des suggestions');
+  }
+  return await response.json();
+}
+
+/**
+ * delete a suggestion by id
+ * @param {number} id - The id of the suggestion to delete.
+ * @returns {Promise<void>}
+ */
+export async function deleteSuggestion(id) {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    throw new Error('Erreur lors de la suppression de la suggestion');
+  }
+}
+
+

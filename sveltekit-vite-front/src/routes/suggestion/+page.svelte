@@ -64,7 +64,8 @@
 </script>
 
 <main>
-  <h2>Suggestions</h2>
+
+  <h2></h2>
   <div class="suggestion-buttons">
     <button class="suggestion-btn" on:click={handleBookClick}>
       Suggestions de Livre/JDS/Autre
@@ -73,6 +74,7 @@
       Suggestions et Réclamations autre
     </button>
   </div>
+
 
   {#if submitMessage}
     <div class="submit-message">{submitMessage}</div>
