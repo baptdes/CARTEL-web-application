@@ -40,13 +40,15 @@
       const suggestion = {
         name: suggestionName,
         type: typeMap[selectedType] || 'AUTRE',
-        description: suggestionReason
+        description: suggestionReason,
+        isSuggestion: true
       };
       await createSuggestion(suggestion);
       submitMessage = 'Suggestion envoyée avec succès !';
       suggestionName = '';
       suggestionReason = '';
       showBookForm = false;
+      setTimeout(() => {submitMessage = '';}, 3000);
     } catch (e) {
       submitMessage = "Erreur lors de l'envoi de la suggestion.";
     } finally {
@@ -63,7 +65,8 @@
 </script>
 
 <main>
-  <h2>Suggestions</h2>
+
+  <h2></h2>
   <div class="suggestion-buttons">
     <button class="suggestion-btn" on:click={handleBookClick}>
       Suggestions de Livre/JDS/Autre
@@ -72,6 +75,7 @@
       Suggestions et Réclamations autre
     </button>
   </div>
+
 
   {#if submitMessage}
     <div class="submit-message">{submitMessage}</div>
@@ -169,6 +173,7 @@
     border: 1px solid var(--orange);
     font-size: 1rem;
   }
+
 
   .submit-btn {
     background-color: var(--orange);
