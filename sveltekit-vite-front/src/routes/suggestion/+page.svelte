@@ -40,7 +40,8 @@
       const suggestion = {
         name: suggestionName,
         type: typeMap[selectedType] || 'AUTRE',
-        description: suggestionReason
+        description: suggestionReason,
+        isSuggestion: true
       };
       await createSuggestion(suggestion);
       submitMessage = 'Suggestion envoyée avec succès !';

@@ -10,15 +10,26 @@ const API_URL = '/api/public/suggestions';
  * @param {Object} suggestion - The suggestion object to send.
  * @param {string} suggestion.name - The suggestion name.
  * @param {string} suggestion.type - The suggestion type (LIVRE, MANGA, BD, JDS, JDR, AUTRE).
+ * @param {string} suggestion.description - The suggestion description.
+ * @param {boolean} suggestion.isSuggestion - True if it's a suggestion, false if it's a complaint.
  * @returns {Promise<Object>} The created suggestion.
  */
 export async function createSuggestion(suggestion) {
-  const response = await fetch(API_URL, {
+  // The backend will set createdAt and id automatically
+  const payload = {
+    name: suggestion.name,
+    type: suggestion.type,
+    description: suggestion.description,
+    isSuggestion: suggestion.isSuggestion
+    // createdAt and id are handled by the backend
+  };
+
+  const response = await fetch('/api/public/suggestions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(suggestion)
+    body: JSON.stringify(payload)
   });
 
   if (!response.ok) {

@@ -18,7 +18,7 @@ public class PublicSuggestionController {
     @Autowired
     private SuggestionRepository suggestionRepository;
 
-    // Create a new book
+    // Create a suggestion
     @PostMapping
     public ResponseEntity<Suggestion> createSuggestion(@RequestBody Suggestion suggestion) {
         suggestion.setCreatedAt(LocalDateTime.now());
