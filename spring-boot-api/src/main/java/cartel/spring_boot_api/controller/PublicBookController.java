@@ -200,7 +200,7 @@ public class PublicBookController {
      * @param book The Book entity to add
      * @return ResponseEntity with the added book
      */
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
         Book addedBook = bookService.addBook(book);
         return ResponseEntity.ok(addedBook);
