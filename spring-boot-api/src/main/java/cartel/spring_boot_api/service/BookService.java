@@ -94,4 +94,12 @@ public interface BookService {
      * @throws RuntimeException if the book already exists
      */
     Book addBook(Book book);
+
+    /**
+     * Deletes a book by its ISBN
+     * 
+     * @param isbn The ISBN of the book to delete
+     * @throws RuntimeException if the book doesn't exist or cannot be deleted
+     */
+    void deleteBook(String isbn);
 }

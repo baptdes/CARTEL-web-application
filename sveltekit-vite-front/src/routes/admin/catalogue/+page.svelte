@@ -4,17 +4,25 @@
   import { isAuthenticated, logout } from '$lib/auth';
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
-  import { fetchBooks } from '$lib/services/bookService';
+  import { fetchBooks, deleteBook } from '$lib/services/bookService';
+  import AddBookModal from '$lib/components/admin/AddBookModal.svelte';
+  import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 
   // State for books data
   let books = $state([]);
   let isLoading = $state(true);
   let error = $state(null);
+  let deletingError = $state(null);
   
   // Search and filter state
   let searchQuery = $state('');
   let pageNumber = $state(0);
   let pageSize = $state(10);
+  
+  // Modal state
+  let showAddModal = $state(false);
+  let showDeleteConfirm = $state(false);
+  let bookToDelete = $state(null);
   
   // Sort options - Similar to public catalogue
   const sortOptions = [
@@ -84,20 +92,60 @@
     loadBooks();
   }
 
-  // Mock functions for UI buttons (won't implement actual functionality)
+  // Handle opening the add book modal
+  function handleAddBook() {
+    showAddModal = true;
+  }
+
+  // Handle closing the add book modal
+  function handleCloseAddModal() {
+    showAddModal = false;
+  }
+
+  // Handle book added event
+  function handleBookAdded(event) {
+    // Reload the books list to include the newly added book
+    loadBooks();
+  }
+
+  // Handle modify button click
   function handleModify(book) {
     console.log('Modify book:', book);
     // This would navigate to an edit form in a real implementation
   }
 
+  // Handle delete button click - open confirmation dialog
   function handleDelete(book) {
-    console.log('Delete book:', book);
-    // This would show a confirmation dialog and delete in a real implementation
+    bookToDelete = book;
+    showDeleteConfirm = true;
   }
 
-  function handleAddBook() {
-    console.log('Add new book');
-    // This would navigate to a form to add a new book in a real implementation
+  // Handle delete confirmation
+  async function confirmDelete() {
+    if (!bookToDelete) return;
+    
+    try {
+      deletingError = null;
+      const isbn = bookToDelete.barcode;
+      
+      await deleteBook(isbn);
+      
+      // Remove the book from the local list to update the UI immediately
+      books = books.filter(book => book.barcode !== isbn);
+      
+      // Close the dialog
+      showDeleteConfirm = false;
+      bookToDelete = null;
+    } catch (err) {
+      deletingError = err.message || 'Failed to delete book';
+    }
+  }
+
+  // Handle delete cancellation
+  function cancelDelete() {
+    showDeleteConfirm = false;
+    bookToDelete = null;
+    deletingError = null;
   }
 
   // Initialize component
@@ -159,6 +207,13 @@
       <div class="error">
         <p>Erreur lors du chargement: {error}</p>
         <button class="admin-button" onclick={loadBooks}>Réessayer</button>
+      </div>
+    {/if}
+
+    {#if deletingError}
+      <div class="error">
+        <p>Erreur lors de la suppression: {deletingError}</p>
+        <button class="admin-button" onclick={() => deletingError = null}>OK</button>
       </div>
     {/if}
 
@@ -246,6 +301,23 @@
       {/if}
     {/if}
   </div>
+
+  <!-- Add Book Modal -->
+  <AddBookModal 
+    show={showAddModal}
+    on:close={handleCloseAddModal}
+    on:bookAdded={handleBookAdded}
+  />
+
+  <!-- Confirmation Dialog for Delete -->
+  <ConfirmDialog
+    show={showDeleteConfirm}
+    title="Confirmer la suppression"
+    message={`Êtes-vous sûr de vouloir supprimer le livre "${bookToDelete?.name || ''}" ? Cette action est irréversible.`}
+    confirmText="Supprimer"
+    on:confirm={confirmDelete}
+    on:cancel={cancelDelete}
+  />
 </main>
 
 <style lang="scss">

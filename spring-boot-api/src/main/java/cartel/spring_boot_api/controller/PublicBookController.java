@@ -116,4 +116,20 @@ public class PublicBookController {
         Book addedBook = bookService.addBook(book);
         return ResponseEntity.ok(addedBook);
     }
+
+    /**
+     * Deletes a book by its ISBN
+     * 
+     * @param isbn The ISBN of the book to delete
+     * @return ResponseEntity with no content if successful
+     */
+    @DeleteMapping("/{isbn}")
+    public ResponseEntity<?> deleteBook(@PathVariable String isbn) {
+        try {
+            bookService.deleteBook(isbn);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }

@@ -307,4 +307,22 @@ public class BookServiceImpl implements BookService {
         }
         return "";
     }
+
+    @Override
+    public void deleteBook(String isbn) {
+        List<Book> books = bookRepository.findByBarcode(isbn);
+        
+        if (books.isEmpty()) {
+            throw new RuntimeException("Book not found with ISBN: " + isbn);
+        }
+        
+        Book bookToDelete = books.get(0);
+        
+        try {
+            // Delete the book
+            bookRepository.delete(bookToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting book: " + e.getMessage(), e);
+        }
+    }
 }
