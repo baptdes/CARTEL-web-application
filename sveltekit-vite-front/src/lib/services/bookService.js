@@ -114,6 +114,21 @@ export function formatAuthor(book) {
 }
 
 /**
+ * Format illustrator for display
+ * @param {Object} book - Book object
+ * @returns {string} Formatted illustrator string
+ */
+export function formatIllustrator(book) {
+  if (!book.illustrator || !Array.isArray(book.illustrator) || book.illustrator.length === 0) {
+    return 'Illustrateur inconnu';
+  }
+  
+  return book.illustrator.map(illustrator => 
+    `${illustrator.firstname || ''} ${illustrator.surname || ''}`.trim()
+  ).join(', ');
+}
+
+/**
  * Format publisher for display
  */
 export function formatPublisher(book) {
