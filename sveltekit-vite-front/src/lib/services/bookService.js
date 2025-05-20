@@ -99,6 +99,25 @@ export async function getAllIllustrators() {
 }
 
 /**
+ * Get all publishers
+ * @returns {Promise<Array>} List of publishers
+ */
+export async function getAllPublishers() {
+  try {
+    const response = await fetch('/api/public/books/publishers');
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Failed to fetch publishers:", err);
+    throw err;
+  }
+}
+
+/**
  * Format author for display
  * @param {Object} book - Book object
  * @returns {string} Formatted author string
