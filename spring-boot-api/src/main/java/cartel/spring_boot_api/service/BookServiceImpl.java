@@ -3,11 +3,13 @@ package cartel.spring_boot_api.service;
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Genre;
+import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.GenreRepository;
+import cartel.spring_boot_api.repository.IllustratorRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import static cartel.spring_boot_api.specification.BookSpecification.*;
 
@@ -28,12 +30,9 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.*;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -49,6 +48,9 @@ public class BookServiceImpl implements BookService {
     
     @Autowired
     private GenreRepository genreRepository;
+
+    @Autowired
+    private IllustratorRepository illustratorRepository;
 
     @Override
     public List<Book> getAllBooks() {
@@ -90,34 +92,63 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Map<String, String>> getAllAuthors() {
-        List<AuthorBook> authors = authorBookRepository.findAll();
-        List<Map<String, String>> authorList = new ArrayList<>();
-        
-        for (AuthorBook author : authors) {
-            Map<String, String> authorMap = new HashMap<>();
-            authorMap.put("firstname", author.getFirstname());
-            authorMap.put("surname", author.getSurname());
-            authorList.add(authorMap);
+    public List<AuthorBook> getAllAuthors() {
+        return authorBookRepository.findAll();
+    }
+
+    @Override
+    public AuthorBook addAuthor(String firstname, String surname) {
+        List<AuthorBook> existingAuthors = authorBookRepository.findByFirstnameAndSurnameIgnoreCase(firstname, surname);
+        if (!existingAuthors.isEmpty()) {
+            throw new RuntimeException("Author already exists with name: " + firstname + " " + surname);
         }
-        
-        return authorList;
+        AuthorBook newAuthor = new AuthorBook(surname, firstname); 
+        return authorBookRepository.save(newAuthor);
     }
 
     @Override
-    public List<String> getAllGenres() {
-        List<Genre> genres = genreRepository.findAll();
-        return genres.stream()
-                .map(Genre::getName)
-                .collect(Collectors.toList());
+    public List<Genre> getAllGenres() {
+        return genreRepository.findAll();
     }
 
     @Override
-    public List<String> getAllPublishers() {
-        List<PublisherBook> publishers = publisherBookRepository.findAll();
-        return publishers.stream()
-                .map(PublisherBook::getName)
-                .collect(Collectors.toList());
+    public Genre addGenre(String name) {
+        List<Genre> existingGenres = genreRepository.findByNameIgnoreCase(name);
+        if (!existingGenres.isEmpty()) {
+            throw new RuntimeException("Genre already exists with name: " + name);
+        }
+        Genre newGenre = new Genre(name);
+        return genreRepository.save(newGenre);
+    }
+
+    @Override
+    public List<PublisherBook> getAllPublishers() {
+        return publisherBookRepository.findAll();
+    }
+
+    @Override
+    public PublisherBook addPublisher(String name) {
+        List<PublisherBook> existingPublishers = publisherBookRepository.findByNameIgnoreCase(name);
+        if (!existingPublishers.isEmpty()) {
+            throw new RuntimeException("Publisher already exists with name: " + name);
+        }
+        PublisherBook newPublisher = new PublisherBook(name);
+        return publisherBookRepository.save(newPublisher);
+    }
+
+    @Override
+    public List<Illustrator> getAllIllustrators() {
+        return illustratorRepository.findAll();
+    }
+
+    @Override
+    public Illustrator addIllustrator(String firstname, String surname) {
+        List<Illustrator> existingIllustrators = illustratorRepository.findByFirstnameAndSurnameIgnoreCase(firstname, surname);
+        if (!existingIllustrators.isEmpty()) {
+            throw new RuntimeException("Illustrator already exists with name: " + firstname + " " + surname);
+        }
+        Illustrator newIllustrator = new Illustrator(surname, firstname); 
+        return illustratorRepository.save(newIllustrator);
     }
 
     @Override
@@ -130,6 +161,24 @@ public class BookServiceImpl implements BookService {
         
         // Save the new book to the database
         return bookRepository.save(book);
+    }
+
+    @Override
+    public void deleteBook(String isbn) {
+        List<Book> books = bookRepository.findByBarcode(isbn);
+        
+        if (books.isEmpty()) {
+            throw new RuntimeException("Book not found with ISBN: " + isbn);
+        }
+        
+        Book bookToDelete = books.get(0);
+        
+        try {
+            // Delete the book
+            bookRepository.delete(bookToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting book: " + e.getMessage(), e);
+        }
     }
     
     @Override
@@ -314,23 +363,5 @@ public class BookServiceImpl implements BookService {
             }
         }
         return "";
-    }
-
-    @Override
-    public void deleteBook(String isbn) {
-        List<Book> books = bookRepository.findByBarcode(isbn);
-        
-        if (books.isEmpty()) {
-            throw new RuntimeException("Book not found with ISBN: " + isbn);
-        }
-        
-        Book bookToDelete = books.get(0);
-        
-        try {
-            // Delete the book
-            bookRepository.delete(bookToDelete);
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting book: " + e.getMessage(), e);
-        }
     }
 }

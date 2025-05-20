@@ -3,11 +3,11 @@ package cartel.spring_boot_api.service;
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Genre;
-import cartel.spring_boot_api.model.Item;
+import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -65,23 +65,64 @@ public interface BookService {
     /**
      * Retrieves all authors in the system
      * 
-     * @return List of author information as maps with firstname and surname keys
+     * @return List of all authors
      */
-    List<Map<String, String>> getAllAuthors();
+    List<AuthorBook> getAllAuthors();
+
+    /**
+     * Add a new author
+     * @param firstname The author's first name
+     * @param surname The author's surname
+     * @return The added AuthorBook entity
+     * @throws RuntimeException if the author already exists
+     */
+    AuthorBook addAuthor(String firstname, String surname);
     
     /**
-     * Returns all available book genre names
+     * Returns all available book
      * 
-     * @return List of all genre names as strings
+     * @return List of all genre
      */
-    List<String> getAllGenres();
+    List<Genre> getAllGenres();
+
+    /**
+     * Add a new genre
+     * @param name The genre name
+     * @return The added Genre entity
+     * @throws RuntimeException if the genre already exists
+     */
+    Genre addGenre(String name);
 
     /**
      * Returns all available publisher
      * 
-     * @return List of all publisher names as strings
+     * @return List of all publisher
      */
-    List<String> getAllPublishers();
+    List<PublisherBook> getAllPublishers();
+
+    /**
+     * Add a new publisher
+     * @param name The publisher name
+     * @return The added PublisherBook entity
+     * @throws RuntimeException if the publisher already exists
+     */
+    PublisherBook addPublisher(String name);
+
+    /**
+     * Returns all available illustrator
+     * 
+     * @return List of all illustrator
+     */
+    List<Illustrator> getAllIllustrators();
+
+    /**
+     * Add a new illustrator
+     * @param firstname
+     * @param surname
+     * @return The added Illustrator entity
+     * @throws RuntimeException if the illustrator already exists
+     */
+    Illustrator addIllustrator(String firstname, String surname);
     
     /**
      * Finds an author by name or creates a new one if not found
