@@ -40,7 +40,7 @@
     <button
       class="innerBouton line"
       type="button"
-      onclick={() => goto("/admin/purge_course")}
+      onclick={() => goto("/admin/tresorerie")}
     >
       <div class="border">
         <img
