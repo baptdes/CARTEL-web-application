@@ -17,7 +17,14 @@
 
   async function loadSuggestions() {
     try {
-      suggestions = await fetchAllSuggestions();
+      let fetched = await fetchAllSuggestions();
+      const typeOrder = ['LIVRE', 'BD','MANGA', 'JDS', 'JDR', 'AUTRE', ];
+      fetched.sort((a, b) => {
+        const idxA = typeOrder.indexOf(a.type?.toUpperCase() || 'AUTRE');
+        const idxB = typeOrder.indexOf(b.type?.toUpperCase() || 'AUTRE');
+        return idxA - idxB;
+      });
+      suggestions = fetched;
     } catch (e) {
       error = "Erreur lors du chargement des suggestions.";
     }
@@ -33,9 +40,47 @@
       }
     }
   }
+
+  // PDF export using jsPDF and autotable
+  async function exportPDF() {
+    const { jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Nom', 'Type', 'Description', 'Date']],
+      body: suggestions.map(s => [
+        s.name,
+        s.type,
+        s.description,
+        s.createdAt?.slice(0, 10) || ''
+      ])
+    });
+    doc.save('suggestions.pdf');
+  }
+
+  // TXT export
+  function exportTXT() {
+    let content = 'Nom\tType\tDescription\tDate\n';
+    for (const s of suggestions) {
+      content += `${s.name}\t${s.type}\t${s.description}\t${s.createdAt?.slice(0, 10) || ''}\n`;
+    }
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'suggestions.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <main>
+  <div class="export-buttons">
+    <button on:click={exportPDF}>📄 Exporter PDF</button>
+    <button on:click={exportTXT}>📝 Exporter TXT</button>
+  </div>
   <DoubleText text="Purge" size="4em" />
   <!-- <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button> -->
 
@@ -75,20 +120,41 @@
   {:else}
     <p>Aucune suggestion trouvée.</p>
   {/if}
-
-  <StackText/>
 </main>
 
 <style lang="scss">
   @use "/src/lib/sass/base" as base;
+
+  .export-buttons {
+    display: flex;
+    gap: 1em;
+    position: absolute;
+    right: 2em;
+    top: 2em;
+    z-index: 10;
+  }
+  .export-buttons button {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    padding: 0.5em 1.2em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  .export-buttons button:hover {
+    background: #0d47a1;
+  }
 
   main {
     flex: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
   }
-
+  
   table {
     margin-top: 2rem;
     border-collapse: collapse;
