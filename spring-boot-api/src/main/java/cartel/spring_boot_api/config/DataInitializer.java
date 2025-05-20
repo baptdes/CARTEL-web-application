@@ -411,7 +411,7 @@ public class DataInitializer {
         }
         return loanTo;
     }
-    /* 
+
     private void loadSuggestionData(int count) {
         String[] suggestionNames = {
             "Harry Potter and the Cursed Child",

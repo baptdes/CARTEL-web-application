@@ -9,8 +9,7 @@ public class GameSpecification {
     
     public static Specification<Game> titleLike(String title) {
         return (root, query, cb) -> 
-            title.isEmpty() ? cb.conjunction() : 
-                cb.like(cb.lower(root.get("name")), "%" + title.toLowerCase() + "%");
+            cb.like(cb.lower(root.get("name")), "%" + title.toLowerCase() + "%");
     }
     
     public static Specification<Game> fromPublisherByName(String publisherName) {
@@ -36,14 +35,12 @@ public class GameSpecification {
     
     public static Specification<Game> minPlayersGreaterThanEqual(Integer minPlayers) {
         return (root, query, cb) -> 
-            minPlayers == null ? cb.conjunction() : 
-                cb.greaterThanOrEqualTo(root.get("minPlayers"), minPlayers);
+            cb.greaterThanOrEqualTo(root.get("minPlayers"), minPlayers);
     }
     
     public static Specification<Game> maxPlayersLessThanEqual(Integer maxPlayers) {
         return (root, query, cb) -> 
-            maxPlayers == null ? cb.conjunction() : 
-                cb.lessThanOrEqualTo(root.get("maxPlayers"), maxPlayers);
+            cb.lessThanOrEqualTo(root.get("maxPlayers"), maxPlayers);
     }
     
     public static Specification<Game> playtimeBetween(Integer minPlaytime, Integer maxPlaytime) {

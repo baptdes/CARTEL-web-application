@@ -18,7 +18,7 @@ public class LoanSpecification {
     public static Specification<LoanByCartel> filterLoanByCartelfromBorrowerByFirstName(String borrowerFirstName) {
         return (root, query, builder) -> {
             Join<LoanByCartel,CartelPerson> loanWithBorrower = root.join("itemBorrower");
-            return builder.like(loanWithBorrower.get("firstname"), "%" + borrowerFirstName + "%");
+            return builder.like(builder.lower(loanWithBorrower.get("firstname")), "%" + borrowerFirstName.toLowerCase() + "%");
         };
     }
 
@@ -26,7 +26,7 @@ public class LoanSpecification {
     public static Specification<LoanByCartel> filterLoanByCartelfromBorrowerBySurname(String borrowerSurname) {
         return (root, query, builder) -> {
             Join<LoanByCartel,CartelPerson> loanWithBorrower = root.join("itemBorrower");
-            return builder.like(loanWithBorrower.get("surname"), "%" + borrowerSurname + "%");
+            return builder.like(builder.lower(loanWithBorrower.get("surname")), "%" + borrowerSurname.toLowerCase() + "%");
         };
     }
 
@@ -35,7 +35,7 @@ public class LoanSpecification {
         return (root, query, builder) -> {
             Join<LoanByCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
             Join<Join<LoanByCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
-            return builder.like(loanWithItem.get("name"), "%" + itemCopyNameLike + "%");
+            return builder.like(builder.lower(loanWithItem.get("name")), "%" + itemCopyNameLike.toLowerCase() + "%");
         };
     }
 
@@ -44,7 +44,7 @@ public class LoanSpecification {
     public static Specification<LoanToCartel> filterLoanToCartelfromOwnerByFirstName(String ownerFirstName) {
         return (root, query, builder) -> {
             Join<LoanToCartel,CartelPerson> loanWithOwner = root.join("itemOwner");
-            return builder.like(loanWithOwner.get("firstname"), "%" + ownerFirstName + "%");
+            return builder.like(builder.lower(loanWithOwner.get("firstname")), "%" + ownerFirstName.toLowerCase() + "%");
         };
     }
 
@@ -52,7 +52,7 @@ public class LoanSpecification {
     public static Specification<LoanToCartel> filterLoanToCartelfromOwnerBySurname(String ownerSurname) {
         return (root, query, builder) -> {
             Join<LoanToCartel,CartelPerson> loanWithOwner = root.join("itemOwner");
-            return builder.like(loanWithOwner.get("surname"), "%" + ownerSurname + "%");
+            return builder.like(builder.lower(loanWithOwner.get("surname")), "%" + ownerSurname.toLowerCase() + "%");
         };
     }
 
@@ -61,7 +61,7 @@ public class LoanSpecification {
         return (root, query, builder) -> {
             Join<LoanToCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
             Join<Join<LoanToCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
-            return builder.like(loanWithItem.get("name"), "%" + itemCopyNameLike + "%");
+            return builder.like(builder.lower(loanWithItem.get("name")), "%" + itemCopyNameLike.toLowerCase() + "%");
         };
     }
 }
