@@ -83,9 +83,14 @@ public class PublicBookController {
      * @return 
      */
     @PostMapping("/bnf/{isbn}")
-    public ResponseEntity<Book> getBookFromBNF(@PathVariable String isbn) {
-        // TODO : Wait for Tom code
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getBookFromBNF(@PathVariable String isbn) {
+        try {
+            Book bookInfo = bookService.getBookWithISBN(isbn);
+            return ResponseEntity.ok(bookInfo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+        
     }
 
     /**
