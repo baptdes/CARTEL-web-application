@@ -75,6 +75,13 @@ public interface BookService {
      * @return List of all genre names as strings
      */
     List<String> getAllGenres();
+
+    /**
+     * Returns all available publisher
+     * 
+     * @return List of all publisher names as strings
+     */
+    List<String> getAllPublishers();
     
     /**
      * Finds an author by name or creates a new one if not found

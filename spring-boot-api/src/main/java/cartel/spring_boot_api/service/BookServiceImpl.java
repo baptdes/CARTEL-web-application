@@ -113,6 +113,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<String> getAllPublishers() {
+        List<PublisherBook> publishers = publisherBookRepository.findAll();
+        return publishers.stream()
+                .map(PublisherBook::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Book addBook(Book book) {
         // Check if the book already exists in the database
         List<Book> existingBooks = bookRepository.findByBarcode(book.getBarcode());

@@ -132,4 +132,14 @@ public class PublicBookController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    /**
+     * Retrieves all available publishers
+     * 
+     * @return List of all publisher names
+     */
+    @GetMapping("/publishers")
+    public List<String> getAllPublishers() {
+        return bookService.getAllPublishers();
+    }
 }
