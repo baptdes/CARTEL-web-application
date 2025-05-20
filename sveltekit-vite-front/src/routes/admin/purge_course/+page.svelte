@@ -58,28 +58,11 @@
     doc.save('suggestions.pdf');
   }
 
-  // TXT export
-  function exportTXT() {
-    let content = 'Nom\tType\tDescription\tDate\n';
-    for (const s of suggestions) {
-      content += `${s.name}\t${s.type}\t${s.description}\t${s.createdAt?.slice(0, 10) || ''}\n`;
-    }
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'suggestions.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
 </script>
 
 <main>
   <div class="export-buttons">
     <button on:click={exportPDF}>📄 Exporter PDF</button>
-    <button on:click={exportTXT}>📝 Exporter TXT</button>
   </div>
   <DoubleText text="Purge" size="4em" />
   <!-- <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button> -->
@@ -154,7 +137,7 @@
     align-items: center;
     position: relative;
   }
-  
+
   table {
     margin-top: 2rem;
     border-collapse: collapse;

@@ -18,7 +18,7 @@
 
   const types = ['BD', 'Livre', 'Manga', 'JDS', 'JDR'];
 
-
+  // Load suggestions on mount
   onMount(async () => {
     await loadSuggestions();
   });
@@ -39,16 +39,15 @@
 
   function openPopup() {
     showPopup = true;
-
     submitMessage = '';
     // Reset form
     selectedType = 'Livre';
     suggestionName = '';
     suggestionReason = '';
   }
+
   function closePopup() {
     showPopup = false;
-
     submitMessage = '';
   }
 
@@ -68,28 +67,25 @@
         name: suggestionName,
         type: typeMap[selectedType] || 'AUTRE',
         description: suggestionReason,
+        isSuggestion: true
       };
       await createSuggestion(suggestion);
       submitMessage = 'Suggestion envoyée avec succès !';
-
       await loadSuggestions();
       setTimeout(() => {
         closePopup();
-      }, 1200);
-      
+      }, 5); // Popup disappears after 1 second
     } catch (e) {
       submitMessage = "Erreur lors de l'envoi de la suggestion.";
     } finally {
       isSubmitting = false;
     }
   }
-
 </script>
 
 <main>
   <h2>Suggestions</h2>
   <div class="suggestion-buttons">
-
     <button class="suggestion-btn" on:click={openPopup}>
       Ajouter une suggestion
     </button>
@@ -110,23 +106,19 @@
             <th>Nom</th>
             <th>Description</th>
             <th>Date d'ajout</th>
-
           </tr>
         </thead>
         <tbody>
           {#each suggestions as s}
             <tr>
-
               <td>{s.type}</td>
               <td>{s.name}</td>
               <td>{s.description}</td>
               <td>{s.createdAt ? s.createdAt.slice(0, 10) : ''}</td>
-
             </tr>
           {/each}
         </tbody>
       </table>
-
       {#if suggestions.length === 0}
         <div class="no-results">Aucune suggestion pour le moment.</div>
       {/if}
@@ -161,7 +153,6 @@
           <div class="submit-message">{submitMessage}</div>
         {/if}
       </div>
-
     </div>
   {/if}
 </main>
@@ -169,9 +160,7 @@
 <style>
   h2 {
     font-family: "Pirata One", cursive;
-    font-size: 3rem;
     color: var(--orange);
-    margin-top: 2rem;
     margin-bottom: 1.5rem;
     margin-top : 2rem;
     font-size: 4rem;
@@ -211,7 +200,6 @@
   .suggestion-table {
     width: 100%;
     border-collapse: collapse;
-
     background: #fff8f0;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -302,7 +290,6 @@
     border: 1px solid var(--orange);
     font-size: 1rem;
   }
-
   .submit-btn {
     background-color: var(--orange);
     color: white;
