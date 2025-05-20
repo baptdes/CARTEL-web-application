@@ -2,42 +2,53 @@
   import { onMount } from 'svelte';
   import { createSuggestion, fetchAllSuggestions } from '$lib/services/suggestionService.js';
 
-  let showBookForm = $state(false);
-  let showOtherForm = $state(false);
+  let suggestions = [];
+  let error = '';
+  let isLoading = false;
 
-  let selectedType = $state('Livre');
-  let suggestionName = $state('');
-  let suggestionReason = $state('');
-  let otherSuggestion = $state('');
+  // Popup state
+  let showPopup = false;
   let isSubmitting = false;
   let submitMessage = '';
 
-  let suggestions = $state([]);
-  let error = '';
+  // Form fields
+  let selectedType = 'Livre';
+  let suggestionName = '';
+  let suggestionReason = '';
 
   const types = ['BD', 'Livre', 'Manga', 'JDS', 'JDR'];
+
 
   onMount(async () => {
     await loadSuggestions();
   });
 
   async function loadSuggestions() {
+    isLoading = true;
+    error = '';
     try {
       suggestions = await fetchAllSuggestions();
+      // Sort by date desc
+      suggestions.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     } catch (e) {
       error = "Erreur lors du chargement des suggestions.";
+    } finally {
+      isLoading = false;
     }
   }
 
-  function handleBookClick() {
-    showBookForm = true;
-    showOtherForm = false;
-    submitMessage = '';
-  }
+  function openPopup() {
+    showPopup = true;
 
-  function handleOtherClick() {
-    showOtherForm = true;
-    showBookForm = false;
+    submitMessage = '';
+    // Reset form
+    selectedType = 'Livre';
+    suggestionName = '';
+    suggestionReason = '';
+  }
+  function closePopup() {
+    showPopup = false;
+
     submitMessage = '';
   }
 
@@ -60,11 +71,12 @@
       };
       await createSuggestion(suggestion);
       submitMessage = 'Suggestion envoyée avec succès !';
-      suggestionName = '';
-      suggestionReason = '';
-      showBookForm = false;
+
       await loadSuggestions();
-      setTimeout(() => {submitMessage = '';}, 3000);
+      setTimeout(() => {
+        closePopup();
+      }, 1200);
+      
     } catch (e) {
       submitMessage = "Erreur lors de l'envoi de la suggestion.";
     } finally {
@@ -72,97 +84,84 @@
     }
   }
 
-  async function submitOtherSuggestion() {
-    // You can implement this if needed
-    showOtherForm = false;
-  }
-
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    return dateStr.slice(0, 10);
-  }
 </script>
 
 <main>
   <h2>Suggestions</h2>
   <div class="suggestion-buttons">
-    <button class="suggestion-btn" on:click={handleBookClick}>
-      Suggestions de Livre/JDS/Autre
+
+    <button class="suggestion-btn" on:click={openPopup}>
+      Ajouter une suggestion
     </button>
   </div>
-
-  {#if submitMessage}
-    <div class="submit-message">{submitMessage}</div>
-  {/if}
 
   {#if error}
     <div class="error">{error}</div>
   {/if}
 
-  <!-- Suggestions Table -->
-  <div class="suggestions-table-container">
-    {#if suggestions.length > 0}
-      <table class="suggestions-table">
+  {#if isLoading}
+    <div class="loading">Chargement...</div>
+  {:else}
+    <div class="suggestion-table-container">
+      <table class="suggestion-table">
         <thead>
           <tr>
-            <th>Nom</th>
             <th>Type</th>
+            <th>Nom</th>
             <th>Description</th>
-            <th>Date</th>
+            <th>Date d'ajout</th>
+
           </tr>
         </thead>
         <tbody>
           {#each suggestions as s}
             <tr>
-              <td>{s.name}</td>
+
               <td>{s.type}</td>
+              <td>{s.name}</td>
               <td>{s.description}</td>
-              <td>{formatDate(s.createdAt)}</td>
+              <td>{s.createdAt ? s.createdAt.slice(0, 10) : ''}</td>
+
             </tr>
           {/each}
         </tbody>
       </table>
-    {:else}
-      <div style="text-align:center; margin:2rem;">Aucune suggestion pour l’instant.</div>
-    {/if}
-  </div>
 
-  <!-- Modal Form Overlay -->
-  {#if showBookForm}
-    <div class="modal-overlay" on:click={() => showBookForm = false}>
-      <form class="suggestion-form modal-form" on:submit|preventDefault={submitBookSuggestion} on:click|stopPropagation>
-        <button type="button" class="close-btn" on:click={() => showBookForm = false}>&times;</button>
-        <label>
-          Type :
-          <select bind:value={selectedType} required>
-            {#each types as type}
-              <option value={type}>{type}</option>
-            {/each}
-          </select>
-        </label>
-        <label>
-          Nom de la suggestion :
-          <input type="text" bind:value={suggestionName} required />
-        </label>
-        <label>
-          Pourquoi cette suggestion ?
-          <input type="text" bind:value={suggestionReason} required />
-        </label>
-        <button type="submit" class="submit-btn" disabled={isSubmitting}>Envoyer</button>
-      </form>
+      {#if suggestions.length === 0}
+        <div class="no-results">Aucune suggestion pour le moment.</div>
+      {/if}
     </div>
   {/if}
 
-  {#if showOtherForm}
-    <div class="modal-overlay" on:click={() => showOtherForm = false}>
-      <form class="suggestion-form modal-form" on:submit|preventDefault={submitOtherSuggestion} on:click|stopPropagation>
-        <button type="button" class="close-btn" on:click={() => showOtherForm = false}>&times;</button>
-        <label>
-          Quel est votre Réclamation/suggestion :
-          <input type="text" bind:value={otherSuggestion} required />
-        </label>
-        <button type="submit" class="submit-btn">Envoyer</button>
-      </form>
+  {#if showPopup}
+    <div class="popup-backdrop" on:click={closePopup}>
+      <div class="popup-content" on:click|stopPropagation>
+        <h3>Ajouter une suggestion</h3>
+        <form class="suggestion-form" on:submit|preventDefault={submitBookSuggestion}>
+          <label>
+            Type :
+            <select bind:value={selectedType} required>
+              {#each types as type}
+                <option value={type}>{type}</option>
+              {/each}
+            </select>
+          </label>
+          <label>
+            Nom de la suggestion :
+            <input type="text" bind:value={suggestionName} required />
+          </label>
+          <label>
+            Pourquoi cette suggestion ?
+            <input type="text" bind:value={suggestionReason} required />
+          </label>
+          <button type="submit" class="submit-btn" disabled={isSubmitting}>Envoyer</button>
+          <button type="button" class="cancel-btn" on:click={closePopup}>Annuler</button>
+        </form>
+        {#if submitMessage}
+          <div class="submit-message">{submitMessage}</div>
+        {/if}
+      </div>
+
     </div>
   {/if}
 </main>
@@ -174,6 +173,8 @@
     color: var(--orange);
     margin-top: 2rem;
     margin-bottom: 1.5rem;
+    margin-top : 2rem;
+    font-size: 4rem;
     text-align: center;
   }
 
@@ -201,88 +202,92 @@
     background-color: var(--dark-orange);
   }
 
-  .suggestions-table-container {
-    display: flex;
-    justify-content: center;
+  .suggestion-table-container {
+    max-width: 900px;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+
+  .suggestion-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    background: #fff8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 2rem;
   }
 
-  .suggestions-table {
-    border-collapse: collapse;
-    width: 90%;
-    max-width: 900px;
-    background: #fff8f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    color: #000;
-    margin: 0 auto;
-  }
-  .suggestions-table th, .suggestions-table td {
-    border: 1px solid #ddd;
-    padding: 0.7rem 1rem;
+  .suggestion-table th, .suggestion-table td {
+    padding: 1rem;
+    border: 1px solid var(--orange);
     text-align: left;
+    font-size: 1rem;
+    color: #000;
   }
-  .suggestions-table th {
+
+  .suggestion-table th {
     background: var(--orange);
     color: #fff;
     font-weight: bold;
   }
 
-  .submit-message {
+  .suggestion-table tr:nth-child(even) {
+    background: #fff3e0;
+  }
+
+  .no-results {
     text-align: center;
-    color: var(--orange);
-    font-weight: bold;
-    margin-bottom: 1rem;
+    color: #888;
+    margin: 2rem 0;
   }
 
   .error {
-    color: red;
+    color: var(--red);
     text-align: center;
     margin-bottom: 1rem;
   }
 
-  /* Modal Overlay */
-  .modal-overlay {
+  .loading {
+    text-align: center;
+    color: var(--orange);
+    margin: 2rem 0;
+  }
+
+  /* Popup styles */
+  .popup-backdrop {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 1000;
+    background: rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
   }
-  .modal-form {
+  .popup-content {
     background: #fff8f0;
     border-radius: 8px;
-    padding: 2rem 2.5rem 2rem 2.5rem;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    position: relative;
+    padding: 2rem 2.5rem;
     min-width: 320px;
     max-width: 95vw;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
-  .close-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: none;
-    border: none;
-    font-size: 2rem;
+  .popup-content h3 {
+    margin-top: 0;
     color: var(--orange);
-    cursor: pointer;
-    line-height: 1;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
   }
-
   .suggestion-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    max-width: 400px;
-    margin: 0 auto 2rem auto;
-    background: #fff8f0;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    gap: 1.2rem;
   }
-
   label {
     display: flex;
     flex-direction: column;
@@ -290,7 +295,6 @@
     color: var(--orange);
     font-size: 1rem;
   }
-
   select, input[type="text"] {
     margin-top: 0.5rem;
     padding: 0.7rem;
@@ -309,9 +313,29 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-bottom: 0.5rem;
   }
-
   .submit-btn:hover {
     background-color: var(--dark-orange);
+  }
+  .cancel-btn {
+    background: #eee;
+    color: var(--orange);
+    border: 1px solid var(--orange);
+    border-radius: 4px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .cancel-btn:hover {
+    background: #ffe0b2;
+  }
+  .submit-message {
+    text-align: center;
+    color: var(--orange);
+    margin-top: 1rem;
+    font-weight: bold;
   }
 </style>
