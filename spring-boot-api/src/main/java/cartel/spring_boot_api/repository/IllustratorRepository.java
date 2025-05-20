@@ -11,4 +11,5 @@ import cartel.spring_boot_api.model.Illustrator;
 public interface IllustratorRepository extends JpaRepository<Illustrator, Long>{
     List<Illustrator> findBySurnameContainingIgnoreCase(String surname);
     List<Illustrator> findByFirstnameContainingIgnoreCase(String firstname);
+    List<Illustrator> findByFirstnameAndSurnameIgnoreCase(String firstname, String surname);
 }

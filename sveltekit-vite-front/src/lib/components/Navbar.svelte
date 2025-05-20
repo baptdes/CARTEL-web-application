@@ -4,8 +4,9 @@
 
   const menuItems = $state([
     { href: '/', label: 'Accueil' },
-    { href: '/about', label: 'Test' },
-    { href: '/catalogue', label: 'Catalogue' }
+    { href: '/about', label: "C'est quoi ce bordel ?" },
+    { href: '/catalog', label: 'Catalogue' },
+    { href: '/suggestion', label: 'Suggestion' }
   ]);
 
   let isMenuOpen = $state(false);

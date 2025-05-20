@@ -20,7 +20,7 @@ public class CartelPerson {
 
     private String contact;
 
-    private Integer Caution;
+    private Integer caution;
 
     public CartelPerson(String name, String surname,String contact) {
         this.firstname = name;
@@ -57,11 +57,11 @@ public class CartelPerson {
     }
 
     public Integer getCaution() {
-        return Caution;
+        return caution;
     }
 
     public void setCaution(Integer caution) {
-        Caution = caution;
+        this.caution = caution;
     }
 
     public String getContact() {

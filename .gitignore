@@ -39,3 +39,4 @@ hsqldb/data
 # Temporary files
 tmp/
 temp/
+node_modules/

@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "authorbook")
+@Table(name = "authorBook")
 public class AuthorBook {
     
     @Id
@@ -27,8 +27,8 @@ public class AuthorBook {
     private String firstname;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "author")
-    private Collection<Book> writtenBook;
+    @ManyToMany(mappedBy = "authors")
+    private Collection<Book> writtenBooks;
 
     public AuthorBook() {
     }
@@ -62,12 +62,12 @@ public class AuthorBook {
         this.firstname = firstname;
     }
 
-    public Collection<Book> getWrittenBook() {
-        return writtenBook;
+    public Collection<Book> getWrittenBooks() {
+        return writtenBooks;
     }
 
-    public void setWrittenBook(Collection<Book> writtenBook) {
-        this.writtenBook = writtenBook;
+    public void setWrittenBooks(Collection<Book> writtenBooks) {
+        this.writtenBooks = writtenBooks;
     }
     
 }

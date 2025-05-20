@@ -1,37 +1,14 @@
 package cartel.spring_boot_api.config;
 
-import cartel.spring_boot_api.model.AuthorBook;
-import cartel.spring_boot_api.model.Book;
-import cartel.spring_boot_api.model.CartelPerson;
-import cartel.spring_boot_api.model.Creator;
-import cartel.spring_boot_api.model.Extension;
-import cartel.spring_boot_api.model.Illustrator;
-import cartel.spring_boot_api.model.ItemCopy;
-import cartel.spring_boot_api.model.JDS;
-import cartel.spring_boot_api.model.Loan;
-import cartel.spring_boot_api.model.PublisherBook;
-import cartel.spring_boot_api.model.PublisherJDS;
-import cartel.spring_boot_api.model.Serie;
-import cartel.spring_boot_api.model.Exchange;
-import cartel.spring_boot_api.model.Book.FormatBook;
-import cartel.spring_boot_api.model.Item.Langues;
-import cartel.spring_boot_api.repository.AuthorBookRepository;
-import cartel.spring_boot_api.repository.BookRepository;
-import cartel.spring_boot_api.repository.CartelPersonRepository;
-import cartel.spring_boot_api.repository.CreatorRepository;
-import cartel.spring_boot_api.repository.ExtensionRepository;
-import cartel.spring_boot_api.repository.IllustratorRepository;
-import cartel.spring_boot_api.repository.ItemCopyRepository;
-import cartel.spring_boot_api.repository.ItemRepository;
-import cartel.spring_boot_api.repository.JDSRepository;
-import cartel.spring_boot_api.repository.LoanRepository;
-import cartel.spring_boot_api.repository.PublisherBookRepository;
-import cartel.spring_boot_api.repository.PublisherJDSRepository;
-import cartel.spring_boot_api.repository.SerieRepository;
-import cartel.spring_boot_api.repository.ExchangeRepository;
+import cartel.spring_boot_api.model.*;
+import cartel.spring_boot_api.repository.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -39,8 +16,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import net.datafaker.Faker;
+
 @Configuration
 public class DataInitializer {
+
+    private final Faker faker = new Faker();
+    private final Random random = new Random();
 
     @Autowired
     private BookRepository bookRepository;
@@ -53,13 +35,13 @@ public class DataInitializer {
     @Autowired
     private SerieRepository serieRepository;
     @Autowired
-    private JDSRepository jdsRepository;
+    private GameRepository jdsRepository;
     @Autowired
-    private CreatorRepository creatorRepository;
+    private AuthorGameRepository creatorRepository;
     @Autowired
     private ExtensionRepository extensionRepository;
     @Autowired
-    private PublisherJDSRepository publisherjdsRepository;
+    private PublisherGameRepository publisherjdsRepository;
     @Autowired
     private ItemCopyRepository itemCopyRepository;
     @Autowired 
@@ -67,77 +49,414 @@ public class DataInitializer {
     @Autowired
     private CartelPersonRepository cartelPersonRepository;
     @Autowired
-    private LoanRepository loanRepository;
+    private SuggestionRepository suggestionRepository;
     @Autowired
-    private ExchangeRepository ExchangeRepository;
+    private GenreRepository genreRepository;
+
+    // Number of entities to generate
+    private final int numAuthors = 20;
+    private final int numIllustrators = 15;
+    private final int numPublishersBook = 10;
+    private final int numSeries = 8;
+    private final int numBooks = 30;
+    private final int numCreators = 12;
+    private final int numPublishersJDS = 8;
+    private final int numJDS = 30;
+    private final int numExtensions = 10;
+    private final int numCartelPersons = 25;
+    private final int numSuggestions = 10;
+    private final int numItemCopies = 40;
+    private final int numGenres = 15;
 
     @Bean
     @Profile("dev") // Only run in development mode
     public CommandLineRunner initData() {
         return args -> {
-            AuthorBook  author1 = new AuthorBook("J.R.R", "Tolkien");
-            Collection<AuthorBook> collauthor1 = new ArrayList<AuthorBook>();
-            collauthor1.add(author1);
-            PublisherBook publisher1 = new PublisherBook("bayard");
-            Illustrator ill1 = new Illustrator("truc", "bidule");
-            Collection<Illustrator> collIll1 = new ArrayList<Illustrator>();
-            collIll1.add(ill1);     
-            Collection<Book.GenreBook> genre1 = new ArrayList<Book.GenreBook>();
-            genre1.add(Book.GenreBook.FANTASY);
-            Serie ser1 = new Serie("j'aime manger");       
-            Book book1 = new Book("9766786786786","c'est parti les amis",collauthor1,publisher1,2015,FormatBook.MANGA,Langues.FR);
-            book1.setIllustrator(collIll1);
-            book1.setSerie(ser1);
+            System.out.println("Seeding database for development environment...");
             
-            authorBookRepository.save(author1);
-            illustratorRepository.save(ill1);
-            publisherBookRepository.save(publisher1);
-            serieRepository.save(ser1);
-            itemRepository.save(book1);
-
-            Collection<AuthorBook> collauthor2 = new ArrayList<AuthorBook>();
-            collauthor2.add(author1);
-            PublisherBook publisher2 = new PublisherBook("bayard");
-            Illustrator ill2 = new Illustrator("truc", "bidule");
-            Collection<Illustrator> collIll2 = new ArrayList<Illustrator>();
-            collIll2.add(ill2);     
-            Collection<Book.GenreBook> genre2 = new ArrayList<Book.GenreBook>();
-            genre2.add(Book.GenreBook.AVENTURE);
-            Serie ser2 = new Serie("j'aime manger");       
-            Book book2 = new Book("9766786786788","c'est parti les amis 2",collauthor2,publisher2,2025,FormatBook.MANGA,Langues.FR);
-            book2.setIllustrator(collIll2);
-            book2.setSerie(ser2);
+            System.out.println("Loading Genre data...");
+            List<Genre> genres = loadGenreData(numGenres);
             
-            illustratorRepository.save(ill2);
-            publisherBookRepository.save(publisher2);
-            serieRepository.save(ser2);
-            itemRepository.save(book2);
-
-            Creator creator1 = new Creator("Jen", "pi");
-            Collection<Creator> creatorl1 = new ArrayList<Creator>();
-            creatorl1.add(creator1);
-            PublisherJDS publisherj1 = new PublisherJDS("bayard2");
-            Collection<JDS.CategoryJDS> category1 = new ArrayList<JDS.CategoryJDS>();
-            category1.add(JDS.CategoryJDS.PLATEAU);
-            category1.add(JDS.CategoryJDS.BLUFF);
-            category1.add(JDS.CategoryJDS.ASYMETRIQUE);
-            JDS jds1 =new JDS( "1h", 1, 4,  "Heroes",creatorl1, publisherj1, 1105, Langues.EN,"9999999999999", category1);
-            creatorRepository.save(creator1);
-            publisherjdsRepository.save(publisherj1);
-            itemRepository.save(jds1);
-
-            Extension jds2 = new Extension( "Heroes : outside",creatorl1, publisherj1,
-            1110, Langues.EN,jds1,"999999999999");
-            itemRepository.save(jds2);
-
-            ItemCopy copyj1 = new ItemCopy(jds1);
-            itemCopyRepository.save(copyj1);
-
-            CartelPerson jean = new CartelPerson("jean", "pierre","jp@gmail.com");
-            jean.setCaution(50);
-            cartelPersonRepository.save(jean);
-            Loan loan1 = new Loan(jds1,jean);
-            ExchangeRepository.save(loan1);
+            System.out.println("Loading Author Book data...");
+            List<AuthorBook> authors = loadAuthorBookData(numAuthors);
+            
+            System.out.println("Loading Illustrator data...");
+            List<Illustrator> illustrators = loadIllustratorData(numIllustrators);
+            
+            System.out.println("Loading Publisher Book data...");
+            List<PublisherBook> publishersBook = loadPublisherBookData(numPublishersBook);
+            
+            System.out.println("Loading Series data...");
+            List<Series> series = loadSerieData(numSeries);
+            
+            System.out.println("Loading Creator data...");
+            List<AuthorGame> creators = loadCreatorData(numCreators);
+            
+            System.out.println("Loading Publisher JDS data...");
+            List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
+            
+            System.out.println("Loading Book data...");
+            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series, genres);
+            
+            System.out.println("Loading JDS data...");
+            List<Game> jdsList = loadJDSData(numJDS, creators, publishersJDS);
+            
+            System.out.println("Loading Extension data...");
+            List<Extension> extensions = loadExtensionData(numExtensions, creators, publishersJDS, jdsList);
+            
+            System.out.println("Loading Cartel Person data...");
+            List<CartelPerson> cartelPersons = loadCartelPersonData(numCartelPersons);
+            
+            System.out.println("Loading Item Copy data...");
+            List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
+            
+            System.out.println("Loading Suggestion data...");
+            loadSuggestionData(numSuggestions);
+            
+            System.out.println("Seeding completed!");
         };
+    }
+    
+    private List<Genre> loadGenreData(int count) {
+        String[] genreNames = {
+            "Fantasy", "Science Fiction", "Mystery", "Thriller", "Romance", 
+            "Horror", "Adventure", "Historical Fiction", "Biography", "Self-Help",
+            "Dystopian", "Young Adult", "Comic", "Manga", "Crime", "Philosophy",
+            "Poetry", "Drama", "Cookbook", "Children's"
+        };
+        
+        List<Genre> genres = new ArrayList<>();
+        
+        // Use the predefined names first
+        for (int i = 0; i < Math.min(count, genreNames.length); i++) {
+            Genre genre = new Genre();
+            genre.setName(genreNames[i]);
+            genreRepository.save(genre);
+            genres.add(genre);
+        }
+        
+        // If we need more genres than predefined names, generate random ones
+        for (int i = genreNames.length; i < count; i++) {
+            Genre genre = new Genre();
+            genre.setName(faker.book().genre());
+            genreRepository.save(genre);
+            genres.add(genre);
+        }
+        
+        return genres;
+    }
+    
+    private List<AuthorBook> loadAuthorBookData(int count) {
+        List<AuthorBook> authors = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            AuthorBook author = new AuthorBook(
+                faker.name().lastName(),
+                faker.name().firstName()
+            );
+            authorBookRepository.save(author);
+            authors.add(author);
+        }
+        return authors;
+    }
+    
+    private List<Illustrator> loadIllustratorData(int count) {
+        List<Illustrator> illustrators = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Illustrator illustrator = new Illustrator(
+                faker.name().lastName(),
+                faker.name().firstName()
+            );
+            illustratorRepository.save(illustrator);
+            illustrators.add(illustrator);
+        }
+        return illustrators;
+    }
+    
+    private List<PublisherBook> loadPublisherBookData(int count) {
+        List<PublisherBook> publishers = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            PublisherBook publisher = new PublisherBook(
+                faker.book().publisher()
+            );
+            publisherBookRepository.save(publisher);
+            publishers.add(publisher);
+        }
+        return publishers;
+    }
+    
+    private List<Series> loadSerieData(int count) {
+        List<Series> series = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Series serie = new Series(
+                faker.book().title() + " Series"
+            );
+            serieRepository.save(serie);
+            series.add(serie);
+        }
+        return series;
+    }
+    
+    private List<AuthorGame> loadCreatorData(int count) {
+        List<AuthorGame> creators = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            AuthorGame creator = new AuthorGame(
+                faker.name().lastName(),
+                faker.name().firstName()
+            );
+            creatorRepository.save(creator);
+            creators.add(creator);
+        }
+        return creators;
+    }
+    
+    private List<PublisherGame> loadPublisherJDSData(int count) {
+        List<PublisherGame> publishers = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            PublisherGame publisher = new PublisherGame(
+                faker.company().name()
+            );
+            publisherjdsRepository.save(publisher);
+            publishers.add(publisher);
+        }
+        return publishers;
+    }
+    
+    private List<Book> loadBookData(int count, List<AuthorBook> authors, List<Illustrator> illustrators, 
+                                   List<PublisherBook> publishers, List<Series> series, List<Genre> genres) {
+        List<Book> books = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
+            // Create random collections
+            Collection<AuthorBook> bookAuthors = getRandomSubList(authors, 1, 3);
+            Collection<Illustrator> bookIllustrators = getRandomSubList(illustrators, 0, 2);
+            Collection<Genre> bookGenres = getRandomSubList(genres, 1, 3);
+            
+            // Generate ISBN (13 digits)
+            String isbn = "978" + IntStream.range(0, 10)
+                .mapToObj(n -> String.valueOf(random.nextInt(10)))
+                .collect(Collectors.joining());
+            
+            Book book = new Book(
+                isbn,
+                faker.book().title(),
+                bookAuthors,
+                getRandomElement(publishers),
+                faker.number().numberBetween(1990, 2023),
+                getRandomFormatBook(),
+                getRandomLangue(),
+                bookGenres
+            );
+            
+            if (bookIllustrators.size() > 0) {
+                book.setIllustrator(bookIllustrators);
+            }
+            
+            // 70% chance to be part of a series
+            if (random.nextInt(100) < 70) {
+                book.setSeries(getRandomElement(series));
+                book.setVolumeNumber(random.nextInt(10) + 1);
+            }
+            
+            book.setDescription(faker.lorem().paragraph(3));
+            book.setCoverImage("https://covers.openlibrary.org/b/id/" + (random.nextInt(10000000) + 1) + "-L.jpg");
+            
+            itemRepository.save(book);
+            books.add(book);
+        }
+        
+        return books;
+    }
+    
+    private List<Game> loadJDSData(int count, List<AuthorGame> creators, List<PublisherGame> publishers) {
+        List<Game> jdsList = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
+            Collection<AuthorGame> gameCreators = getRandomSubList(creators, 1, 3);
+            Collection<Game.GameCategories> categories = getRandomCategories();
+            
+            String barcode = IntStream.range(0, 13)
+                .mapToObj(n -> String.valueOf(random.nextInt(10)))
+                .collect(Collectors.joining());
+            
+            int avgPlaytime = random.nextInt(4) + 1;
+            int minPlayers = random.nextInt(3) + 1;
+            int maxPlayers = minPlayers + random.nextInt(8);
+            
+            Game game = new Game(
+                avgPlaytime,
+                minPlayers,
+                maxPlayers,
+                faker.music().genre() + " " + faker.overwatch().hero(),
+                gameCreators,
+                getRandomElement(publishers),
+                faker.number().numberBetween(1995, 2023),
+                getRandomLangue(),
+                barcode,
+                categories
+            );
+            
+            game.setDescription(faker.lorem().paragraph(2));
+            game.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
+            
+            itemRepository.save(game);
+            jdsList.add(game);
+        }
+        
+        return jdsList;
+    }
+    
+    private List<Extension> loadExtensionData(int count, List<AuthorGame> creators, List<PublisherGame> publishers, List<Game> jdsList) {
+        List<Extension> extensions = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
+            Collection<AuthorGame> extCreators = getRandomSubList(creators, 1, 2);
+            Game baseGame = getRandomElement(jdsList);
+            
+            String barcode = IntStream.range(0, 13)
+                .mapToObj(n -> String.valueOf(random.nextInt(10)))
+                .collect(Collectors.joining());
+            
+            Extension extension = new Extension(
+                baseGame.getName() + ": " + faker.marketing().buzzwords(), // Ensure name is not null
+                extCreators,
+                baseGame.getPublisher(),
+                baseGame.getPublicationYear() + random.nextInt(3) + 1,
+                baseGame.getLanguage(),
+                baseGame,
+                barcode
+            );
+            
+            extension.setDescription(faker.lorem().paragraph(1));
+            extension.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
+            
+            itemRepository.save(extension);
+            extensions.add(extension);
+        }
+        
+        return extensions;
+    }
+    
+    private List<CartelPerson> loadCartelPersonData(int count) {
+        List<CartelPerson> persons = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
+            CartelPerson person = new CartelPerson(
+                faker.name().firstName(),
+                faker.name().lastName(),
+                faker.internet().emailAddress()
+            );
+            
+            person.setCaution(random.nextInt(4) * 25 + 25); // 25, 50, 75, or 100
+            
+            cartelPersonRepository.save(person);
+            persons.add(person);
+        }
+        
+        return persons;
+    }
+    
+    private List<ItemCopy> loadItemCopyData(int count) {
+        List<ItemCopy> copies = new ArrayList<>();
+        List<Item> allItems = itemRepository.findAll();
+        
+        for (int i = 0; i < count; i++) {
+            Item item = getRandomElement(allItems);
+            ItemCopy copy = new ItemCopy(item);
+            
+            itemCopyRepository.save(copy);
+            copies.add(copy);
+        }
+        
+        return copies;
+    }
+    
+    private void loadSuggestionData(int count) {
+        String[] suggestionNames = {
+            "Harry Potter and the Cursed Child",
+            "One Piece Tome 105",
+            "Dungeons & Dragons - Player's Handbook",
+            "Everdell Board Game",
+            "Dune - Complete Edition",
+            "Catan: Cities & Knights",
+            "The Witcher - Last Wish",
+            "Naruto Complete Box Set",
+            "Attack on Titan Final Season Art Book",
+            "Game of Thrones - Illustrated Edition",
+            "Spyfall Party Game",
+            "Pandemic Legacy Season 3",
+            "Star Wars: Rebellion Board Game",
+            "Sherlock Holmes: Consulting Detective",
+            "Foundation - Isaac Asimov"
+        };
+        
+        for (int i = 0; i < count; i++) {
+            String name;
+            if (i < suggestionNames.length) {
+                name = suggestionNames[i];
+            } else {
+                name = faker.book().title();
+            }
+            
+            Suggestion suggestion = new Suggestion(
+                name,
+                getRandomSuggestionType(),
+                faker.lorem().paragraph(2)
+            );
+            
+            suggestionRepository.save(suggestion);
+        }
+    }
+    
+    // Helper methods
+    private <T> T getRandomElement(List<T> list) {
+        return list.get(random.nextInt(list.size()));
+    }
+    
+    private <T> Collection<T> getRandomSubList(List<T> list, int minSize, int maxSize) {
+        int size = random.nextInt(maxSize - minSize + 1) + minSize;
+        Collection<T> result = new ArrayList<>();
+        
+        for (int i = 0; i < size; i++) {
+            T item;
+            do {
+                item = getRandomElement(list);
+            } while (result.contains(item));
+            
+            result.add(item);
+        }
+        
+        return result;
+    }
+    
+    private Collection<Game.GameCategories> getRandomCategories() {
+        Game.GameCategories[] allCategories = Game.GameCategories.values();
+        int numCategories = random.nextInt(3) + 1;
+        Collection<Game.GameCategories> categories = new ArrayList<>();
+        
+        for (int i = 0; i < numCategories; i++) {
+            Game.GameCategories category;
+            do {
+                category = allCategories[random.nextInt(allCategories.length)];
+            } while (categories.contains(category));
+            
+            categories.add(category);
+        }
+        
+        return categories;
+    }
+    
+    private Book.BookFormat getRandomFormatBook() {
+        Book.BookFormat[] formats = Book.BookFormat.values();
+        return formats[random.nextInt(formats.length)];
+    }
+    
+    private Item.Languages getRandomLangue() {
+        Item.Languages[] langues = Item.Languages.values();
+        return langues[random.nextInt(langues.length)];
+    }
+    
+    private Suggestion.TypeSuggestion getRandomSuggestionType() {
+        Suggestion.TypeSuggestion[] types = Suggestion.TypeSuggestion.values();
+        return types[random.nextInt(types.length)];
     }
 }

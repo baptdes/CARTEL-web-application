@@ -1,6 +1,5 @@
 package cartel.spring_boot_api.model;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,38 +16,34 @@ import jakarta.persistence.Table;
 @Table(name = "extension")
 @PrimaryKeyJoinColumn( name = "barcode" )
 public class Extension extends Item{ 
-
-    //liste des attributs
     
-    //nom du jeu
     @Column(nullable = false)
     private String name;
    
-    //auteurs du livre
+    // Extansion creators
     @Column(nullable = false)
     @JsonIgnore
     @ManyToMany
-    private Collection<Creator> creator;
+    private Collection<AuthorGame> creators;
 
-    //éditeur du livre
     @JoinColumn(nullable = false)
     @JsonIgnore
     @ManyToOne
-    private PublisherJDS publisher;
+    private PublisherGame publisher;
     
-    //jeu associé
+    // Game associated with the extension
     @JoinColumn(nullable = false)
     @JsonIgnore
     @ManyToOne
-    private JDS game;
+    private Game game;
 
     public Extension() {
     }
 
-    public Extension(String name, Collection<Creator> creator, PublisherJDS publisher,
-            Integer publicationYear, Langues langue, JDS game,String barcode) {
+    public Extension(String name, Collection<AuthorGame> creators, PublisherGame publisher,
+            Integer publicationYear, Languages langue, Game game,String barcode) {
         super(barcode,name,publicationYear,langue);
-        this.creator = creator;
+        this.creators = creators;
         this.publisher = publisher;
         this.game = game;
     }
@@ -61,27 +56,27 @@ public class Extension extends Item{
         this.name = name;
     }
 
-    public Collection<Creator> getCreator() {
-        return creator;
+    public Collection<AuthorGame> getCreators() {
+        return creators;
     }
 
-    public void setCreator(Collection<Creator> creator) {
-        this.creator = creator;
+    public void setCreators(Collection<AuthorGame> creators) {
+        this.creators = creators;
     }
 
-    public PublisherJDS getPublisher() {
+    public PublisherGame getPublisher() {
         return publisher;
     }
 
-    public void setPublisher(PublisherJDS publisher) {
+    public void setPublisher(PublisherGame publisher) {
         this.publisher = publisher;
     }
 
-    public JDS getGame() {
+    public Game getGame() {
         return game;
     }
 
-    public void setGame(JDS game) {
+    public void setGame(Game game) {
         this.game = game;
     }
 }

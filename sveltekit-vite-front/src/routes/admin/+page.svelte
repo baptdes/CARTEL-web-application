@@ -23,7 +23,7 @@
     {:else if $adminPageState === 3}
       <h2>Tresorerie</h2>
       <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
-    {:else if $adminPageState === 4}
+    {:else if $adminPageState === 4 }
       <h2>Empruntpret</h2>
       <button class="return-button" type="button" onclick={()=>$adminPageState=0}>Retour</button>
     {:else}
@@ -47,9 +47,6 @@
     color: var(--orange);
     margin-bottom: 1.5rem;
   }
-  
-  
-
   
   .return-button {
     background-color: var(--orange);

@@ -5,22 +5,19 @@
   // Sample recommendation data
   const recommendations = $state([
     {
-      title: "Gloomhaven",
-      imageSrc: "/hagitest.jpeg", 
-      rating: 5,
-      description: "Une aventure épique de donjon-crawler, avec des mécaniques innovantes et une campagne immersive!"
+      title: "Trio",
+      imageSrc: "https://www.monsieurde.com/14385-home_default/trio.jpg",
+      description: "Un jeu simple et amusant de cartes et de combinaisons. À partir de 8 ans."
     },
     {
-      title: "Les Colons de Catane",
-      imageSrc: "/hagitest.jpeg",
-      rating: 4,
-      description: "Un classique intemporel de stratégie et de négociation qui captive depuis des années."
+      title: "Unstable Unicorns",
+      imageSrc: "https://www.espritjeu.com/upload/image/unstable-unicorns-p-image-75631-grande.jpg",
+      description: "Un jeu de cartes stratégique où des licornes adorables se livrent une bataille sans merci."
     },
     {
-      title: "Pandemic Legacy",
-      imageSrc: "/hagitest.jpeg",
-      rating: 5,
-      description: "Une expérience coopérative évolutive où vos décisions changent le jeu à jamais!"
+      title: "Blue Lock",
+      imageSrc: "https://m.media-amazon.com/images/I/81K4UYM3KGL.jpg",
+      description: "Un manga sur le football qui suit l'histoire de Yoichi Isagi dans un programme d'entraînement impitoyable."
     }
   ]);
   
@@ -55,7 +52,6 @@
           <CardArticle 
             title={item.title}
             imageSrc={item.imageSrc}
-            rating={item.rating}
             description={item.description}
             onclick={() => handleCardClick(item.title)}
           />
