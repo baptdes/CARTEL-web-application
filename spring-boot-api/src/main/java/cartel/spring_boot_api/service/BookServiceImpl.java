@@ -111,6 +111,26 @@ public class BookServiceImpl implements BookService {
                 .map(Genre::getName)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<String> getAllPublishers() {
+        List<PublisherBook> publishers = publisherBookRepository.findAll();
+        return publishers.stream()
+                .map(PublisherBook::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Book addBook(Book book) {
+        // Check if the book already exists in the database
+        List<Book> existingBooks = bookRepository.findByBarcode(book.getBarcode());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
+        }
+        
+        // Save the new book to the database
+        return bookRepository.save(book);
+    }
     
     @Override
     public AuthorBook findOrCreateAuthor(String firstname, String surname) {
@@ -294,5 +314,23 @@ public class BookServiceImpl implements BookService {
             }
         }
         return "";
+    }
+
+    @Override
+    public void deleteBook(String isbn) {
+        List<Book> books = bookRepository.findByBarcode(isbn);
+        
+        if (books.isEmpty()) {
+            throw new RuntimeException("Book not found with ISBN: " + isbn);
+        }
+        
+        Book bookToDelete = books.get(0);
+        
+        try {
+            // Delete the book
+            bookRepository.delete(bookToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting book: " + e.getMessage(), e);
+        }
     }
 }

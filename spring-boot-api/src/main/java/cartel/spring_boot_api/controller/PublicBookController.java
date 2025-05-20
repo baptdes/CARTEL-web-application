@@ -104,4 +104,42 @@ public class PublicBookController {
     public List<String> getAllGenres() {
         return bookService.getAllGenres();
     }
+
+    /**
+     * Adds a new book to the system
+     * 
+     * @param book The Book entity to add
+     * @return ResponseEntity with the added book
+     */
+    @PostMapping("/add")
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+        Book addedBook = bookService.addBook(book);
+        return ResponseEntity.ok(addedBook);
+    }
+
+    /**
+     * Deletes a book by its ISBN
+     * 
+     * @param isbn The ISBN of the book to delete
+     * @return ResponseEntity with no content if successful
+     */
+    @DeleteMapping("/{isbn}")
+    public ResponseEntity<?> deleteBook(@PathVariable String isbn) {
+        try {
+            bookService.deleteBook(isbn);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all available publishers
+     * 
+     * @return List of all publisher names
+     */
+    @GetMapping("/publishers")
+    public List<String> getAllPublishers() {
+        return bookService.getAllPublishers();
+    }
 }

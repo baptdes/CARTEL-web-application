@@ -7,6 +7,7 @@ import org.springframework.security.core.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public abstract class Item {
     private String name;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "objet")
+    @OneToMany(mappedBy = "objet", orphanRemoval = true, cascade = CascadeType.ALL)
     private Collection<ItemCopy> copies;
 
     @Column(length = 2000)
@@ -141,6 +142,6 @@ public abstract class Item {
     }
 
     public int getCopyCount() {
-        return this.copies.size();
+    return (this.copies != null) ? this.copies.size() : 0;
     }
 }

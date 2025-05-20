@@ -149,3 +149,26 @@ export function formatGenre(book) {
 export function isBookAvailable(book) {
   return true; // Placeholder for actual availability logic
 }
+
+/**
+ * Delete a book by ISBN
+ * @param {string} isbn - The ISBN of the book to delete
+ * @returns {Promise<boolean>} True if the book was deleted, false otherwise
+ */
+export async function deleteBook(isbn) {
+  try {
+    const response = await fetch(`/api/public/books/${isbn}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error deleting book. Status: ${response.status}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    throw error;
+  }
+}

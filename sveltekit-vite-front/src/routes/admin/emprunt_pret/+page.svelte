@@ -187,7 +187,6 @@
     border-radius: 0%;
 
     img {
-      @extend .accent-colorize;
       width: 100%;
       height: 100%;
       object-fit: contain;
