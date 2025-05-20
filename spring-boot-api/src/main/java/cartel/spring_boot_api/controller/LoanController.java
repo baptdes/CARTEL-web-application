@@ -89,7 +89,7 @@ public class LoanController {
     /**
      * @return List of all loan to Cartel
      */
-    @GetMapping("/toCartel/all")
+    @GetMapping("/toCartel/all/")
     public List<LoanToCartel> getAllLoanToCartel(){
         return loanService.getAllLoanToCartel();
     }
@@ -97,7 +97,7 @@ public class LoanController {
     /**
      * @return List of all loan from Cartel
      */
-    @GetMapping("/byCartel/all")
+    @GetMapping("/byCartel/all/")
     public List<LoanByCartel> getAllLoanByCartel(){
         return loanService.getAllLoanByCartel();
     }
@@ -105,7 +105,7 @@ public class LoanController {
     /**
      * @return nothing but delete an entry from the loan to Cartel database
      */
-    @GetMapping("/toCartel/rm")
+    @GetMapping("/toCartel/rm/")
     public void removeLoanToCartel(long loanToCartelId) {
         loanService.removeLoanToCartel(loanToCartelId);
     }
@@ -113,7 +113,7 @@ public class LoanController {
     /**
      * @return nothing but delete an entry from the loan by Cartel database
      */
-    @GetMapping("/byCartel/rm")
+    @GetMapping("/byCartel/rm/")
     public void removeLoanByCartel(long loanByCartelId) {
         loanService.removeLoanByCartel(loanByCartelId);
     }
