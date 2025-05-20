@@ -35,20 +35,15 @@ public class Suggestion {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    //suggestion ou réclamation
-    @Column(nullable = false)
-    private boolean isSuggestion;
-
     public Suggestion() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Suggestion(String name, TypeSuggestion type, String description, boolean isSuggestion) {
+    public Suggestion(String name, TypeSuggestion type, String description) {
         this.description = description;
         this.name = name;
         this.type = type;
         this.createdAt = LocalDateTime.now();
-        this.isSuggestion = isSuggestion;
     }
 
     public Long getId() {
@@ -91,12 +86,5 @@ public class Suggestion {
         this.description = description;
     }
 
-    public boolean isSuggestion() {
-        return isSuggestion;
-    }
-
-    public void setSuggestion(boolean isSuggestion) {
-        this.isSuggestion = isSuggestion;
-    }
     
 }

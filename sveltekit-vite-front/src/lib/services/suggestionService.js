@@ -19,9 +19,7 @@ export async function createSuggestion(suggestion) {
   const payload = {
     name: suggestion.name,
     type: suggestion.type,
-    description: suggestion.description,
-    isSuggestion: suggestion.isSuggestion
-    // createdAt and id are handled by the backend
+    description: suggestion.description
   };
 
   const response = await fetch('/api/public/suggestions', {

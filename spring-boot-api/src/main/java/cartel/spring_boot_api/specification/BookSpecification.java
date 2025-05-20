@@ -2,6 +2,7 @@ package cartel.spring_boot_api.specification;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Series;
@@ -82,6 +83,14 @@ public class BookSpecification {
         return (root, query, builder) -> {
             Join<Book,Illustrator> illustratorBook = root.join("illustrator");
             return builder.like(illustratorBook.get("surname"), "%" + illustratorSurname + "%");
+        };
+    }
+
+    // Filter books by genre name
+    public static Specification<Book> fromGenreByName(String genreName) {
+        return (root, query, builder) -> {
+            Join<Book, Genre> genreJoin = root.join("genres");
+            return builder.like(genreJoin.get("name"), "%" + genreName + "%");
         };
     }
 }

@@ -2,11 +2,12 @@ package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
-import cartel.spring_boot_api.model.Book.BookGenre;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
 import cartel.spring_boot_api.repository.BookRepository;
+import cartel.spring_boot_api.repository.GenreRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
 import static cartel.spring_boot_api.specification.BookSpecification.*;
 
@@ -32,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -44,6 +46,9 @@ public class BookServiceImpl implements BookService {
     
     @Autowired
     private PublisherBookRepository publisherBookRepository;
+    
+    @Autowired
+    private GenreRepository genreRepository;
 
     @Override
     public List<Book> getAllBooks() {
@@ -65,7 +70,7 @@ public class BookServiceImpl implements BookService {
                                  String titleBook, String publisherName,
                                  String authorFirstName, String authorSurname,
                                  String illustratorFirstName, String illustratorSurname,
-                                 BookFormat category, String serieName) {
+                                 BookFormat category, String serieName, String genreName) {
         Pageable page = asc ? 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) : 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
@@ -77,7 +82,8 @@ public class BookServiceImpl implements BookService {
                 .and((authorSurname == null) ? null : fromAuthorBySurname(authorSurname))
                 .and((authorFirstName == null) ? null : fromAuthorByFirstName(authorFirstName))
                 .and((illustratorSurname == null) ? null : fromIllustratorBySurname(illustratorSurname))
-                .and((illustratorFirstName == null) ? null : fromIllustratorByFirstName(illustratorFirstName));
+                .and((illustratorFirstName == null) ? null : fromIllustratorByFirstName(illustratorFirstName))
+                .and((genreName == null) ? null : fromGenreByName(genreName));
                 
         Page<Book> pageBook = bookRepository.findAll(filters, page);
         return pageBook.getContent();
@@ -99,12 +105,31 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookGenre> getAllGenreBooks() {
-        List<BookGenre> genres = new ArrayList<>();
-        for (BookGenre genre : BookGenre.values()) {
-            genres.add(genre);
+    public List<String> getAllGenres() {
+        List<Genre> genres = genreRepository.findAll();
+        return genres.stream()
+                .map(Genre::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getAllPublishers() {
+        List<PublisherBook> publishers = publisherBookRepository.findAll();
+        return publishers.stream()
+                .map(PublisherBook::getName)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Book addBook(Book book) {
+        // Check if the book already exists in the database
+        List<Book> existingBooks = bookRepository.findByBarcode(book.getBarcode());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
         }
-        return genres;
+        
+        // Save the new book to the database
+        return bookRepository.save(book);
     }
     
     @Override
@@ -289,5 +314,23 @@ public class BookServiceImpl implements BookService {
             }
         }
         return "";
+    }
+
+    @Override
+    public void deleteBook(String isbn) {
+        List<Book> books = bookRepository.findByBarcode(isbn);
+        
+        if (books.isEmpty()) {
+            throw new RuntimeException("Book not found with ISBN: " + isbn);
+        }
+        
+        Book bookToDelete = books.get(0);
+        
+        try {
+            // Delete the book
+            bookRepository.delete(bookToDelete);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting book: " + e.getMessage(), e);
+        }
     }
 }

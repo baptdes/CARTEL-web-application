@@ -1,8 +1,8 @@
 package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.Book;
+import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Book.BookFormat;
-import cartel.spring_boot_api.model.Book.BookGenre;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +65,12 @@ public class PublicBookController {
             @RequestParam(required = false) String illustratorFirstName,
             @RequestParam(required = false) String illustratorSurname,
             @RequestParam(required = false) BookFormat category,
-            @RequestParam(required = false) String serieName) {
+            @RequestParam(required = false) String serieName,
+            @RequestParam(required = false) String genreName) {
         
         return bookService.filterBooks(pageNumber, pageSize, asc, sortBy, titleBook, 
                 publisherName, authorFirstName, authorSurname, illustratorFirstName, 
-                illustratorSurname, category, serieName);
+                illustratorSurname, category, serieName, genreName);
     }
 
     /**
@@ -97,10 +98,48 @@ public class PublicBookController {
     /**
      * Retrieves all available book genres
      * 
-     * @return List of all genre enum values
+     * @return List of all genre names
      */
-    @GetMapping("/genre")
-    public List<BookGenre> getAllGenreBooks() {
-        return bookService.getAllGenreBooks();
+    @GetMapping("/genres")
+    public List<String> getAllGenres() {
+        return bookService.getAllGenres();
+    }
+
+    /**
+     * Adds a new book to the system
+     * 
+     * @param book The Book entity to add
+     * @return ResponseEntity with the added book
+     */
+    @PostMapping("/add")
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+        Book addedBook = bookService.addBook(book);
+        return ResponseEntity.ok(addedBook);
+    }
+
+    /**
+     * Deletes a book by its ISBN
+     * 
+     * @param isbn The ISBN of the book to delete
+     * @return ResponseEntity with no content if successful
+     */
+    @DeleteMapping("/{isbn}")
+    public ResponseEntity<?> deleteBook(@PathVariable String isbn) {
+        try {
+            bookService.deleteBook(isbn);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all available publishers
+     * 
+     * @return List of all publisher names
+     */
+    @GetMapping("/publishers")
+    public List<String> getAllPublishers() {
+        return bookService.getAllPublishers();
     }
 }

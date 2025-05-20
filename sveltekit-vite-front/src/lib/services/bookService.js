@@ -24,6 +24,7 @@ export async function fetchBooks(params = {}) {
     if (params.illustratorSurname) queryParams.append('illustratorSurname', params.illustratorSurname);
     if (params.category) queryParams.append('category', params.category);
     if (params.serieName) queryParams.append('serieName', params.serieName);
+    if (params.genreName) queryParams.append('genreName', params.genreName);
     
     const url = `/api/public/books${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     
@@ -85,7 +86,7 @@ export async function getAllAuthors() {
  */
 export async function fetchGenres() {
   try {
-    const response = await fetch('/api/public/books/genre');
+    const response = await fetch('/api/public/books/genres');
     
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -127,10 +128,17 @@ export function formatPublisher(book) {
  * Format genre for display
  */
 export function formatGenre(book) {
-  if (!book.genre || !Array.isArray(book.genre) || book.genre.length === 0) {
-    return 'Genre inconnu';
+  // Check for genres property first (new format)
+  if (book.genres && Array.isArray(book.genres) && book.genres.length > 0) {
+    // If genres are objects with name property
+    if (typeof book.genres[0] === 'object') {
+      return book.genres.map(genre => genre.name).join(', ');
+    }
+    // If genres are already strings
+    return book.genres.join(', ');
   }
-  return book.genre.join(', ');
+  
+  return 'Genre inconnu';
 }
 
 /**
@@ -140,4 +148,27 @@ export function formatGenre(book) {
  */
 export function isBookAvailable(book) {
   return true; // Placeholder for actual availability logic
+}
+
+/**
+ * Delete a book by ISBN
+ * @param {string} isbn - The ISBN of the book to delete
+ * @returns {Promise<boolean>} True if the book was deleted, false otherwise
+ */
+export async function deleteBook(isbn) {
+  try {
+    const response = await fetch(`/api/public/books/${isbn}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error deleting book. Status: ${response.status}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    throw error;
+  }
 }
