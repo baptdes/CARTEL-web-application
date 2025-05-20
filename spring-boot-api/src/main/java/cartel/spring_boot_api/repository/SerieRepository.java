@@ -10,5 +10,6 @@ import cartel.spring_boot_api.model.Series;
 
 @Repository
 public interface SerieRepository extends JpaRepository<Series, Long>, JpaSpecificationExecutor<Series>{
+    List<Series> findByNameIgnoreCase(String serieName);
     List<Series> findByNameContainingIgnoreCase(String serieName);
 }

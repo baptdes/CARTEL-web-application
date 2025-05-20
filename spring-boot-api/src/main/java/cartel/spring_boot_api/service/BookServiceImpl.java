@@ -5,6 +5,7 @@ import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
+import cartel.spring_boot_api.model.Series;
 import cartel.spring_boot_api.model.Book.BookFormat;
 import cartel.spring_boot_api.model.Item.Languages;
 import cartel.spring_boot_api.repository.AuthorBookRepository;
@@ -12,6 +13,8 @@ import cartel.spring_boot_api.repository.BookRepository;
 import cartel.spring_boot_api.repository.GenreRepository;
 import cartel.spring_boot_api.repository.IllustratorRepository;
 import cartel.spring_boot_api.repository.PublisherBookRepository;
+import cartel.spring_boot_api.repository.SerieRepository;
+
 import static cartel.spring_boot_api.specification.BookSpecification.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +57,9 @@ public class BookServiceImpl implements BookService {
 
     @Autowired
     private IllustratorRepository illustratorRepository;
+
+    @Autowired
+    private SerieRepository serieRepository;
 
     @Override
     public List<Book> getAllBooks() {
@@ -331,7 +337,8 @@ public class BookServiceImpl implements BookService {
                 // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
                 String seriePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='t']";
                 Node serieNode = (Node) xpath.evaluate(seriePath, document, XPathConstants.NODE);
-                String serie = serieNode != null ? serieNode.getTextContent() : "";
+                String serieName = serieNode != null ? serieNode.getTextContent() : "";
+                Series serie = findOrCreateSerie(serieName);
 
                 // XPath pour le nom de l'éditeur (datafield tag="210", subfield code="c")
                 String volumePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='v']";
@@ -382,6 +389,7 @@ public class BookServiceImpl implements BookService {
                 book.setLanguage(Languages.FR);
                 book.setCoverImage(coverImage);
                 book.setVolumeNumber(volume);
+                book.setSeries(serie);
             } catch (Exception e) {
                 throw new RuntimeException("Error fetching book details from BnF API: " + e.getMessage(), e);
             }
@@ -403,6 +411,20 @@ public class BookServiceImpl implements BookService {
         } else {
             if (publisher.size() == 1) {
                 return publisher.getFirst();
+            } else {
+                throw new RuntimeException("Error: Found multiple publishers with same name");
+            }
+        }
+    }
+
+    private Series findOrCreateSerie(String name) {
+        List<Series> series = serieRepository.findByNameIgnoreCase(name);
+        if (series.isEmpty()) {
+            Series serie = new Series(name);
+            return serieRepository.save(serie);
+        } else {
+            if (series.size() == 1) {
+                return series.getFirst();
             } else {
                 throw new RuntimeException("Error: Found multiple publishers with same name");
             }
