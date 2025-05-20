@@ -1,5 +1,5 @@
 <script>
-  import { formatAuthor, formatPublisher as formatBookPublisher, formatGenre, isBookAvailable } from '$lib/services/bookService';
+  import { formatAuthor, formatPublisher as formatBookPublisher, formatGenre, formatIllustrator, isBookAvailable } from '$lib/services/bookService';
   import { formatCreator, formatPublisher as formatGamePublisher, formatCategories, formatPlayerCount, formatPlaytime, isGameAvailable } from '$lib/services/gameService';
 
   let { item, type = 'book' } = $props();
@@ -51,6 +51,16 @@
       };
     }
   }
+
+  function getIllustratorInfo() {
+    if (type === 'book') {
+      return {
+        label: 'Illustrateur',
+        value: formatIllustrator(item)
+      };
+    }
+    return null;
+  }
 </script>
 
 <button 
@@ -89,6 +99,9 @@
             {#if type === 'book'}
               <div class="meta">
                 <strong>Format :</strong> {item.format || 'Non spécifié'}
+              </div>
+              <div class="meta">
+                <strong>{getIllustratorInfo().label} :</strong> {getIllustratorInfo().value || 'Non spécifié'}
               </div>
             {:else}
               <div class="meta">

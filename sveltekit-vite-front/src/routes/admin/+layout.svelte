@@ -4,6 +4,7 @@
   import PointBar from "$lib/misc/PointBar.svelte";
 
   let authenticated = $state(false);
+  let { children } = $props();
 
   $effect(() => {
     authenticated = $isAuthenticated;
@@ -37,7 +38,7 @@
       <button class="logout-button" onclick={handleLogout}>Déconnexion</button>
     </div>
     <div class="main-wrap">
-      <slot />
+      {@render children()}
     </div>
   </div>
 </div>
@@ -93,7 +94,7 @@
     }
   }
 
-  .admin-button {
+  :global(.admin-button) {
     background-color: var(--back);
     color: var(--secondary);
     border: 1px solid var(--secondary);
@@ -104,24 +105,14 @@
     transition:
       border 1s,
       color 1s;
-  }
 
-  .admin-button:hover {
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    &:hover {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
   }
 
   .logout-button {
-    @extend .admin-button;
-  }
-
-  @font-face {
-    font-family: Guisol;
-    src: url("src/assets/font/Guisol.ttf") format("truetype");
-  }
-
-  @font-face {
-    font-family: Apocalypse Grunge;
-    src: url("src/assets/font/Apocalypse Grunge.ttf") format("truetype");
+    @extend :global(.admin-button);
   }
 </style>

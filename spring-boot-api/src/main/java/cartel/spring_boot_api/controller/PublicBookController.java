@@ -1,7 +1,10 @@
 package cartel.spring_boot_api.controller;
 
+import cartel.spring_boot_api.model.AuthorBook;
 import cartel.spring_boot_api.model.Book;
 import cartel.spring_boot_api.model.Genre;
+import cartel.spring_boot_api.model.Illustrator;
+import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
 import cartel.spring_boot_api.service.BookService;
 
@@ -80,28 +83,147 @@ public class PublicBookController {
      * @return 
      */
     @PostMapping("/bnf/{isbn}")
-    public ResponseEntity<Book> getBookFromBNF(@PathVariable String isbn) {
-        // TODO : Wait for Tom code
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getBookFromBNF(@PathVariable String isbn) {
+        try {
+            Book bookInfo = bookService.getBookWithISBN(isbn);
+            return ResponseEntity.ok(bookInfo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+        
     }
 
     /**
-     * Retrieves all authors in the system
+     * Retrieves all available genres
      * 
-     * @return ResponseEntity with list of author information
-     */
-    @GetMapping("/authors")
-    public ResponseEntity<List<Map<String, String>>> getAllAuthors() {
-        return ResponseEntity.ok(bookService.getAllAuthors());
-    }
-
-    /**
-     * Retrieves all available book genres
-     * 
-     * @return List of all genre names
+     * @return List of all genres
      */
     @GetMapping("/genres")
-    public List<String> getAllGenres() {
+    public List<Genre> getAllGenres() {
         return bookService.getAllGenres();
+    }
+
+    /**
+     * Adds a new genre to the system
+     * 
+     * @param name The name of the genre to add
+     * @return ResponseEntity with the added genre or error if genre exists
+     */
+    @PostMapping("/genres")
+    public ResponseEntity<?> addGenre(@RequestParam String name) {
+        try {
+            Genre addedGenre = bookService.addGenre(name);
+            return ResponseEntity.ok(addedGenre);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all available authors
+     * 
+     * @return List of all authors
+     */
+    @GetMapping("/authors")
+    public List<AuthorBook> getAllAuthors() {
+        return bookService.getAllAuthors();
+    }
+
+    /** 
+     * Adds a new author to the system
+     * 
+     * @param firstname The author's first name
+     * @param surname The author's surname
+     * @return ResponseEntity with the added author
+     */
+    @PostMapping("/authors")
+    public ResponseEntity<?> addAuthor(@RequestParam String firstname, @RequestParam String surname) {
+        try {
+            AuthorBook addedAuthor = bookService.addAuthor(firstname, surname);
+            return ResponseEntity.ok(addedAuthor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all available publishers
+     * 
+     * @return List of all publishers
+     */
+    @GetMapping("/publishers")
+    public List<PublisherBook> getAllPublishers() {
+        return bookService.getAllPublishers();
+    }
+
+    /**
+     * Adds a new publisher to the system
+     * 
+     * @param name The name of the publisher to add
+     * @return ResponseEntity with the added publisher
+     */
+    @PostMapping("/publishers")
+    public ResponseEntity<?> addPublisher(@RequestParam String name) {
+        try {
+            PublisherBook addedPublisher = bookService.addPublisher(name);
+            return ResponseEntity.ok(addedPublisher);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all available illustrators
+     * 
+     * @return List of all illustrators
+     */
+    @GetMapping("/illustrators")
+    public List<Illustrator> getAllIllustrators() {
+        return bookService.getAllIllustrators();
+    }
+
+    /**
+     * Adds a new illustrator to the system
+     * 
+     * @param firstname The illustrator's first name
+     * @param surname The illustrator's surname
+     * @return ResponseEntity with the added illustrator
+     */
+    @PostMapping("/illustrators")
+    public ResponseEntity<?> addIllustrator(@RequestParam String firstname, @RequestParam String surname) {
+        try {
+            Illustrator addedIllustrator = bookService.addIllustrator(firstname, surname);
+            return ResponseEntity.ok(addedIllustrator);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Adds a new book to the system
+     * 
+     * @param book The Book entity to add
+     * @return ResponseEntity with the added book
+     */
+    @PostMapping
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+        Book addedBook = bookService.addBook(book);
+        return ResponseEntity.ok(addedBook);
+    }
+
+    /**
+     * Deletes a book by its ISBN
+     * 
+     * @param isbn The ISBN of the book to delete
+     * @return ResponseEntity with no content if successful
+     */
+    @DeleteMapping("/{isbn}")
+    public ResponseEntity<?> deleteBook(@PathVariable String isbn) {
+        try {
+            bookService.deleteBook(isbn);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }

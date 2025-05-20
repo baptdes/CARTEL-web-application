@@ -5,7 +5,7 @@
   import { page } from '$app/stores';
   
   // Import services for both item types
-  import { fetchBooks, fetchGenres, getAllAuthors } from '$lib/services/bookService';
+  import { fetchBooks, getAllGenres, getAllAuthors } from '$lib/services/bookService';
   import { fetchGames, getAllGameCategories, getAllCreators } from '$lib/services/gameService';
   
   const { data } = $props();
@@ -13,14 +13,14 @@
   // Mode toggle state - use initialMode from load function
   let mode = $state(data.initialMode || 'books'); // 'books' or 'games'
   
-  // Initialize display text variables with default values 
-  let pageTitle = $state(mode === 'books' ? 'Livres' : 'Jeux de société');
-  let searchPlaceholder = $state(mode === 'books' ? 'Rechercher un livre par titre...' : 'Rechercher un jeu par titre...');
-  let catalogTitle = $state(mode === 'books' ? 'Catalogue des livres' : 'Catalogue des jeux de société');
-  let loadingMessage = $state(mode === 'books' ? 'Chargement des livres...' : 'Chargement des jeux...');
-  let emptyResultsMessage = $state(mode === 'books' ? 'Aucun livre trouvé avec les critères actuels.' : 'Aucun jeu trouvé avec les critères actuels.');
+  // Initialize display text variables with default values first
+  let pageTitle = $state('Livres');
+  let searchPlaceholder = $state('Rechercher un livre par titre...');
+  let catalogTitle = $state('Catalogue des livres');
+  let loadingMessage = $state('Chargement des livres...');
+  let emptyResultsMessage = $state('Aucun livre trouvé avec les critères actuels.');
   
-  // Update all text variables when mode changes
+  // Update all text variables when mode changes (moved to effect)
   $effect(() => {
     pageTitle = mode === 'books' ? 'Livres' : 'Jeux de société';
     searchPlaceholder = mode === 'books' ? 'Rechercher un livre par titre...' : 'Rechercher un jeu par titre...';
@@ -41,7 +41,10 @@
   let authors = $state([]);
   let selectedGenre = $state("ALL");
   let selectedFormat = $state("ALL");
-  let selectedAuthor = $state("ALL");
+  let selectedAuthorFirstName = $state("");
+  let selectedAuthorSurname = $state("");
+  let selectedIllustratorFirstName = $state(""); // Separate illustrator first name
+  let selectedIllustratorSurname = $state(""); // Separate illustrator surname
 
   // Games specific state
   let categories = $state([]);
@@ -104,14 +107,13 @@
         // Book specific parameters
         if (searchQuery) params.title = searchQuery;
         if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
-        if (selectedAuthor && selectedAuthor !== "ALL") {
-          const [firstName, surname] = selectedAuthor.split('|');
-          params.authorFirstName = firstName;
-          params.authorSurname = surname;
-        }
+        if (selectedAuthorFirstName) params.authorFirstName = selectedAuthorFirstName;
+        if (selectedAuthorSurname) params.authorSurname = selectedAuthorSurname;
         if (selectedFormat && selectedFormat !== "ALL") params.category = selectedFormat;
         if (selectedGenre && selectedGenre !== "ALL") params.genreName = selectedGenre;
-        
+        if (selectedIllustratorFirstName) params.illustratorFirstName = selectedIllustratorFirstName;
+        if (selectedIllustratorSurname) params.illustratorSurname = selectedIllustratorSurname;
+
         // Fetch books
         items = await fetchBooks(params);
       } else {
@@ -146,12 +148,13 @@
     selectedPublisher = "";
     sortOption = sortOptions[0].value;
     pageNumber = 0;
+    selectedIllustratorFirstName = ""; // Reset illustrator first name
+    selectedIllustratorSurname = ""; // Reset illustrator surname
     
     // Reset mode-specific filters
     if (mode === 'books') {
       selectedGenre = "ALL";
       selectedFormat = "ALL";
-      selectedAuthor = "ALL";
     } else {
       selectedCategory = "ALL";
       selectedCreator = "ALL";
@@ -175,7 +178,8 @@
     try {
       if (mode === 'books') {
         // Fetch book-specific data
-        genres = await fetchGenres();
+        genres = await getAllGenres();
+        genres = genres.map(genre => genre.name);
         formats = ["MANGA", "BD", "LIVRE"];
         authors = await getAllAuthors();
         
@@ -222,14 +226,14 @@
       <button 
         class="toggle-button" 
         class:active={mode === 'books'} 
-        on:click={() => mode === 'games' && toggleMode()}
+        onclick={() => mode === 'games' && toggleMode()}
       >
         📚 Livres
       </button>
       <button 
         class="toggle-button" 
         class:active={mode === 'games'} 
-        on:click={() => mode === 'books' && toggleMode()}
+        onclick={() => mode === 'books' && toggleMode()}
       >
         🎲 Jeux
       </button>
@@ -242,9 +246,9 @@
         type="text" 
         bind:value={searchQuery}
         placeholder={searchPlaceholder}
-        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+        onkeydown={(e) => e.key === 'Enter' && handleSearch()}
       />
-      <button on:click={handleSearch} aria-label="Rechercher">
+      <button onclick={handleSearch} aria-label="Rechercher">
         🔍
       </button>
     </div>
@@ -284,14 +288,36 @@
         <div class="section">
           <h3>Auteur</h3>
           <div>
-            <select bind:value={selectedAuthor} title="Sélectionner un auteur">
-              <option value="ALL">Tous les auteurs</option>
-              {#each authors as author}
-                <option value={`${author.firstname || ''}|${author.surname || ''}`}>
-                  {(author.firstname || '') + ' ' + (author.surname || '')}
-                </option>
-              {/each}
-            </select>
+            <input 
+              type="text" 
+              bind:value={selectedAuthorFirstName} 
+              placeholder="Prénom de l'auteur"
+              class="author-input"
+            />
+            <input 
+              type="text" 
+              bind:value={selectedAuthorSurname} 
+              placeholder="Nom de famille de l'auteur"
+              class="author-input"
+            />
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Illustrateur</h3>
+          <div>
+            <input 
+              type="text" 
+              bind:value={selectedIllustratorFirstName} 
+              placeholder="Prénom de l'illustrateur"
+              class="illustrator-input"
+            />
+            <input 
+              type="text" 
+              bind:value={selectedIllustratorSurname} 
+              placeholder="Nom de famille de l'illustrateur"
+              class="illustrator-input"
+            />
           </div>
         </div>
       {:else}
@@ -330,7 +356,6 @@
               bind:value={minPlayers}
               placeholder="Min"
               min="1"
-              class="number-input"
             />
             <span class="range-separator">à</span>
             <input 
@@ -338,7 +363,6 @@
               bind:value={maxPlayers}
               placeholder="Max"
               min="1"
-              class="number-input"
             />
           </div>
         </div>
@@ -351,7 +375,6 @@
               bind:value={minPlaytime}
               placeholder="Min"
               min="1"
-              class="number-input"
             />
             <span class="range-separator">à</span>
             <input 
@@ -359,7 +382,6 @@
               bind:value={maxPlaytime}
               placeholder="Max"
               min="1"
-              class="number-input"
             />
           </div>
         </div>
@@ -373,16 +395,15 @@
             type="text" 
             bind:value={selectedPublisher} 
             placeholder="Nom de l'éditeur"
-            class="publisher-input"
           />
         </div>
       </div>
       
-      <button class="apply-filters" on:click={handleSearch}>
+      <button class="apply-filters" onclick={handleSearch}>
         Appliquer les filtres
       </button>
       
-      <button class="reset" on:click={resetSearch}>
+      <button class="reset" onclick={resetSearch}>
         Réinitialiser la recherche
       </button>
     </aside>
@@ -395,7 +416,7 @@
         </div>
         <div class="sort-container">
           <label for="sort-select">Trier par:</label>
-          <select id="sort-select" bind:value={sortOption} class="sort-select" on:change={handleSearch}>
+          <select id="sort-select" bind:value={sortOption} class="sort-select" onchange={handleSearch}>
             {#each sortOptions as option}
               <option value={option.value}>{option.label}</option>
             {/each}
@@ -415,7 +436,7 @@
       {#if error}
         <div class="error">
           <p>Erreur lors du chargement des données: {error}</p>
-          <button on:click={resetSearch}>Réessayer</button>
+          <button onclick={resetSearch}>Réessayer</button>
         </div>
       {/if}
       
@@ -437,7 +458,7 @@
         <div class="pagination">
           <button 
             disabled={pageNumber === 0} 
-            on:click={() => { pageNumber -= 1; handleSearch(); }}
+            onclick={() => { pageNumber -= 1; handleSearch(); }}
             class="pagination-button"
           >
             &laquo; Précédent
@@ -447,7 +468,7 @@
           
           <button 
             disabled={items.length < pageSize}
-            on:click={() => { pageNumber += 1; handleSearch(); }}
+            onclick={() => { pageNumber += 1; handleSearch(); }}
             class="pagination-button"
           >
             Suivant &raquo;
@@ -638,20 +659,6 @@
           flex-direction: column;
           gap: 0.5rem;
           
-          label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            
-            input {
-              margin-right: 0.5rem;
-            }
-            
-            span {
-              color: #e0d6c2;
-            }
-          }
-          
           select {
             width: 100%;
             padding: 0.5rem;
@@ -745,13 +752,6 @@
             outline: none;
             border-color: var(--orange);
           }
-        }
-        
-        div {
-          color: #e0d6c2;
-          font-size: 0.9rem;
-          margin-left: 0.5rem;
-          white-space: nowrap;
         }
       }
     }
@@ -851,17 +851,26 @@
       .sort-container {
         flex-wrap: wrap;
         width: 100%;
-        
-        div {
-          margin-top: 0.5rem;
-          width: 100%;
-        }
       }
     }
   }
   
   .publisher-input, .number-input {
     width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+  }
+
+  input {
+     width: 100%;
     padding: 0.5rem;
     background-color: #343434;
     color: #e0d6c2;
@@ -919,6 +928,20 @@
     .page-info {
       color: #e0d6c2;
       font-size: 0.9rem;
+    }
+  }
+
+  .illustrator-input {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
     }
   }
 </style>

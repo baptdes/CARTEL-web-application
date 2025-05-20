@@ -123,6 +123,9 @@ public class DataInitializer {
 
             System.out.println("Loading LoanToCartel data...");
             List<LoanToCartel> loanToCartel = loadLoanToCartelData(numLoanToCartel);
+
+            System.out.println("Loading Suggestion data...");
+            loadSuggestionData(numSuggestions);
             
             System.out.println("Seeding completed!");
         };
@@ -438,13 +441,14 @@ public class DataInitializer {
             
             Suggestion suggestion = new Suggestion(
                 name,
-                getRandomSuggestionType()
+                getRandomSuggestionType(),
+                faker.lorem().paragraph(2)
             );
             
             suggestionRepository.save(suggestion);
         }
     }
-    */
+    
     // Helper methods
     private <T> T getRandomElement(List<T> list) {
         return list.get(random.nextInt(list.size()));
