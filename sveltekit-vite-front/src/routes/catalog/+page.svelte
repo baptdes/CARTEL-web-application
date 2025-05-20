@@ -5,7 +5,7 @@
   import { page } from '$app/stores';
   
   // Import services for both item types
-  import { fetchBooks, fetchGenres, getAllAuthors } from '$lib/services/bookService';
+  import { fetchBooks, getAllGenres, getAllAuthors } from '$lib/services/bookService';
   import { fetchGames, getAllGameCategories, getAllCreators } from '$lib/services/gameService';
   
   const { data } = $props();
@@ -41,7 +41,10 @@
   let authors = $state([]);
   let selectedGenre = $state("ALL");
   let selectedFormat = $state("ALL");
-  let selectedAuthor = $state("ALL");
+  let selectedAuthorFirstName = $state("");
+  let selectedAuthorSurname = $state("");
+  let selectedIllustratorFirstName = $state(""); // Separate illustrator first name
+  let selectedIllustratorSurname = $state(""); // Separate illustrator surname
 
   // Games specific state
   let categories = $state([]);
@@ -104,14 +107,13 @@
         // Book specific parameters
         if (searchQuery) params.title = searchQuery;
         if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
-        if (selectedAuthor && selectedAuthor !== "ALL") {
-          const [firstName, surname] = selectedAuthor.split('|');
-          params.authorFirstName = firstName;
-          params.authorSurname = surname;
-        }
+        if (selectedAuthorFirstName) params.authorFirstName = selectedAuthorFirstName;
+        if (selectedAuthorSurname) params.authorSurname = selectedAuthorSurname;
         if (selectedFormat && selectedFormat !== "ALL") params.category = selectedFormat;
         if (selectedGenre && selectedGenre !== "ALL") params.genreName = selectedGenre;
-        
+        if (selectedIllustratorFirstName) params.illustratorFirstName = selectedIllustratorFirstName;
+        if (selectedIllustratorSurname) params.illustratorSurname = selectedIllustratorSurname;
+
         // Fetch books
         items = await fetchBooks(params);
       } else {
@@ -146,6 +148,8 @@
     selectedPublisher = "";
     sortOption = sortOptions[0].value;
     pageNumber = 0;
+    selectedIllustratorFirstName = ""; // Reset illustrator first name
+    selectedIllustratorSurname = ""; // Reset illustrator surname
     
     // Reset mode-specific filters
     if (mode === 'books') {
@@ -175,7 +179,8 @@
     try {
       if (mode === 'books') {
         // Fetch book-specific data
-        genres = await fetchGenres();
+        genres = await getAllGenres();
+        genres = genres.map(genre => genre.name);
         formats = ["MANGA", "BD", "LIVRE"];
         authors = await getAllAuthors();
         
@@ -284,14 +289,36 @@
         <div class="section">
           <h3>Auteur</h3>
           <div>
-            <select bind:value={selectedAuthor} title="Sélectionner un auteur">
-              <option value="ALL">Tous les auteurs</option>
-              {#each authors as author}
-                <option value={`${author.firstname || ''}|${author.surname || ''}`}>
-                  {(author.firstname || '') + ' ' + (author.surname || '')}
-                </option>
-              {/each}
-            </select>
+            <input 
+              type="text" 
+              bind:value={selectedAuthorFirstName} 
+              placeholder="Prénom de l'auteur"
+              class="author-input"
+            />
+            <input 
+              type="text" 
+              bind:value={selectedAuthorSurname} 
+              placeholder="Nom de famille de l'auteur"
+              class="author-input"
+            />
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Illustrateur</h3>
+          <div>
+            <input 
+              type="text" 
+              bind:value={selectedIllustratorFirstName} 
+              placeholder="Prénom de l'illustrateur"
+              class="illustrator-input"
+            />
+            <input 
+              type="text" 
+              bind:value={selectedIllustratorSurname} 
+              placeholder="Nom de famille de l'illustrateur"
+              class="illustrator-input"
+            />
           </div>
         </div>
       {:else}
@@ -330,7 +357,6 @@
               bind:value={minPlayers}
               placeholder="Min"
               min="1"
-              class="number-input"
             />
             <span class="range-separator">à</span>
             <input 
@@ -338,7 +364,6 @@
               bind:value={maxPlayers}
               placeholder="Max"
               min="1"
-              class="number-input"
             />
           </div>
         </div>
@@ -351,7 +376,6 @@
               bind:value={minPlaytime}
               placeholder="Min"
               min="1"
-              class="number-input"
             />
             <span class="range-separator">à</span>
             <input 
@@ -359,7 +383,6 @@
               bind:value={maxPlaytime}
               placeholder="Max"
               min="1"
-              class="number-input"
             />
           </div>
         </div>
@@ -373,7 +396,6 @@
             type="text" 
             bind:value={selectedPublisher} 
             placeholder="Nom de l'éditeur"
-            class="publisher-input"
           />
         </div>
       </div>
@@ -848,6 +870,20 @@
     }
   }
 
+  input {
+     width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+  }
+
   .range-inputs {
     display: flex;
     align-items: center;
@@ -893,6 +929,20 @@
     .page-info {
       color: #e0d6c2;
       font-size: 0.9rem;
+    }
+  }
+
+  .illustrator-input {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #343434;
+    color: #e0d6c2;
+    border: 1px solid var(--dark-orange);
+    border-radius: 4px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--orange);
     }
   }
 </style>

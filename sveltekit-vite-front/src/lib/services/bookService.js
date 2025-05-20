@@ -42,26 +42,6 @@ export async function fetchBooks(params = {}) {
 }
 
 /**
- * Get a specific book by ISBN
- * @param {string} isbn - The ISBN of the book
- * @returns {Promise<Object>} Book details
- */
-export async function getBookByISBN(isbn) {
-  try {
-    const response = await fetch(`/api/public/books/${isbn}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (err) {
-    console.error(`Error fetching book with ISBN ${isbn}:`, err);
-    throw err;
-  }
-}
-
-/**
  * Fetch all authors from the system
  * @returns {Promise<Array>} List of authors
  */
@@ -84,7 +64,7 @@ export async function getAllAuthors() {
  * Fetch book genres from API
  * @returns {Promise<Array>} List of book genres
  */
-export async function fetchGenres() {
+export async function getAllGenres() {
   try {
     const response = await fetch('/api/public/books/genres');
     
@@ -95,6 +75,25 @@ export async function fetchGenres() {
     return await response.json();
   } catch (err) {
     console.error("Failed to fetch genres:", err);
+    throw err;
+  }
+}
+
+/**
+ * Fetch book illustrators from API
+ * @returns {Promise<Array>} List of book illustrators
+ */
+export async function getAllIllustrators() {
+  try {
+    const response = await fetch('/api/public/books/illustrators');
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Failed to fetch illustrators:", err);
     throw err;
   }
 }
@@ -169,6 +168,33 @@ export async function deleteBook(isbn) {
     return true;
   } catch (error) {
     console.error('Error deleting book:', error);
+    throw error;
+  }
+}
+
+/**
+ * Add a new book
+ * @param {Object} book - The book object to add
+ * @returns {Promise<Object>} The added book object
+ */
+export async function addBook(book) {
+  try {
+    const response = await fetch('/api/public/books', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(book)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error adding book. Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding book:', error);
     throw error;
   }
 }

@@ -5,7 +5,6 @@
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
   import { fetchBooks, deleteBook } from '$lib/services/bookService';
-  import AddBookModal from '$lib/components/admin/AddBookModal.svelte';
   import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 
   // State for books data
@@ -20,7 +19,6 @@
   let pageSize = $state(10);
   
   // Modal state
-  let showAddModal = $state(false);
   let showDeleteConfirm = $state(false);
   let bookToDelete = $state(null);
   
@@ -90,16 +88,6 @@
     event.preventDefault();
     pageNumber = 0; // Reset to first page on new search
     loadBooks();
-  }
-
-  // Handle opening the add book modal
-  function handleAddBook() {
-    showAddModal = true;
-  }
-
-  // Handle closing the add book modal
-  function handleCloseAddModal() {
-    showAddModal = false;
   }
 
   // Handle book added event
@@ -301,13 +289,6 @@
       {/if}
     {/if}
   </div>
-
-  <!-- Add Book Modal -->
-  <AddBookModal 
-    show={showAddModal}
-    on:close={handleCloseAddModal}
-    on:bookAdded={handleBookAdded}
-  />
 
   <!-- Confirmation Dialog for Delete -->
   <ConfirmDialog

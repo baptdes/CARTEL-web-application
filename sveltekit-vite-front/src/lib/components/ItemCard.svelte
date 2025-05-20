@@ -51,6 +51,16 @@
       };
     }
   }
+
+  function getIllustratorInfo() {
+    if (type === 'book') {
+      return {
+        label: 'Illustrateur',
+        value: formatAuthor(item)
+      };
+    }
+    return null;
+  }
 </script>
 
 <button 
@@ -89,6 +99,9 @@
             {#if type === 'book'}
               <div class="meta">
                 <strong>Format :</strong> {item.format || 'Non spécifié'}
+              </div>
+              <div class="meta">
+                <strong>{getIllustratorInfo().label} :</strong> {getIllustratorInfo().value || 'Non spécifié'}
               </div>
             {:else}
               <div class="meta">
