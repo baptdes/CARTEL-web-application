@@ -111,6 +111,18 @@ public class BookServiceImpl implements BookService {
                 .map(Genre::getName)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Book addBook(Book book) {
+        // Check if the book already exists in the database
+        List<Book> existingBooks = bookRepository.findByBarcode(book.getBarcode());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
+        }
+        
+        // Save the new book to the database
+        return bookRepository.save(book);
+    }
     
     @Override
     public AuthorBook findOrCreateAuthor(String firstname, String surname) {

@@ -141,6 +141,6 @@ public abstract class Item {
     }
 
     public int getCopyCount() {
-        return this.copies.size();
+    return (this.copies != null) ? this.copies.size() : 0;
     }
 }

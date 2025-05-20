@@ -12,7 +12,7 @@
     <button
       class="innerBouton line"
       type="button"
-      onclick={() => goto("/admin/purge_course")}
+      onclick={() => goto("/admin/catalogue")}
     >
       <div class="border">
         <img

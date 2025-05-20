@@ -85,4 +85,13 @@ public interface BookService {
      * @throws RuntimeException if multiple authors found with the same name
      */
     AuthorBook findOrCreateAuthor(String firstname, String surname);
+
+    /**
+     * Adds a new book
+     * 
+     * @param book The Book entity to add
+     * @return The added Book entity
+     * @throws RuntimeException if the book already exists
+     */
+    Book addBook(Book book);
 }

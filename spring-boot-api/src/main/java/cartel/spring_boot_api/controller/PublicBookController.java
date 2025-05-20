@@ -104,4 +104,16 @@ public class PublicBookController {
     public List<String> getAllGenres() {
         return bookService.getAllGenres();
     }
+
+    /**
+     * Adds a new book to the system
+     * 
+     * @param book The Book entity to add
+     * @return ResponseEntity with the added book
+     */
+    @PostMapping("/add")
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
+        Book addedBook = bookService.addBook(book);
+        return ResponseEntity.ok(addedBook);
+    }
 }
