@@ -52,6 +52,8 @@ public class DataInitializer {
     private SuggestionRepository suggestionRepository;
     @Autowired
     private GenreRepository genreRepository;
+    @Autowired
+    private LoanByCartelRepository loanByCartelRepository;
 
     // Number of entities to generate
     private final int numAuthors = 20;
@@ -67,6 +69,8 @@ public class DataInitializer {
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
     private final int numGenres = 15;
+    private final int numLoanByCartel = 8;
+
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -110,8 +114,8 @@ public class DataInitializer {
             System.out.println("Loading Item Copy data...");
             List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
             
-            System.out.println("Loading Suggestion data...");
-            //loadSuggestionData(numSuggestions);
+            System.out.println("Loading LoanByCartel data...");
+            List<LoanByCartel> loanByCartel = loadLoanByCartelData(numLoanByCartel);
             
             System.out.println("Seeding completed!");
         };
@@ -341,8 +345,8 @@ public class DataInitializer {
         
         for (int i = 0; i < count; i++) {
             CartelPerson person = new CartelPerson(
-                faker.name().firstName(),
-                faker.name().lastName(),
+                faker.leagueOfLegends().champion(),
+                faker.leagueOfLegends().rank(),
                 faker.internet().emailAddress()
             );
             
@@ -368,6 +372,22 @@ public class DataInitializer {
         }
         
         return copies;
+    }
+
+    private List<LoanByCartel> loadLoanByCartelData(int count){
+        List<LoanByCartel> loanBy = new ArrayList<>();
+        List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
+        List<CartelPerson> allPerson = cartelPersonRepository.findAll();
+        for (int i = 0; i < count; i++) {
+            ItemCopy itemCopy = getRandomElement(allItemCopies);
+            CartelPerson person = getRandomElement(allPerson);
+            LoanByCartel loan = new LoanByCartel(person, itemCopy);
+
+            loanByCartelRepository.save(loan);
+            loanBy.add(loan);
+        }
+
+        return loanBy;
     }
     /* 
     private void loadSuggestionData(int count) {
