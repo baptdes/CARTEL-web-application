@@ -11,28 +11,28 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface LoanService {
-// 	    List<LoanToCartel> getAllLoanToCartel();
-//
-// 	    List<LoanByCartel> getAllLoanByCartel();
-//
-// 	    void removeLoanToCartel(long loanToCartelId);
-//
-// 	    void removeLoanByCartel(long loanByCartelId);
-//
-// 	    void createLoanToCartel(CartelPerson itemOwner, ItemCopy itemShared);
-//
-// 	    void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
-//
-// 	    void createLoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared);
-//
-// 	    void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
-//
-// 	    List<LoanToCartel> filterLoanToCartel(int pageNumber, int pageSize,
-// 	    		boolean asc, String sortBy, String itemName,
-//                 String ownerFirstName, String ownerSurname,
-//                 LocalDateTime loanBefore, LocalDateTime loanAfter);
+
+    public List<LoanToCartel> getAllLoanToCartel();
+
+    public List<LoanByCartel> getAllLoanByCartel();
+
+    public void removeLoanToCartel(long loanToCartelId);
+
+    public void removeLoanByCartel(long loanByCartelId);
+
+    public void createLoanToCartel(CartelPerson itemOwner, ItemCopy itemShared);
+
+    // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
+
+    public void createLoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared);
+
+    // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
+
+	public List<LoanToCartel> filterLoanToCartel(int pageNumber, int pageSize,
+		boolean asc, String sortBy, String itemName,
+		String ownerFirstName, String ownerSurname);
 	    
-	    List<LoanByCartel> filterLoanByCartel(int pageNumber, int pageSize, 
-	    		boolean asc, String sortBy, String itemName,
-                String borrowerFirstName, String borrowerSurname);
+	public List<LoanByCartel> filterLoanByCartel(int pageNumber, int pageSize,
+		boolean asc, String sortBy, String itemName,
+		String borrowerFirstName, String borrowerSurname);
 }

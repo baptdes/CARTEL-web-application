@@ -54,6 +54,8 @@ public class DataInitializer {
     private GenreRepository genreRepository;
     @Autowired
     private LoanByCartelRepository loanByCartelRepository;
+    @Autowired
+    private LoanToCartelRepository loanToCartelRepository;
 
     // Number of entities to generate
     private final int numAuthors = 20;
@@ -69,7 +71,9 @@ public class DataInitializer {
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
     private final int numGenres = 15;
-    private final int numLoanByCartel = 8;
+    private final int numLoanByCartel = 12;
+    private final int numLoanToCartel = 12;
+
 
 
     @Bean
@@ -116,6 +120,9 @@ public class DataInitializer {
             
             System.out.println("Loading LoanByCartel data...");
             List<LoanByCartel> loanByCartel = loadLoanByCartelData(numLoanByCartel);
+
+            System.out.println("Loading LoanToCartel data...");
+            List<LoanToCartel> loanToCartel = loadLoanToCartelData(numLoanToCartel);
             
             System.out.println("Seeding completed!");
         };
@@ -382,12 +389,24 @@ public class DataInitializer {
         for (ItemCopy item : borrowItems) {
             CartelPerson borrower = getRandomElement(allPerson);
             LoanByCartel loan = new LoanByCartel(borrower, item);
-
             loanByCartelRepository.save(loan);
             loanBy.add(loan);
         }
-
         return loanBy;
+    }
+
+    private List<LoanToCartel> loadLoanToCartelData(int count){
+        List<LoanToCartel> loanTo = new ArrayList<>();
+        List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
+        List<CartelPerson> allPerson = cartelPersonRepository.findAll();
+        List<ItemCopy> lentItems = getRandomListAmong(allItemCopies, count, count);
+        for (ItemCopy item : lentItems) {
+            CartelPerson owner = getRandomElement(allPerson);
+            LoanToCartel loan = new LoanToCartel(owner, item);
+            loanToCartelRepository.save(loan);
+            loanTo.add(loan);
+        }
+        return loanTo;
     }
     /* 
     private void loadSuggestionData(int count) {

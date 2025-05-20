@@ -13,7 +13,7 @@ import jakarta.persistence.criteria.Join;
 
 
 public class LoanSpecification {
-
+    //** FILTERING LOANBYCARTEL **//
     // Filter by borrower first name.
     public static Specification<LoanByCartel> filterLoanByCartelfromBorrowerByFirstName(String borrowerFirstName) {
         return (root, query, builder) -> {
@@ -30,6 +30,44 @@ public class LoanSpecification {
         };
     }
 
+    // Filter by borrowed item name.
+    public static Specification<LoanByCartel> filterLoanByCartelfromItemSharedByName(String itemCopyNameLike) {
+        return (root, query, builder) -> {
+            Join<LoanByCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
+            Join<Join<LoanByCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
+            return builder.like(loanWithItem.get("name"), "%" + itemCopyNameLike + "%");
+        };
+    }
+
+    //** FILTERING LOANTOCARTEL **//
+    // Filter by owner first name.
+    public static Specification<LoanToCartel> filterLoanToCartelfromOwnerByFirstName(String ownerFirstName) {
+        return (root, query, builder) -> {
+            Join<LoanToCartel,CartelPerson> loanWithOwner = root.join("itemOwner");
+            return builder.like(loanWithOwner.get("firstname"), "%" + ownerFirstName + "%");
+        };
+    }
+
+    // Filter by owner surname.
+    public static Specification<LoanToCartel> filterLoanToCartelfromOwnerBySurname(String ownerSurname) {
+        return (root, query, builder) -> {
+            Join<LoanToCartel,CartelPerson> loanWithOwner = root.join("itemOwner");
+            return builder.like(loanWithOwner.get("surname"), "%" + ownerSurname + "%");
+        };
+    }
+
+    // Filter by borrowed item name.
+    public static Specification<LoanToCartel> filterLoanToCartelfromItemSharedByName(String itemCopyNameLike) {
+        return (root, query, builder) -> {
+            Join<LoanToCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
+            Join<Join<LoanToCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
+            return builder.like(loanWithItem.get("name"), "%" + itemCopyNameLike + "%");
+        };
+    }
+}
+    // //** FILTERING BY DATE **//
+    // Pour l'implementer, il faut d'abord changer toutes les dates dans les bases de données par des java.sql.Date
+    //
     // // Filter by borrowing date before a dateLimite.
     // public static Specification<LoanByCartel> filterLoanByCartelfromDateBefore(LocalDateTime dateLimite) {
     //     return (loan, query, builder) -> builder.greaterThan(dateLimite, loan.get("loanDate"));
@@ -39,13 +77,3 @@ public class LoanSpecification {
     // public static Specification<LoanByCartel> filterLoanByCartelfromDateAfter(LocalDateTime dateLimite) {
     //     return (loan, query, builder) -> builder.greaterThan(loan.get("loanDate"), dateLimite);
     // }
-
-    // Filter by borrowed item name.
-    public static Specification<LoanByCartel> filterLoanByCartelfromItemSharedByName(String itemCopyNameLike) {
-        return (root, query, builder) -> {
-            Join<LoanByCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
-            Join<Join<LoanByCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
-            return builder.like(loanWithItem.get("name"), "%" + itemCopyNameLike + "%");
-        };
-    }
-}

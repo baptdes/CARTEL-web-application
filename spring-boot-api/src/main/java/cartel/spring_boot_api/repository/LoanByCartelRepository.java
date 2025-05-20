@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface LoanByCartelRepository extends JpaRepository<LoanByCartel, Long>, JpaSpecificationExecutor<LoanByCartel> {
 	
-	List<LoanByCartel> findAll();
+	public List<LoanByCartel> findAll();
 	
-	List<LoanByCartel> findById(long id);
+	public List<LoanByCartel> findById(long id);
 	
-	void deleteById(long id);
+	public void deleteById(long id);
 }
