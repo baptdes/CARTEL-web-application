@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "sass": "^1.86.1"
+  },
+  "dependencies": {
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2"
   }
 }

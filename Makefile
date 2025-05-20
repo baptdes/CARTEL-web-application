@@ -14,6 +14,7 @@ stop: stop-frontend stop-backend
 install-frontend:
 	@echo "\n |||||||||||||||||| Installing frontend dependencies... |||||||||||||||||| \n"
 	cd $(FRONTEND_DIR) && npm install
+	cd $(FRONTEND_DIR) && npm install jspdf jspdf-autotable
 
 start-frontend:
 	@echo "Starting frontend dev server..."
