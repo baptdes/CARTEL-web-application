@@ -13,14 +13,14 @@
   // Mode toggle state - use initialMode from load function
   let mode = $state(data.initialMode || 'books'); // 'books' or 'games'
   
-  // Initialize display text variables with default values 
-  let pageTitle = $state(mode === 'books' ? 'Livres' : 'Jeux de société');
-  let searchPlaceholder = $state(mode === 'books' ? 'Rechercher un livre par titre...' : 'Rechercher un jeu par titre...');
-  let catalogTitle = $state(mode === 'books' ? 'Catalogue des livres' : 'Catalogue des jeux de société');
-  let loadingMessage = $state(mode === 'books' ? 'Chargement des livres...' : 'Chargement des jeux...');
-  let emptyResultsMessage = $state(mode === 'books' ? 'Aucun livre trouvé avec les critères actuels.' : 'Aucun jeu trouvé avec les critères actuels.');
+  // Initialize display text variables with default values first
+  let pageTitle = $state('Livres');
+  let searchPlaceholder = $state('Rechercher un livre par titre...');
+  let catalogTitle = $state('Catalogue des livres');
+  let loadingMessage = $state('Chargement des livres...');
+  let emptyResultsMessage = $state('Aucun livre trouvé avec les critères actuels.');
   
-  // Update all text variables when mode changes
+  // Update all text variables when mode changes (moved to effect)
   $effect(() => {
     pageTitle = mode === 'books' ? 'Livres' : 'Jeux de société';
     searchPlaceholder = mode === 'books' ? 'Rechercher un livre par titre...' : 'Rechercher un jeu par titre...';
@@ -222,14 +222,14 @@
       <button 
         class="toggle-button" 
         class:active={mode === 'books'} 
-        on:click={() => mode === 'games' && toggleMode()}
+        onclick={() => mode === 'games' && toggleMode()}
       >
         📚 Livres
       </button>
       <button 
         class="toggle-button" 
         class:active={mode === 'games'} 
-        on:click={() => mode === 'books' && toggleMode()}
+        onclick={() => mode === 'books' && toggleMode()}
       >
         🎲 Jeux
       </button>
@@ -242,9 +242,9 @@
         type="text" 
         bind:value={searchQuery}
         placeholder={searchPlaceholder}
-        on:keydown={(e) => e.key === 'Enter' && handleSearch()}
+        onkeydown={(e) => e.key === 'Enter' && handleSearch()}
       />
-      <button on:click={handleSearch} aria-label="Rechercher">
+      <button onclick={handleSearch} aria-label="Rechercher">
         🔍
       </button>
     </div>
@@ -378,11 +378,11 @@
         </div>
       </div>
       
-      <button class="apply-filters" on:click={handleSearch}>
+      <button class="apply-filters" onclick={handleSearch}>
         Appliquer les filtres
       </button>
       
-      <button class="reset" on:click={resetSearch}>
+      <button class="reset" onclick={resetSearch}>
         Réinitialiser la recherche
       </button>
     </aside>
@@ -395,7 +395,7 @@
         </div>
         <div class="sort-container">
           <label for="sort-select">Trier par:</label>
-          <select id="sort-select" bind:value={sortOption} class="sort-select" on:change={handleSearch}>
+          <select id="sort-select" bind:value={sortOption} class="sort-select" onchange={handleSearch}>
             {#each sortOptions as option}
               <option value={option.value}>{option.label}</option>
             {/each}
@@ -415,7 +415,7 @@
       {#if error}
         <div class="error">
           <p>Erreur lors du chargement des données: {error}</p>
-          <button on:click={resetSearch}>Réessayer</button>
+          <button onclick={resetSearch}>Réessayer</button>
         </div>
       {/if}
       
@@ -437,7 +437,7 @@
         <div class="pagination">
           <button 
             disabled={pageNumber === 0} 
-            on:click={() => { pageNumber -= 1; handleSearch(); }}
+            onclick={() => { pageNumber -= 1; handleSearch(); }}
             class="pagination-button"
           >
             &laquo; Précédent
@@ -447,7 +447,7 @@
           
           <button 
             disabled={items.length < pageSize}
-            on:click={() => { pageNumber += 1; handleSearch(); }}
+            onclick={() => { pageNumber += 1; handleSearch(); }}
             class="pagination-button"
           >
             Suivant &raquo;
@@ -638,20 +638,6 @@
           flex-direction: column;
           gap: 0.5rem;
           
-          label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            
-            input {
-              margin-right: 0.5rem;
-            }
-            
-            span {
-              color: #e0d6c2;
-            }
-          }
-          
           select {
             width: 100%;
             padding: 0.5rem;
@@ -745,13 +731,6 @@
             outline: none;
             border-color: var(--orange);
           }
-        }
-        
-        div {
-          color: #e0d6c2;
-          font-size: 0.9rem;
-          margin-left: 0.5rem;
-          white-space: nowrap;
         }
       }
     }
@@ -851,11 +830,6 @@
       .sort-container {
         flex-wrap: wrap;
         width: 100%;
-        
-        div {
-          margin-top: 0.5rem;
-          width: 100%;
-        }
       }
     }
   }
