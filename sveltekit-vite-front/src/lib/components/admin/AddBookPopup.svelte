@@ -45,6 +45,11 @@
   let authorAddSurname = '';
   let addAuthorError = '';
 
+  // Ajout pour navigation clavier dans la liste déroulante
+  let authorSuggestionsOpen = false;
+  let authorSuggestionsIndex = -1;
+  let authorInputRef;
+
   // Load reference data when popup opens
   $: if (show) {
     loadReferenceData();
@@ -123,9 +128,13 @@
       const [firstname, ...surnameArr] = authorInput.trim().split(' ');
       authorToAdd = { firstname, surname: surnameArr.join(' ') };
     }
+    authorSuggestionsOpen = authorSuggestions.length > 0;
+    authorSuggestionsIndex = authorSuggestions.length > 0 ? 0 : -1;
   } else {
     authorSuggestions = [];
     showAddAuthorPrompt = false;
+    authorSuggestionsOpen = false;
+    authorSuggestionsIndex = -1;
   }
 
   function selectAuthor(author) {
@@ -133,10 +142,50 @@
     authorInput = '';
     authorSuggestions = [];
     showAddAuthorPrompt = false;
+    authorSuggestionsOpen = false;
+    authorSuggestionsIndex = -1;
   }
 
+  // Ajout ou correction de la fonction removeAuthor
   function removeAuthor(authorId) {
     newBook.authors = newBook.authors.filter(a => a.id !== authorId);
+  }
+
+  // Gestion clavier pour la liste déroulante d'auteurs
+  function onAuthorInputKeydown(e) {
+    if (!authorSuggestionsOpen || authorSuggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      authorSuggestionsIndex = (authorSuggestionsIndex + 1) % authorSuggestions.length;
+      scrollToSuggestion();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      authorSuggestionsIndex = (authorSuggestionsIndex - 1 + authorSuggestions.length) % authorSuggestions.length;
+      scrollToSuggestion();
+    } else if (e.key === 'Enter') {
+      if (authorSuggestionsIndex >= 0 && authorSuggestionsIndex < authorSuggestions.length) {
+        e.preventDefault();
+        selectAuthor(authorSuggestions[authorSuggestionsIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      authorSuggestionsOpen = false;
+    }
+  }
+
+  // Pour garder l'élément sélectionné visible
+  function scrollToSuggestion() {
+    setTimeout(() => {
+      const el = document.getElementById(`author-suggestion-${authorSuggestionsIndex}`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }, 0);
+  }
+
+  // Fermer la liste si on clique ailleurs
+  function onAuthorInputBlur(e) {
+    setTimeout(() => {
+      authorSuggestionsOpen = false;
+    }, 120);
   }
 
   // Ajout d'un nouvel auteur (fonction fictive, à créer côté service si besoin)
@@ -254,12 +303,28 @@
                   placeholder="Rechercher un auteur (Prénom Nom)"
                   bind:value={authorInput}
                   autocomplete="off"
+                  bind:this={authorInputRef}
+                  onkeydown={onAuthorInputKeydown}
+                  onblur={onAuthorInputBlur}
+                  aria-autocomplete="list"
+                  aria-controls="author-suggestions-list"
+                  aria-activedescendant={authorSuggestionsOpen && authorSuggestionsIndex >= 0 ? `author-suggestion-${authorSuggestionsIndex}` : undefined}
                 />
-                {#if authorSuggestions.length > 0}
-                  <ul class="author-suggestions">
-                    {#each authorSuggestions as author}
-                      <li>
-                        <button type="button" onclick={() => selectAuthor(author)}>
+                {#if authorSuggestionsOpen && authorSuggestions.length > 0}
+                  <ul class="author-suggestions" id="author-suggestions-list" role="listbox">
+                    {#each authorSuggestions as author, i}
+                      <li
+                        id={"author-suggestion-" + i}
+                        class:selected={i === authorSuggestionsIndex}
+                        role="option"
+                        aria-selected={i === authorSuggestionsIndex}
+                      >
+                        <button
+                          type="button"
+                          tabindex="-1"
+                          class:selected={i === authorSuggestionsIndex}
+                          onmousedown = {(e) => {e.preventDefault(); selectAuthor(author)}}
+                        >
                           {author.firstname} {author.surname}
                         </button>
                       </li>
@@ -528,6 +593,10 @@
     overflow-y: auto;
     li {
       margin: 0;
+      &.selected, button.selected {
+        background: var(--secondary);
+        color: var(--accent);
+      }
       button {
         background: none;
         border: none;
