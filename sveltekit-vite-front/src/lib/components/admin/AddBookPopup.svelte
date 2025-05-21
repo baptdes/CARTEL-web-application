@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { addBook, getAllGenres, addGenre } from '$lib/services/bookService';
+  import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors } from '$lib/services/bookService';
 
   export let show = false;
 
@@ -11,6 +11,7 @@
   let addingSuccess = false;
 
   let availableGenres = [];
+  let availableAuthors = [];
 
   let newBook = {
     barcode: "",
@@ -20,6 +21,7 @@
     description: "",
     format: "LIVRE",
     genres: [{id: null}],
+    authors: [],
     volumeNumber: null
   };
 
@@ -35,6 +37,14 @@
     { value: "MANGA", label: "Manga" }
   ];
 
+  let authorInput = '';
+  let authorSuggestions = [];
+  let showAddAuthorPrompt = false;
+  let authorToAdd = { firstname: '', surname: '' };
+  let authorAddFirstname = '';
+  let authorAddSurname = '';
+  let addAuthorError = '';
+
   // Load reference data when popup opens
   $: if (show) {
     loadReferenceData();
@@ -43,8 +53,9 @@
 
   async function loadReferenceData() {
     try {
-      [availableGenres] = await Promise.all([
-        getAllGenres()
+      [availableGenres, availableAuthors] = await Promise.all([
+        getAllGenres(),
+        getAllAuthors()
       ]);
     } catch (err) {
       addingError = "Erreur lors du chargement des données de référence: " + err.message;
@@ -60,8 +71,15 @@
       description: "",
       format: "LIVRE",
       genres: [{id: null}],
+      authors: [],
       volumeNumber: null
     };
+    authorInput = '';
+    authorSuggestions = [];
+    showAddAuthorPrompt = false;
+    authorToAdd = { firstname: '', surname: '' };
+    authorAddFirstname = '';
+    authorAddSurname = '';
     addingError = null;
     addingSuccess = false;
   }
@@ -89,6 +107,53 @@
       addingError = err.message || "Erreur lors de l'ajout du livre";
     } finally {
       addingBook = false;
+    }
+  }
+
+  // Gestion de la saisie d'auteur
+  $: if (authorInput && availableAuthors.length > 0) {
+    const input = authorInput.trim().toLowerCase();
+    authorSuggestions = availableAuthors.filter(a =>
+      (`${a.firstname} ${a.surname}`.toLowerCase().includes(input))
+      && !newBook.authors.some(sel => sel.id === a.id)
+    );
+    showAddAuthorPrompt = authorSuggestions.length === 0 && input.length > 0;
+    if (showAddAuthorPrompt) {
+      // Découper prénom/nom
+      const [firstname, ...surnameArr] = authorInput.trim().split(' ');
+      authorToAdd = { firstname, surname: surnameArr.join(' ') };
+    }
+  } else {
+    authorSuggestions = [];
+    showAddAuthorPrompt = false;
+  }
+
+  function selectAuthor(author) {
+    newBook.authors = [...newBook.authors, author];
+    authorInput = '';
+    authorSuggestions = [];
+    showAddAuthorPrompt = false;
+  }
+
+  function removeAuthor(authorId) {
+    newBook.authors = newBook.authors.filter(a => a.id !== authorId);
+  }
+
+  // Ajout d'un nouvel auteur (fonction fictive, à créer côté service si besoin)
+  async function addNewAuthor() {
+    if (!authorAddFirstname.trim() || !authorAddSurname.trim()) {
+      addAuthorError = "Veuillez saisir un prénom et un nom pour l'auteur.";
+      return;
+    }
+    try {
+      addAuthorError = '';
+      const res = await addAuthor({ firstname: authorAddFirstname.trim(), surname: authorAddSurname.trim() });
+      availableAuthors = [...availableAuthors, res];
+      selectAuthor(res);
+      authorAddFirstname = '';
+      authorAddSurname = '';
+    } catch (err) {
+      addAuthorError = "Erreur lors de l'ajout de l'auteur : " + (err.message || err);
     }
   }
 
@@ -178,6 +243,69 @@
                     <textarea bind:value={newBook.description} rows="4"></textarea>
                 </label>
             </div>
+          </div>
+          <!-- Auteurs -->
+          <div class="form-section">
+            <h4>Auteur(s)</h4>
+            <div class="author-row">
+              <div class="author-search">
+                <input
+                  type="text"
+                  placeholder="Rechercher un auteur (Prénom Nom)"
+                  bind:value={authorInput}
+                  autocomplete="off"
+                />
+                {#if authorSuggestions.length > 0}
+                  <ul class="author-suggestions">
+                    {#each authorSuggestions as author}
+                      <li>
+                        <button type="button" onclick={() => selectAuthor(author)}>
+                          {author.firstname} {author.surname}
+                        </button>
+                      </li>
+                    {/each}
+                  </ul>
+                {/if}
+              </div>
+              <div class="add-author-inline">
+                <input
+                  type="text"
+                  placeholder="Prénom"
+                  bind:value={authorAddFirstname}
+                  class="author-inline-input"
+                />
+                <input
+                  type="text"
+                  placeholder="Nom"
+                  bind:value={authorAddSurname}
+                  class="author-inline-input"
+                />
+                <button
+                  type="button"
+                  class="add-author-btn"
+                  title="Ajouter l'auteur"
+                  onclick={addNewAuthor}
+                >+</button>
+              </div>
+            </div>
+            {#if addAuthorError}
+              <div class="add-author-error">{addAuthorError}</div>
+            {/if}
+            {#if showAddAuthorPrompt && authorInput.trim().length > 0}
+              <div class="add-author-prompt">
+                Aucun auteur trouvé pour "{authorInput}".
+              </div>
+            {/if}
+            {#if newBook.authors.length > 0}
+              <div class="selected-authors">
+                {#each newBook.authors as author (author.id)}
+                  <span class="author-chip">
+                    {author.firstname} {author.surname}
+                    <button type="button" class="remove-author" onclick={() => removeAuthor(author.id)}>&times;</button>
+                  </span>
+                {/each}
+              </div>
+            {/if}
           </div>
           <!-- Genres -->
           <div class="form-section">
@@ -388,5 +516,117 @@
       filter: none;
       box-shadow: none;
     }
+  }
+  .author-suggestions {
+    list-style: none;
+    margin: 0.3rem 0 0 0;
+    padding: 0;
+    background: var(--tertiary);
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+    li {
+      margin: 0;
+      button {
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        color: var(--primary);
+        &:hover {
+          background: var(--secondary);
+        }
+      }
+    }
+  }
+  .add-author-prompt {
+    margin-top: 0.4rem;
+    color: var(--primary);
+    font-size: 0.95rem;
+    button {
+      margin-left: 0.7rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 3px;
+      padding: 0.2rem 0.7rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      &:hover {
+        filter: brightness(0.9);
+      }
+    }
+  }
+  .selected-authors {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    .author-chip {
+      background: var(--secondary);
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 0.2rem 0.8rem;
+      display: flex;
+      align-items: center;
+      font-size: 0.97rem;
+      .remove-author {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 1.1rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        &:hover {
+          color: #b71c1c;
+        }
+      }
+    }
+  }
+  .author-row {
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    .author-search {
+      flex: 2;
+      position: relative;
+    }
+    .add-author-inline {
+      flex: 1.2;
+      display: flex;
+      gap: 0.3rem;
+      align-items: flex-start;
+      .author-inline-input {
+        padding: 0.4rem 0.7rem;
+        border-radius: 4px;
+        border: 1px solid var(--secondary);
+        background: var(--tertiary);
+        color: var(--primary);
+        font-size: 0.97rem;
+        width: 6.5rem;
+      }
+      .add-author-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 0.4rem 0.9rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        font-weight: bold;
+        &:hover {
+          filter: brightness(0.9);
+        }
+      }
+    }
+  }
+  .add-author-error {
+    color: var(--accent);
+    font-size: 0.97rem;
+    margin-bottom: 0.3rem;
   }
 </style>
