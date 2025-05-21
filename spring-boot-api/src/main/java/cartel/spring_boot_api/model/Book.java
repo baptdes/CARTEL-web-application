@@ -47,7 +47,6 @@ public class Book extends Item{
     private Integer volumeNumber;
 
     // Series
-    @JsonIgnore
     @ManyToOne
     private Series series;
 
