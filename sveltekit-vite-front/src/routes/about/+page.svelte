@@ -9,7 +9,7 @@
     </p>
   </section>
 
-  <section class="about-section">
+  <section class="about-section"> 
     <h2>Mais C'est où le Cartel ?</h2>
     <p>
       Laissez-moi donc vous raconter une histoire, une histoire qui commence en l’ancienne année de 2010 (vous n’étiez peut-être même pas nés à cette époque haha). À cette époque, le “Cartel” était le nom d’un local, qui ne se trouvait pas à son emplacement actuel. 
