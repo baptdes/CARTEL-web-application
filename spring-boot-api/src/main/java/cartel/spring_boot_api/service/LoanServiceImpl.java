@@ -115,9 +115,6 @@ public class LoanServiceImpl implements LoanService {
         long nbItemCopy = itemCopyRepository.count(filterItemCopyFromBarcode(itemId));
         long nbLoanToCartel = loanToCartelRepository.count(filterLoanToCartelfromItemBarcode(itemId));
         long nbLoanByCartel = loanByCartelRepository.count(filterLoanByCartelfromItemBarcode(itemId));
-        System.out.println("nbItemCopy : " + String.valueOf(nbItemCopy));
-        System.out.println("nbLoanToCartel : " + String.valueOf(nbLoanToCartel));
-        System.out.println("nbLoanByCartel : " + String.valueOf(nbLoanByCartel));
         if (nbItemCopy - (nbLoanToCartel + nbLoanByCartel) >= 1) {
             return true;
         } else {
