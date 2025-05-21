@@ -99,6 +99,25 @@ export async function getAllIllustrators() {
 }
 
 /**
+ * Get all publishers
+ * @returns {Promise<Array>} List of publishers
+ */
+export async function getAllPublishers() {
+  try {
+    const response = await fetch('/api/public/books/publishers');
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (err) {
+    console.error("Failed to fetch publishers:", err);
+    throw err;
+  }
+}
+
+/**
  * Format author for display
  * @param {Object} book - Book object
  * @returns {string} Formatted author string
@@ -110,6 +129,21 @@ export function formatAuthor(book) {
   
   return book.authors.map(author => 
     `${author.firstname || ''} ${author.surname || ''}`.trim()
+  ).join(', ');
+}
+
+/**
+ * Format illustrator for display
+ * @param {Object} book - Book object
+ * @returns {string} Formatted illustrator string
+ */
+export function formatIllustrator(book) {
+  if (!book.illustrator || !Array.isArray(book.illustrator) || book.illustrator.length === 0) {
+    return 'Illustrateur inconnu';
+  }
+  
+  return book.illustrator.map(illustrator => 
+    `${illustrator.firstname || ''} ${illustrator.surname || ''}`.trim()
   ).join(', ');
 }
 

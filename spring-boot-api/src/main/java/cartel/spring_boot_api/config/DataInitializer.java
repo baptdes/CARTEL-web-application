@@ -52,6 +52,10 @@ public class DataInitializer {
     private SuggestionRepository suggestionRepository;
     @Autowired
     private GenreRepository genreRepository;
+    @Autowired
+    private LoanByCartelRepository loanByCartelRepository;
+    @Autowired
+    private LoanToCartelRepository loanToCartelRepository;
 
     // Number of entities to generate
     private final int numAuthors = 20;
@@ -67,6 +71,10 @@ public class DataInitializer {
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
     private final int numGenres = 15;
+    private final int numLoanByCartel = 12;
+    private final int numLoanToCartel = 12;
+
+
 
     @Bean
     @Profile("dev") // Only run in development mode
@@ -110,6 +118,12 @@ public class DataInitializer {
             System.out.println("Loading Item Copy data...");
             List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
             
+            System.out.println("Loading LoanByCartel data...");
+            List<LoanByCartel> loanByCartel = loadLoanByCartelData(numLoanByCartel);
+
+            System.out.println("Loading LoanToCartel data...");
+            List<LoanToCartel> loanToCartel = loadLoanToCartelData(numLoanToCartel);
+
             System.out.println("Loading Suggestion data...");
             loadSuggestionData(numSuggestions);
             
@@ -341,8 +355,8 @@ public class DataInitializer {
         
         for (int i = 0; i < count; i++) {
             CartelPerson person = new CartelPerson(
-                faker.name().firstName(),
-                faker.name().lastName(),
+                faker.leagueOfLegends().champion(),
+                faker.leagueOfLegends().rank(),
                 faker.internet().emailAddress()
             );
             
@@ -369,7 +383,35 @@ public class DataInitializer {
         
         return copies;
     }
-    
+
+    private List<LoanByCartel> loadLoanByCartelData(int count){
+        List<LoanByCartel> loanBy = new ArrayList<>();
+        List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
+        List<CartelPerson> allPerson = cartelPersonRepository.findAll();
+        List<ItemCopy> borrowItems = getRandomListAmong(allItemCopies, count, count);
+        for (ItemCopy item : borrowItems) {
+            CartelPerson borrower = getRandomElement(allPerson);
+            LoanByCartel loan = new LoanByCartel(borrower, item);
+            loanByCartelRepository.save(loan);
+            loanBy.add(loan);
+        }
+        return loanBy;
+    }
+
+    private List<LoanToCartel> loadLoanToCartelData(int count){
+        List<LoanToCartel> loanTo = new ArrayList<>();
+        List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
+        List<CartelPerson> allPerson = cartelPersonRepository.findAll();
+        List<ItemCopy> lentItems = getRandomListAmong(allItemCopies, count, count);
+        for (ItemCopy item : lentItems) {
+            CartelPerson owner = getRandomElement(allPerson);
+            LoanToCartel loan = new LoanToCartel(owner, item);
+            loanToCartelRepository.save(loan);
+            loanTo.add(loan);
+        }
+        return loanTo;
+    }
+
     private void loadSuggestionData(int count) {
         String[] suggestionNames = {
             "Harry Potter and the Cursed Child",
@@ -425,6 +467,20 @@ public class DataInitializer {
             result.add(item);
         }
         
+        return result;
+    }
+
+    private <T> List<T> getRandomListAmong(List<T> list, int minSize, int maxSize) {
+        int size = random.nextInt(maxSize - minSize + 1) + minSize;
+        List<T> result = new ArrayList<>();
+
+        while (result.size() < size) {
+            T item = getRandomElement (list);
+            if (!result.contains(item)) {
+                result.add(item);
+            }
+        }
+        System.out.println(result);
         return result;
     }
     

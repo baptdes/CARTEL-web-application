@@ -155,7 +155,6 @@
     if (mode === 'books') {
       selectedGenre = "ALL";
       selectedFormat = "ALL";
-      selectedAuthor = "ALL";
     } else {
       selectedCategory = "ALL";
       selectedCreator = "ALL";
