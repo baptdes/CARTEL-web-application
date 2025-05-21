@@ -8,6 +8,7 @@ import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.model.LoanToCartel;
 
+
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Join;
 
@@ -30,12 +31,21 @@ public class LoanSpecification {
         };
     }
 
-    // Filter by borrowed item name.
+    // Filter by shared item name.
     public static Specification<LoanByCartel> filterLoanByCartelfromItemSharedByName(String itemCopyNameLike) {
         return (root, query, builder) -> {
             Join<LoanByCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
             Join<Join<LoanByCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
             return builder.like(builder.lower(loanWithItem.get("name")), "%" + itemCopyNameLike.toLowerCase() + "%");
+        };
+    }
+
+    // Filter by shared item barcode.
+    public static Specification<LoanByCartel> filterLoanByCartelfromItemBarcode(String barcode) {
+        return (root, query, builder) -> {
+            Join<LoanByCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
+            Join<Join<LoanByCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
+            return builder.like(loanWithItem.get("barcode"), "%" + barcode + "%");
         };
     }
 
@@ -64,6 +74,25 @@ public class LoanSpecification {
             return builder.like(builder.lower(loanWithItem.get("name")), "%" + itemCopyNameLike.toLowerCase() + "%");
         };
     }
+
+    // Filter by shared item barcode.
+    public static Specification<LoanToCartel> filterLoanToCartelfromItemBarcode(String barcode) {
+        return (root, query, builder) -> {
+            Join<LoanToCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
+            Join<Join<LoanToCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
+            return builder.like(loanWithItem.get("barcode"), "%" + barcode + "%");
+        };
+    }
+
+    //** OTHER HELPING FUNCTIONS **//
+    // Filter item copy by their barcode.
+    public static Specification<ItemCopy> filterItemCopyFromBarcode(String barcode) {
+        return (root, query, builder) -> {
+            Join<Item,ItemCopy> itemWithItemCopy = root.join("objet");
+            return builder.like(itemWithItemCopy.get("barcode"), "%" + barcode + "%");
+        };
+    }
+
 }
     // //** FILTERING BY DATE **//
     // Pour l'implementer, il faut d'abord changer toutes les dates dans les bases de données par des java.sql.Date

@@ -16,6 +16,10 @@ public interface LoanService {
 
     public List<LoanByCartel> getAllLoanByCartel();
 
+    public boolean checkItemBorrowable(String itemId);
+
+    public boolean checkItemReadable(String itemId);
+
     public void removeLoanToCartel(long loanToCartelId);
 
     public void removeLoanByCartel(long loanByCartelId);
