@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { addBook, getAllGenres } from '$lib/services/bookService';
+  import { addBook, getAllGenres, addGenre } from '$lib/services/bookService';
 
   export let show = false;
 
@@ -106,6 +106,19 @@
     }
   }
 
+  // Handler pour l'ajout d'un nouveau genre
+  async function addNewGenre() {
+    const name = prompt("Nom du nouveau genre :");
+    if (!name) return;
+    try {
+      const genre = await addGenre(name);
+      console.log("Nouveau genre ajouté:", genre);
+      availableGenres = [...availableGenres, genre];
+    } catch (err) {
+      alert("Erreur lors de l'ajout du genre : " + (err.message || err));
+    }
+  }
+
   function closePopup() {
     dispatch('close');
   }
@@ -173,13 +186,22 @@
               {#each availableGenres as availableGenre}
                 <button
                   type="button"
-                  class="genre-chip {isGenreSelected(availableGenre.id) ? 'selected' : ''}"
+                  class="genre-chip"
+                  class:selected={isGenreSelected(availableGenre.id)}
                   style="background-color: {availableGenre.color || '#eee'}"
                   onclick={() => toggleGenre(availableGenre.id)}
                 >
                   {availableGenre.name}
                 </button>
               {/each}
+              <button
+                type="button"
+                class="genre-chip add-genre-chip"
+                onclick={addNewGenre}
+                aria-label="Ajouter un genre"
+              >
+                + Ajouter un genre
+              </button>
             </div>
           </div>
           {#if addingError}
@@ -249,9 +271,6 @@
       display: flex;
       gap: 1rem;
       margin-bottom: 0.8rem;
-      &.array-row {
-        align-items: center;
-      }
       &:last-child {
         margin-bottom: 0;
       }
@@ -275,30 +294,6 @@
       color: var(--primary);
       &:focus {
         outline: none;
-        border-color: var(--accent);
-      }
-    }
-    .add-btn, .remove-btn {
-      background: transparent;
-      border: 1px solid var(--secondary);
-      color: var(--primary);
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-      &:hover {
-        background-color: var(--secondary);
-      }
-    }
-    .remove-btn {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      &:hover {
-        color: var(--accent);
         border-color: var(--accent);
       }
     }
@@ -381,6 +376,17 @@
       color: var(--accent);
       font-weight: bold;
       filter: brightness(1.07);
+    }
+  }
+  .add-genre-chip {
+    border: 2px dashed var(--white);
+    background: transparent;
+    color: var(--white);
+    font-weight: 600;
+    &:hover, &:focus {
+      background: rgba(255, 61, 0, 0.07);
+      filter: none;
+      box-shadow: none;
     }
   }
 </style>

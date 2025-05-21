@@ -80,6 +80,32 @@ export async function getAllGenres() {
 }
 
 /**
+ * Add a new genre
+ * @param {String} genre - The genre to add
+ * @returns {Promise<Object>} The added genre object
+ */
+export async function addGenre(genre) {
+  try {
+    const response = await fetch("/api/public/books/genres?name=" + genre, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error adding genre. Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding genre:', error);
+    throw error;
+  }
+}
+
+/**
  * Fetch book illustrators from API
  * @returns {Promise<Array>} List of book illustrators
  */
