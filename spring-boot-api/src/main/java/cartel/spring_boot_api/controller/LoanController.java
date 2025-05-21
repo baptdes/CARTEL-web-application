@@ -26,6 +26,29 @@ public class LoanController {
     @Autowired
     private LoanService loanService;
 
+
+    /**
+     * Check if an item can be borrowed from Cartel
+     *
+     * @param barcode the item barcode
+     * @return true if their is an available copy of the book owned by the cartel
+     */
+    @GetMapping("/check/sharable/{itemId}")
+    public boolean checkItemSharable(@PathVariable String itemId){
+        return loanService.checkItemBorrowable(itemId);
+    }
+
+    /**
+     * Check if an item can be consulted in the Cartel
+     *
+     * @param barcode the item barcode
+     * @return true if their is an readable copy of the book shared by somebody to the cartel
+     */
+    @GetMapping("/check/consultable/{itemId}")
+    public boolean checkItemConsultable(@PathVariable String itemId){
+        return loanService.checkItemReadable(itemId);
+    }
+
     /**
      * Filters loan to cartel by various criteria with pagination
      *
@@ -36,7 +59,7 @@ public class LoanController {
      * @param itemName Filter by the name of the shared item
      * @param ownerFirstName Filter by owner first name
      * @param ownerSurname Filter by owner surname
-     * @return List of books matching the criteria
+     * @return List of loans matching the criteria
      */
     @GetMapping("/toCartel/")
     public List<LoanToCartel> filterLoanToCartels(
@@ -66,7 +89,7 @@ public class LoanController {
      * @param itemName Filter by the name of the shared item
      * @param borrowerFirstName Filter by borrower first name
      * @param borrowerSurname Filter by borrower surname
-     * @return List of books matching the criteria
+     * @return List of loans matching the criteria
      */
     @GetMapping("/byCartel/")
     public List<LoanByCartel> filterLoanByCartels(
@@ -135,19 +158,9 @@ public class LoanController {
     public void createLoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared){
         loanService.createLoanByCartel(itemBorrower, itemShared);
     }
-    /*
 
     // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
 
     // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
 
-	public List<LoanToCartel> filterLoanToCartel(int pageNumber, int pageSize,
-		boolean asc, String sortBy, String itemName,
-		String ownerFirstName, String ownerSurname);
-
-	public List<LoanByCartel> filterLoanByCartel(int pageNumber, int pageSize,
-		boolean asc, String sortBy, String itemName,
-		String borrowerFirstName, String borrowerSurname);
-
-    */
 }

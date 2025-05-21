@@ -6,6 +6,7 @@ import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
+import cartel.spring_boot_api.model.Item.Languages;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class PublicBookController {
      * @param asc Whether to sort in ascending order
      * @param sortBy Field to sort by
      * @param titleBook Filter by title
+     * @param language Filter by book language
      * @param publisherName Filter by publisher name
      * @param authorFirstName Filter by author first name
      * @param authorSurname Filter by author surname

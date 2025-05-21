@@ -17,10 +17,13 @@ import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.model.LoanToCartel;
 import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.model.CartelPerson;
+import cartel.spring_boot_api.model.Item;
 
 
 import cartel.spring_boot_api.repository.LoanByCartelRepository;
 import cartel.spring_boot_api.repository.LoanToCartelRepository;
+import cartel.spring_boot_api.repository.ItemCopyRepository;
+
 
 @Service
 public class LoanServiceImpl implements LoanService {
@@ -30,6 +33,9 @@ public class LoanServiceImpl implements LoanService {
     
     @Autowired
     private LoanToCartelRepository loanToCartelRepository;
+
+    @Autowired
+    private ItemCopyRepository itemCopyRepository;
 
     @Override
     public List<LoanToCartel> getAllLoanToCartel(){
@@ -103,4 +109,30 @@ public class LoanServiceImpl implements LoanService {
         Page<LoanToCartel> pageLoanToCartel = loanToCartelRepository.findAll(filters, page);
         return pageLoanToCartel.getContent();
     }
+
+    @Override
+    public boolean checkItemBorrowable(String itemId){
+        long nbItemCopy = itemCopyRepository.count(filterItemCopyFromBarcode(itemId));
+        long nbLoanToCartel = loanToCartelRepository.count(filterLoanToCartelfromItemBarcode(itemId));
+        long nbLoanByCartel = loanByCartelRepository.count(filterLoanByCartelfromItemBarcode(itemId));
+        System.out.println("nbItemCopy : " + String.valueOf(nbItemCopy));
+        System.out.println("nbLoanToCartel : " + String.valueOf(nbLoanToCartel));
+        System.out.println("nbLoanByCartel : " + String.valueOf(nbLoanByCartel));
+        if (nbItemCopy - (nbLoanToCartel + nbLoanByCartel) >= 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkItemReadable(String itemId){
+        long nbLoanToCartel = loanToCartelRepository.count(filterLoanToCartelfromItemBarcode(itemId));
+        if (nbLoanToCartel >= 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
