@@ -632,8 +632,6 @@
 </main>
 
 <style lang="scss">
-  @use "../../../lib/sass/base";
-  
   main {
     flex: auto;
     display: flex;
@@ -760,10 +758,6 @@
     }
   }
 
-  .return-button {
-    @extend .admin-button;
-  }
-
   // Grid Layout
   .books-grid-container {
     width: 100%;
@@ -808,6 +802,20 @@
     align-self: center;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .return-button {
+    background-color: var(--secondary);
+    color: var(--primary);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 0;
+    &:hover {
+      background-color: var(--accent);
+      filter: brightness(0.85);
+    }
   }
 
   .cover-cell {
