@@ -4,8 +4,9 @@
   import { isAuthenticated, logout } from '$lib/auth';
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
-  import { fetchBooks, deleteBook, addBook, getAllAuthors, getAllGenres, getAllPublishers, getAllIllustrators } from '$lib/services/bookService';
+  import { fetchBooks, deleteBook, addBook } from '$lib/services/bookService';
   import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
+  import AddBookPopup from '$lib/components/admin/AddBookPopup.svelte';
 
   // State for books data
   let books = $state([]);
@@ -34,46 +35,7 @@
 
   // Add book form and popup state
   let showAddBookPopup = $state(false);
-  let addingBook = $state(false);
-  let addingError = $state(null);
-  let addingSuccess = $state(false);
   
-  // Data for dropdown selections
-  let availableAuthors = $state([]);
-  let availableIllustrators = $state([]);
-  let availablePublishers = $state([]);
-  let availableGenres = $state([]);
-  
-  // Form fields for new book
-  let newBook = $state({
-    barcode: "",
-    name: "",
-    publicationYear: new Date().getFullYear(),
-    language: "FR",
-    description: "",
-    authors: [{id: null}],
-    publisher: {id: null},
-    illustrator: [{id: null}],
-    format: "LIVRE",
-    genres: [{id: null}],
-    volumeNumber: null
-  });
-  
-  // Language options
-  const languageOptions = [
-    { value: "FR", label: "Français" },
-    { value: "EN", label: "English" },
-    { value: "ES", label: "Español" },
-    { value: "DE", label: "Deutsch" }
-  ];
-  
-  // Format options
-  const formatOptions = [
-    { value: "LIVRE", label: "Livre" },
-    { value: "BD", label: "Bande Dessinée" },
-    { value: "MANGA", label: "Manga" }
-  ];
-
   // Load books with search, sort, and pagination
   async function loadBooks() {
     isLoading = true;
@@ -132,18 +94,6 @@
     loadBooks();
   }
 
-  // Handle book added event
-  function handleBookAdded(event) {
-    // Reload the books list to include the newly added book
-    loadBooks();
-  }
-
-  // Handle modify button click
-  function handleModify(book) {
-    console.log('Modify book:', book);
-    // This would navigate to an edit form in a real implementation
-  }
-
   // Handle delete button click - open confirmation dialog
   function handleDelete(book) {
     bookToDelete = book;
@@ -180,102 +130,13 @@
 
   // Handle opening the add book popup
   function handleAddBook() {
-    // Reset form and any previous errors
-    newBook = {
-      barcode: "",
-      name: "",
-      publicationYear: new Date().getFullYear(),
-      language: "FR",
-      description: "",
-      authors: [{id: null}],
-      publisher: {id: null},
-      illustrator: [{id: null}],
-      format: "LIVRE",
-      genres: [{id: null}],
-      volumeNumber: null
-    };
-    addingError = null;
-    addingSuccess = false;
-    
-    // Load reference data if needed
-    loadReferenceData();
-    
-    // Show the popup
     showAddBookPopup = true;
   }
-  
-  // Load authors, publishers, etc.
-  async function loadReferenceData() {
-    try {
-      [availableAuthors, availablePublishers, availableGenres, availableIllustrators] = await Promise.all([
-        getAllAuthors(),
-        getAllPublishers(),
-        getAllGenres(),
-        getAllIllustrators()
-      ]);
-    } catch (err) {
-      addingError = "Erreur lors du chargement des données de référence: " + err.message;
-    }
-  }
-  
-  // Handle form submission
-  async function submitBookForm() {
-    addingBook = true;
-    addingError = null;
-    addingSuccess = false;
-    
-    try {
-      // Validate required fields
-      if (!newBook.barcode || !newBook.name || !newBook.publisher.id) {
-        throw new Error("Veuillez remplir tous les champs obligatoires");
-      }
-      
-      // Remove empty entries
-      newBook.authors = newBook.authors.filter(a => a.id !== null);
-      newBook.genres = newBook.genres.filter(g => g.id !== null);
-      newBook.illustrator = newBook.illustrator.filter(i => i.id !== null);
-      
-      // If no author is selected, show error
-      if (newBook.authors.length === 0) {
-        throw new Error("Veuillez sélectionner au moins un auteur");
-      }
-      
-      const result = await addBook(newBook);
-      
-      // Show success
-      addingSuccess = true;
-      
-      // Reload the book list after a delay
-      setTimeout(() => {
-        showAddBookPopup = false;
-        loadBooks(); // refresh the book list
-      }, 1500);
-      
-    } catch (err) {
-      addingError = err.message || "Erreur lors de l'ajout du livre";
-    } finally {
-      addingBook = false;
-    }
-  }
-  
-  // Add another author field
-  function addAuthorField() {
-    newBook.authors = [...newBook.authors, {id: null}];
-  }
-  
-  // Add another genre field
-  function addGenreField() {
-    newBook.genres = [...newBook.genres, {id: null}];
-  }
-  
-  // Add another illustrator field
-  function addIllustratorField() {
-    newBook.illustrator = [...newBook.illustrator, {id: null}];
-  }
-  
-  // Remove a field from an array
-  function removeField(array, index) {
-    return array.filter((_, i) => i !== index);
+
+  // Handle book added event
+  function handleBookAdded(event) {
+    showAddBookPopup = false;
+    loadBooks();
   }
 
   // Initialize component
@@ -442,193 +303,8 @@
     on:cancel={cancelDelete}
   />
 
-  <!-- Add book popup -->
-  {#if showAddBookPopup}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="popup-backdrop" onclick={() => showAddBookPopup = false}>
-      <div class="popup-content" onclick = {(e) => e.stopPropagation()}>
-        <h3>Ajouter un nouveau livre</h3>
-        
-        {#if addingSuccess}
-          <div class="success-message">
-            Livre ajouté avec succès!
-          </div>
-        {:else}
-          <form class="add-book-form" onsubmit = {(e) => {e.preventDefault();submitBookForm()}}>
-            <!-- Basic Information -->
-            <div class="form-section">
-              <h4>Informations générales</h4>
-              
-              <div class="form-row">
-                <label>
-                  ISBN/Code-barres*:
-                  <input type="text" bind:value={newBook.barcode} required />
-                </label>
-                
-                <label>
-                  Format:
-                  <select bind:value={newBook.format}>
-                    {#each formatOptions as option}
-                      <option value={option.value}>{option.label}</option>
-                    {/each}
-                  </select>
-                </label>
-              </div>
-              
-              <div class="form-row">
-                <label class="full-width">
-                  Titre*:
-                  <input type="text" bind:value={newBook.name} required />
-                </label>
-              </div>
-              
-              <div class="form-row">
-                <label>
-                  Année de publication:
-                  <input type="number" bind:value={newBook.publicationYear} min="1000" max="2100" />
-                </label>
-                
-                <label>
-                  Langue:
-                  <select bind:value={newBook.language}>
-                    {#each languageOptions as option}
-                      <option value={option.value}>{option.label}</option>
-                    {/each}
-                  </select>
-                </label>
-              </div>
-              
-              <div class="form-row">
-                <label>
-                  Numéro de volume:
-                  <input type="number" bind:value={newBook.volumeNumber} min="1" />
-                </label>
-              </div>
-            </div>
-            
-            <!-- Authors -->
-            <div class="form-section">
-              <h4>Auteur(s)*</h4>
-              
-              {#each newBook.authors as author, index}
-                <div class="form-row array-row">
-                  <select bind:value={author.id}>
-                    <option value={null}>Sélectionner un auteur</option>
-                    {#each availableAuthors as availableAuthor}
-                      <option value={availableAuthor.id}>
-                        {availableAuthor.firstname} {availableAuthor.surname}
-                      </option>
-                    {/each}
-                  </select>
-                  
-                  {#if newBook.authors.length > 1}
-                    <button type="button" class="remove-btn" onclick={() => newBook.authors = removeField(newBook.authors, index)}>
-                      ✕
-                    </button>
-                  {/if}
-                </div>
-              {/each}
-              
-              <button type="button" class="add-btn" onclick={addAuthorField}>
-                + Ajouter un auteur
-              </button>
-            </div>
-            
-            <!-- Publishers -->
-            <div class="form-section">
-              <h4>Éditeur*</h4>
-              
-              <div class="form-row">
-                <select bind:value={newBook.publisher.id} required>
-                  <option value={null}>Sélectionner un éditeur</option>
-                  {#each availablePublishers as publisher}
-                    <option value={publisher.id}>{publisher.name}</option>
-                  {/each}
-                </select>
-              </div>
-            </div>
-            
-            <!-- Illustrators -->
-            <div class="form-section">
-              <h4>Illustrateur(s)</h4>
-              
-              {#each newBook.illustrator as illustrator, index}
-                <div class="form-row array-row">
-                  <select bind:value={illustrator.id}>
-                    <option value={null}>Sélectionner un illustrateur</option>
-                    {#each availableIllustrators as availableIllustrator}
-                      <option value={availableIllustrator.id}>
-                        {availableIllustrator.firstname} {availableIllustrator.surname}
-                      </option>
-                    {/each}
-                  </select>
-                  
-                  {#if newBook.illustrator.length > 1}
-                    <button type="button" class="remove-btn" onclick={() => newBook.illustrator = removeField(newBook.illustrator, index)}>
-                      ✕
-                    </button>
-                  {/if}
-                </div>
-              {/each}
-              
-              <button type="button" class="add-btn" onclick={addIllustratorField}>
-                + Ajouter un illustrateur
-              </button>
-            </div>
-            
-            <!-- Genres -->
-            <div class="form-section">
-              <h4>Genre(s)</h4>
-              
-              {#each newBook.genres as genre, index}
-                <div class="form-row array-row">
-                  <select bind:value={genre.id}>
-                    <option value={null}>Sélectionner un genre</option>
-                    {#each availableGenres as availableGenre}
-                      <option value={availableGenre.id}>{availableGenre.name}</option>
-                    {/each}
-                  </select>
-                  
-                  {#if newBook.genres.length > 1}
-                    <button type="button" class="remove-btn" onclick={() => newBook.genres = removeField(newBook.genres, index)}>
-                      ✕
-                    </button>
-                  {/if}
-                </div>
-              {/each}
-              
-              <button type="button" class="add-btn" onclick={addGenreField}>
-                + Ajouter un genre
-              </button>
-            </div>
-            
-            <!-- Description -->
-            <div class="form-section">
-              <h4>Description</h4>
-              
-              <div class="form-row">
-                <textarea bind:value={newBook.description} rows="3"></textarea>
-              </div>
-            </div>
-            
-            {#if addingError}
-              <div class="error-message">{addingError}</div>
-            {/if}
-            
-            <div class="form-actions">
-              <button type="submit" class="submit-btn" disabled={addingBook}>
-                {addingBook ? 'Ajout en cours...' : 'Ajouter le livre'}
-              </button>
-              <button type="button" class="cancel-btn" onclick={() => showAddBookPopup = false}>
-                Annuler
-              </button>
-            </div>
-          </form>
-        {/if}
-      </div>
-    </div>
-  {/if}
+  <!-- Add book popup (now as a component) -->
+  <AddBookPopup show={showAddBookPopup} on:close={() => showAddBookPopup = false} on:added={handleBookAdded} />
 </main>
 
 <style lang="scss">

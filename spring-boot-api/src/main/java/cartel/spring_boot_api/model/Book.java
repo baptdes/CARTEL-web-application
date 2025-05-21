@@ -22,12 +22,10 @@ public class Book extends Item{
     public enum BookFormat {MANGA,BD,LIVRE};
 
     // Book author
-    @Column(nullable = false)
     @ManyToMany
     private Collection<AuthorBook> authors;
 
     // Book publisher
-    @JoinColumn(nullable = false)
     @ManyToOne
     private PublisherBook publisher;
 
