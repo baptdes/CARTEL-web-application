@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors } from '$lib/services/bookService';
-  import SelectionField from './SelectionField.svelte';
+  import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors, addIllustrator, getAllIllustrators } from '$lib/services/bookService';
+  import PeopleSelector from './PeopleSelector.svelte';
 
   let { show = $bindable(false) } = $props();
 
@@ -13,6 +13,7 @@
 
   let availableGenres = $state([]);
   let availableAuthors = $state([]);
+  let availableIllustrators = $state([]);
 
   let newBook = $state({
     barcode: "",
@@ -23,6 +24,7 @@
     format: "LIVRE",
     genres: [{id: null}], // Initial genre structure
     authors: [],
+    illustrator: [],
     volumeNumber: null
   });
 
@@ -48,19 +50,21 @@
 
   async function loadReferenceData() {
     try {
-      const [genres, authors] = await Promise.all([
+      const [genres, authors, illustrators] = await Promise.all([
         getAllGenres(),
-        getAllAuthors()
+        getAllAuthors(),
+        getAllIllustrators()
       ]);
       availableGenres = genres;
       availableAuthors = authors;
+      availableIllustrators = illustrators;
     } catch (err) {
       addingError = "Erreur lors du chargement des données de référence: " + err.message;
     }
   }
 
   function resetForm() {
-    newBook = { // Re-assigning the $state variable
+    newBook = {
       barcode: "",
       name: "",
       publicationYear: new Date().getFullYear(),
@@ -69,6 +73,7 @@
       format: "LIVRE",
       genres: [{id: null}],
       authors: [],
+      illustrator: [],
       volumeNumber: null
     };
     addingError = null;
@@ -85,7 +90,7 @@
         throw new Error("Veuillez remplir tous les champs obligatoires");
       }
 
-      console.log("Submitting book form with data:", newBook);
+      $state.snapshot(newBook)
       await addBook(newBook); // Pass the current value of the $state object
 
       addingSuccess = true;
@@ -93,7 +98,7 @@
       setTimeout(() => {
         dispatch('added');
         closePopup();
-      }, 1500);
+      }, 500);
 
     } catch (err) {
       addingError = err.message || "Erreur lors de l'ajout du livre";
@@ -122,6 +127,22 @@
     }
   }
 
+  // Add new illustrator
+  async function handleAddNewIllustrator(illustratorData) {
+    if (!illustratorData.field1?.trim() || !illustratorData.field2?.trim()) {
+      throw new Error("Le prénom et le nom de l'illustrateur sont requis.");
+    }
+    try {
+      const newIllustratorPayload = { firstname: illustratorData.field1.trim(), surname: illustratorData.field2.trim() };
+      const addedIllustrator = await addIllustrator(newIllustratorPayload);
+      availableIllustrators = [...availableIllustrators, addedIllustrator];
+      return addedIllustrator;
+    } catch (err) {
+      console.error("Erreur lors de l'ajout de l'illustrateur:", err);
+      throw new Error("Erreur serveur lors de l'ajout de l'illustrateur: " + (err.message || err));
+    }
+  }
+
   /**
    * Function to search authors for SelectionField
    * @param {string} query
@@ -135,6 +156,22 @@
     const lowerCaseQuery = query.toLowerCase();
     return availableAuthors.filter(author => {
       const fullName = `${author.firstname} ${author.surname}`.toLowerCase();
+      return fullName.includes(lowerCaseQuery);
+    });
+  }
+
+  /**
+   * Function to search illustrators for SelectionField
+   * @param {string} query
+   * @returns {Promise<Array<{id: any, firstname: string, surname: string}>>}
+   */
+  async function searchIllustratorsLocal(query) {
+    if (!query) {
+      return availableIllustrators;
+    }
+    const lowerCaseQuery = query.toLowerCase();
+    return availableIllustrators.filter(illustrator => {
+      const fullName = `${illustrator.firstname} ${illustrator.surname}`.toLowerCase();
       return fullName.includes(lowerCaseQuery);
     });
   }
@@ -225,21 +262,29 @@
               </label>
             </div>
             <div class="form-row">
+                <label>
+                    Auteurs
+                    <PeopleSelector
+                      bind:selectedPeople={newBook.authors}
+                      placeholder="Sélectionner un/des auteurs"
+                      addObject={handleAddNewAuthor}
+                      searchObjects={searchAuthorsLocal}/>
+                </label>
+                <label>
+                    Illustrateurs
+                    <PeopleSelector
+                      bind:selectedPeople={newBook.illustrator}
+                      placeholder="Sélectionnez un/des illustrateurs"
+                      addObject={handleAddNewIllustrator}
+                      searchObjects={searchIllustratorsLocal}/>
+                </label>
+            </div>
+            <div class="form-row">
                 <label class="full-width">
                     Description:
                     <textarea bind:value={newBook.description} rows="4"></textarea>
                 </label>
             </div>
-          </div>
-          <!-- Auteurs -->
-          <div class="form-section">
-            <SelectionField
-              label="Sélectionner un auteur"
-              field1Label="Prénom"
-              field2Label="Nom"
-              bind:selectedObject={newBook.authors}
-              addObject={handleAddNewAuthor}
-              searchObjects={searchAuthorsLocal}></SelectionField>
           </div>
           <!-- Genres -->
           <div class="form-section">

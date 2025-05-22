@@ -284,3 +284,28 @@ export async function addAuthor(author) {
     throw error;
   }
 }
+
+/** Add a new Illustrators
+ * @param {Object} illustrator - { firstname, surname }
+ * @returns {Promise<Object>} The added illustrator object
+ */
+export async function addIllustrator(illustrator) {
+  try {
+    const { surname, firstname } = illustrator;
+    const params = new URLSearchParams({ surname, firstname });
+    const response = await fetch(`/api/public/books/illustrators?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error(`Error adding illustrator. Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding illustrator:', error);
+    throw error;
+  }
+}
