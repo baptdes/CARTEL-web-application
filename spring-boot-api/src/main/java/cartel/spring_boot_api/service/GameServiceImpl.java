@@ -30,7 +30,7 @@ public class GameServiceImpl implements GameService {
     private GameRepository gameRepository;
     
     @Autowired
-    private AuthorGameRepository creatorRepository;
+    private AuthorGameRepository authorGameRepository;
     
     @Autowired
     private PublisherGameRepository publisherGameRepository;
@@ -51,6 +51,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    public List<PublisherGame> getPublishersByName(String nameLike){
+        return publisherGameRepository.findByNameContainingIgnoreCase(nameLike);
+    }
+
+    @Override
     public List<Game> filterGames(int pageNumber, int pageSize, boolean asc, String sortBy,
                                 String titleGame, String publisherName,
                                 String creatorFirstName, String creatorSurname,
@@ -60,7 +65,7 @@ public class GameServiceImpl implements GameService {
         Pageable page = asc ? 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) : 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
-                
+
         Specification<Game> filters = ((titleGame == null) ? titleLike("") : titleLike(titleGame))
                 .and((publisherName == null) ? null : fromPublisherByName(publisherName))
                 .and((creatorSurname == null) ? null : fromCreatorBySurname(creatorSurname))
@@ -69,24 +74,19 @@ public class GameServiceImpl implements GameService {
                 .and((maxPlayers == null) ? null : maxPlayersLessThanEqual(maxPlayers))
                 .and(playtimeBetween(minPlaytime, maxPlaytime))
                 .and((category == null) ? null : categoryEqual(category));
-                
+
         Page<Game> pageGame = gameRepository.findAll(filters, page);
         return pageGame.getContent();
     }
 
     @Override
-    public List<Map<String, String>> getAllCreators() {
-        List<AuthorGame> creators = creatorRepository.findAll();
-        List<Map<String, String>> creatorList = new ArrayList<>();
-        
-        for (AuthorGame creator : creators) {
-            Map<String, String> creatorMap = new HashMap<>();
-            creatorMap.put("firstname", creator.getFirstname());
-            creatorMap.put("surname", creator.getSurname());
-            creatorList.add(creatorMap);
-        }
-        
-        return creatorList;
+    public List<AuthorGame> getAllCreators() {
+        return authorGameRepository.findAll();
+    }
+
+    @Override
+    public List<AuthorGame> getAuthorsByCompleteName(String nameLike){
+        return authorGameRepository.findAll(authorsGameByCompleteName(nameLike));
     }
 
     @Override
@@ -97,33 +97,5 @@ public class GameServiceImpl implements GameService {
         }
         return categories;
     }
-    
-    @Override
-    public AuthorGame findOrCreateCreator(String firstname, String surname) {
-        List<AuthorGame> creator = creatorRepository.findByFirstnameAndSurnameIgnoreCase(firstname, surname);
-        if (creator.isEmpty()) {
-            AuthorGame newCreator = new AuthorGame(surname, firstname); 
-            return creatorRepository.save(newCreator);
-        } else {
-            if (creator.size() == 1) {
-                return creator.get(0);
-            } else {
-                throw new RuntimeException("Error: Found multiple creators with same name");
-            }
-        }
-    }
 
-    public PublisherGame findOrCreatePublisher(String name) {
-        List<PublisherGame> publisher = publisherGameRepository.findByNameIgnoreCase(name);
-        if (publisher.isEmpty()) {
-            PublisherGame newPublisher = new PublisherGame(name);
-            return publisherGameRepository.save(newPublisher);
-        } else {
-            if (publisher.size() == 1) {
-                return publisher.get(0);
-            } else {
-                throw new RuntimeException("Error: Found multiple publishers with same name");
-            }
-        }
-    }
 }

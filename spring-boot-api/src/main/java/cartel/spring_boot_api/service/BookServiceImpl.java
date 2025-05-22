@@ -78,24 +78,26 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<Book> filterBooks(int pageNumber, int pageSize, boolean asc, String sortBy,
-                                 String titleBook, String publisherName,
-                                 String authorFirstName, String authorSurname,
-                                 String illustratorFirstName, String illustratorSurname,
-                                 BookFormat category, String serieName, String genreName) {
+                          String authorFirstName, String authorSurname,String authorFullName,
+                          String illustratorFirstName, String illustratorSurname, String illustratorFullName,
+                          String titleBook, String publisherName, BookFormat category, String serieName, String genreName) {
+
         Pageable page = asc ? 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) : 
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
-                
+
         Specification<Book> filters = ((titleBook == null) ? titleLike("") : titleLike(titleBook))
                 .and((serieName == null) ? null : fromSerieByName(serieName))
                 .and((category == null) ? null : categoryEqual(category))
                 .and((publisherName == null) ? null : fromPublisherByName(publisherName))
                 .and((authorSurname == null) ? null : fromAuthorBySurname(authorSurname))
                 .and((authorFirstName == null) ? null : fromAuthorByFirstName(authorFirstName))
+                .and((authorFullName == null) ? null : fromAuthorByCompleteName(authorFullName))
                 .and((illustratorSurname == null) ? null : fromIllustratorBySurname(illustratorSurname))
                 .and((illustratorFirstName == null) ? null : fromIllustratorByFirstName(illustratorFirstName))
+                .and((illustratorFullName == null) ? null : fromIllustratorByCompleteName(illustratorFullName))
                 .and((genreName == null) ? null : fromGenreByName(genreName));
-                
+//fromIllustratorByCompleteName
         Page<Book> pageBook = bookRepository.findAll(filters, page);
         return pageBook.getContent();
     }
@@ -103,6 +105,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<AuthorBook> getAllAuthors() {
         return authorBookRepository.findAll();
+    }
+
+    @Override
+    public List<AuthorBook> getAuthorsByName(String nameLike){
+        return authorBookRepository.findAll(authorsByCompleteName(nameLike));
     }
 
     @Override
@@ -136,6 +143,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<PublisherBook> getPublishersByName(String nameLike){
+        return publisherBookRepository.findByNameContainingIgnoreCase(nameLike);
+    }
+
+    @Override
     public PublisherBook addPublisher(String name) {
         List<PublisherBook> existingPublishers = publisherBookRepository.findByNameIgnoreCase(name);
         if (!existingPublishers.isEmpty()) {
@@ -148,6 +160,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Illustrator> getAllIllustrators() {
         return illustratorRepository.findAll();
+    }
+
+    @Override
+    public List<Illustrator> getIllustratorsByName(String nameLike){
+        return illustratorRepository.findAll(illustratorsByCompleteName(nameLike));
     }
 
     @Override

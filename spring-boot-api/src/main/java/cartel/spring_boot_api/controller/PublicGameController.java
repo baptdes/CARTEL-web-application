@@ -1,6 +1,7 @@
 package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.Game;
+import cartel.spring_boot_api.model.AuthorGame;
 import cartel.spring_boot_api.model.Game.GameCategories;
 import cartel.spring_boot_api.service.GameService;
 
@@ -47,8 +48,8 @@ public class PublicGameController {
     }
 
     @GetMapping("/creators")
-    public ResponseEntity<List<Map<String, String>>> getAllCreators() {
-        return ResponseEntity.ok(gameService.getAllCreators());
+    public List<AuthorGame> getAllCreators() {
+        return gameService.getAllCreators();
     }
 
     @GetMapping("/categories")
