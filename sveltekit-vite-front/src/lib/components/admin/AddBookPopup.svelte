@@ -1,29 +1,30 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors } from '$lib/services/bookService';
+  import SelectionField from './SelectionField.svelte';
 
-  export let show = false;
+  let { show = $bindable(false) } = $props();
 
   const dispatch = createEventDispatcher();
 
-  let addingBook = false;
-  let addingError = null;
-  let addingSuccess = false;
+  let addingBook = $state(false);
+  let addingError = $state(null);
+  let addingSuccess = $state(false);
 
-  let availableGenres = [];
-  let availableAuthors = [];
+  let availableGenres = $state([]);
+  let availableAuthors = $state([]);
 
-  let newBook = {
+  let newBook = $state({
     barcode: "",
     name: "",
     publicationYear: new Date().getFullYear(),
     language: "FR",
     description: "",
     format: "LIVRE",
-    genres: [{id: null}],
+    genres: [{id: null}], // Initial genre structure
     authors: [],
     volumeNumber: null
-  };
+  });
 
   const languageOptions = [
     { value: "FR", label: "Français" },
@@ -37,38 +38,29 @@
     { value: "MANGA", label: "Manga" }
   ];
 
-  let authorInput = '';
-  let authorSuggestions = [];
-  let showAddAuthorPrompt = false;
-  let authorToAdd = { firstname: '', surname: '' };
-  let authorAddFirstname = '';
-  let authorAddSurname = '';
-  let addAuthorError = '';
-
-  // Ajout pour navigation clavier dans la liste déroulante
-  let authorSuggestionsOpen = false;
-  let authorSuggestionsIndex = -1;
-  let authorInputRef;
-
-  // Load reference data when popup opens
-  $: if (show) {
-    loadReferenceData();
-    resetForm();
-  }
+  // Load reference data and reset form when popup opens
+  $effect(() => {
+    if (show) {
+      loadReferenceData();
+      resetForm();
+    }
+  });
 
   async function loadReferenceData() {
     try {
-      [availableGenres, availableAuthors] = await Promise.all([
+      const [genres, authors] = await Promise.all([
         getAllGenres(),
         getAllAuthors()
       ]);
+      availableGenres = genres;
+      availableAuthors = authors;
     } catch (err) {
       addingError = "Erreur lors du chargement des données de référence: " + err.message;
     }
   }
 
   function resetForm() {
-    newBook = {
+    newBook = { // Re-assigning the $state variable
       barcode: "",
       name: "",
       publicationYear: new Date().getFullYear(),
@@ -79,12 +71,6 @@
       authors: [],
       volumeNumber: null
     };
-    authorInput = '';
-    authorSuggestions = [];
-    showAddAuthorPrompt = false;
-    authorToAdd = { firstname: '', surname: '' };
-    authorAddFirstname = '';
-    authorAddSurname = '';
     addingError = null;
     addingSuccess = false;
   }
@@ -98,14 +84,15 @@
       if (!newBook.barcode || !newBook.name) {
         throw new Error("Veuillez remplir tous les champs obligatoires");
       }
-      newBook.genres = newBook.genres.filter(g => g.id !== null);
 
-      await addBook(newBook);
+      console.log("Submitting book form with data:", newBook);
+      await addBook(newBook); // Pass the current value of the $state object
 
       addingSuccess = true;
 
       setTimeout(() => {
         dispatch('added');
+        closePopup();
       }, 1500);
 
     } catch (err) {
@@ -115,125 +102,76 @@
     }
   }
 
-  // Gestion de la saisie d'auteur
-  $: if (authorInput && availableAuthors.length > 0) {
-    const input = authorInput.trim().toLowerCase();
-    authorSuggestions = availableAuthors.filter(a =>
-      (`${a.firstname} ${a.surname}`.toLowerCase().includes(input))
-      && !newBook.authors.some(sel => sel.id === a.id)
-    );
-    showAddAuthorPrompt = authorSuggestions.length === 0 && input.length > 0;
-    if (showAddAuthorPrompt) {
-      // Découper prénom/nom
-      const [firstname, ...surnameArr] = authorInput.trim().split(' ');
-      authorToAdd = { firstname, surname: surnameArr.join(' ') };
-    }
-    authorSuggestionsOpen = authorSuggestions.length > 0;
-    authorSuggestionsIndex = authorSuggestions.length > 0 ? 0 : -1;
-  } else {
-    authorSuggestions = [];
-    showAddAuthorPrompt = false;
-    authorSuggestionsOpen = false;
-    authorSuggestionsIndex = -1;
-  }
-
-  function selectAuthor(author) {
-    newBook.authors = [...newBook.authors, author];
-    authorInput = '';
-    authorSuggestions = [];
-    showAddAuthorPrompt = false;
-    authorSuggestionsOpen = false;
-    authorSuggestionsIndex = -1;
-  }
-
-  // Ajout ou correction de la fonction removeAuthor
-  function removeAuthor(authorId) {
-    newBook.authors = newBook.authors.filter(a => a.id !== authorId);
-  }
-
-  // Gestion clavier pour la liste déroulante d'auteurs
-  function onAuthorInputKeydown(e) {
-    if (!authorSuggestionsOpen || authorSuggestions.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      authorSuggestionsIndex = (authorSuggestionsIndex + 1) % authorSuggestions.length;
-      scrollToSuggestion();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      authorSuggestionsIndex = (authorSuggestionsIndex - 1 + authorSuggestions.length) % authorSuggestions.length;
-      scrollToSuggestion();
-    } else if (e.key === 'Enter') {
-      if (authorSuggestionsIndex >= 0 && authorSuggestionsIndex < authorSuggestions.length) {
-        e.preventDefault();
-        selectAuthor(authorSuggestions[authorSuggestionsIndex]);
-      }
-    } else if (e.key === 'Escape') {
-      authorSuggestionsOpen = false;
-    }
-  }
-
-  // Pour garder l'élément sélectionné visible
-  function scrollToSuggestion() {
-    setTimeout(() => {
-      const el = document.getElementById(`author-suggestion-${authorSuggestionsIndex}`);
-      if (el) el.scrollIntoView({ block: 'nearest' });
-    }, 0);
-  }
-
-  // Fermer la liste si on clique ailleurs
-  function onAuthorInputBlur(e) {
-    setTimeout(() => {
-      authorSuggestionsOpen = false;
-    }, 120);
-  }
-
-  // Ajout d'un nouvel auteur (fonction fictive, à créer côté service si besoin)
-  async function addNewAuthor() {
-    if (!authorAddFirstname.trim() || !authorAddSurname.trim()) {
-      addAuthorError = "Veuillez saisir un prénom et un nom pour l'auteur.";
-      return;
+  // This function is passed to SelectionField as 'addObject'
+  // It should expect an object with field1 and field2 (e.g., firstname, surname)
+  async function handleAddNewAuthor(authorData) {
+    // authorData is { field1: string, field2: string } from SelectionField
+    if (!authorData.field1?.trim() || !authorData.field2?.trim()) {
+        // This error should ideally be caught and displayed by SelectionField
+        throw new Error("Le prénom et le nom de l'auteur sont requis.");
     }
     try {
-      addAuthorError = '';
-      const res = await addAuthor({ firstname: authorAddFirstname.trim(), surname: authorAddSurname.trim() });
-      availableAuthors = [...availableAuthors, res];
-      selectAuthor(res);
-      authorAddFirstname = '';
-      authorAddSurname = '';
+      const newAuthorPayload = { firstname: authorData.field1.trim(), surname: authorData.field2.trim() };
+      const addedAuthor = await addAuthor(newAuthorPayload); // Call your actual service
+      availableAuthors = [...availableAuthors, addedAuthor]; // Update local list for search
+      return addedAuthor; // Return the new author object for SelectionField
     } catch (err) {
-      addAuthorError = "Erreur lors de l'ajout de l'auteur : " + (err.message || err);
+      console.error("Erreur lors de l'ajout de l'auteur:", err);
+      // Re-throw the error so SelectionField can display it
+      throw new Error("Erreur serveur lors de l'ajout de l'auteur: " + (err.message || err));
     }
   }
 
-  // Helper: retourne true si le genre est sélectionné
+  /**
+   * Function to search authors for SelectionField
+   * @param {string} query
+   * @returns {Promise<Array<{id: any, firstname: string, surname: string}>>}
+   */
+  async function searchAuthorsLocal(query){
+    // searchObjects in SelectionField expects a promise
+    if (!query) {
+      return availableAuthors; // Return all available if query is empty
+    }
+    const lowerCaseQuery = query.toLowerCase();
+    return availableAuthors.filter(author => {
+      const fullName = `${author.firstname} ${author.surname}`.toLowerCase();
+      return fullName.includes(lowerCaseQuery);
+    });
+  }
+
+  // Helper: returns true if the genre is selected
   function isGenreSelected(genreId) {
     return newBook.genres.some(g => g.id === genreId);
   }
 
-  // Ajoute ou retire un genre de la sélection
+  // Adds or removes a genre from the selection
   function toggleGenre(genreId) {
-    if (isGenreSelected(genreId)) {
+    const genreExists = isGenreSelected(genreId);
+    if (genreExists) {
       newBook.genres = newBook.genres.filter(g => g.id !== genreId);
     } else {
-      newBook.genres = [...newBook.genres, { id: genreId }];
+      // Add the new genre, removing the placeholder if it's the first real genre
+      const currentGenres = newBook.genres.filter(g => g.id !== null && g.id !== undefined);
+      newBook.genres = [...currentGenres, { id: genreId }];
     }
   }
 
-  // Handler pour l'ajout d'un nouveau genre
-  async function addNewGenre() {
+  // Handler for adding a new genre via prompt
+  async function addNewGenreToList() {
     const name = prompt("Nom du nouveau genre :");
-    if (!name) return;
+    if (!name || !name.trim()) return;
     try {
-      const genre = await addGenre(name);
-      console.log("Nouveau genre ajouté:", genre);
-      availableGenres = [...availableGenres, genre];
+      const newGenre = await addGenre(name.trim()); // Call your actual service
+      availableGenres = [...availableGenres, newGenre];
+      // Optionally auto-select the newly added genre
+      // toggleGenre(newGenre.id); 
     } catch (err) {
       alert("Erreur lors de l'ajout du genre : " + (err.message || err));
     }
   }
 
   function closePopup() {
+    show = false; // This will trigger the $bindable update
     dispatch('close');
   }
 </script>
@@ -275,7 +213,7 @@
             <div class="form-row">
               <label>
                 Année de publication:
-                <input type="number" bind:value={newBook.publicationYear} min="1000" max="2100" />
+                <input type="number" bind:value={newBook.publicationYear} min="1000" max={new Date().getFullYear()} />
               </label>
               <label>
                 Langue:
@@ -295,88 +233,19 @@
           </div>
           <!-- Auteurs -->
           <div class="form-section">
-            <h4>Auteur(s)</h4>
-            <div class="author-row">
-              <div class="author-search">
-                <input
-                  type="text"
-                  placeholder="Rechercher un auteur (Prénom Nom)"
-                  bind:value={authorInput}
-                  autocomplete="off"
-                  bind:this={authorInputRef}
-                  onkeydown={onAuthorInputKeydown}
-                  onblur={onAuthorInputBlur}
-                  aria-autocomplete="list"
-                  aria-controls="author-suggestions-list"
-                  aria-activedescendant={authorSuggestionsOpen && authorSuggestionsIndex >= 0 ? `author-suggestion-${authorSuggestionsIndex}` : undefined}
-                />
-                {#if authorSuggestionsOpen && authorSuggestions.length > 0}
-                  <ul class="author-suggestions" id="author-suggestions-list" role="listbox">
-                    {#each authorSuggestions as author, i}
-                      <li
-                        id={"author-suggestion-" + i}
-                        class:selected={i === authorSuggestionsIndex}
-                        role="option"
-                        aria-selected={i === authorSuggestionsIndex}
-                      >
-                        <button
-                          type="button"
-                          tabindex="-1"
-                          class:selected={i === authorSuggestionsIndex}
-                          onmousedown = {(e) => {e.preventDefault(); selectAuthor(author)}}
-                        >
-                          {author.firstname} {author.surname}
-                        </button>
-                      </li>
-                    {/each}
-                  </ul>
-                {/if}
-              </div>
-              <div class="add-author-inline">
-                <input
-                  type="text"
-                  placeholder="Prénom"
-                  bind:value={authorAddFirstname}
-                  class="author-inline-input"
-                />
-                <input
-                  type="text"
-                  placeholder="Nom"
-                  bind:value={authorAddSurname}
-                  class="author-inline-input"
-                />
-                <button
-                  type="button"
-                  class="add-author-btn"
-                  title="Ajouter l'auteur"
-                  onclick={addNewAuthor}
-                >+</button>
-              </div>
-            </div>
-            {#if addAuthorError}
-              <div class="add-author-error">{addAuthorError}</div>
-            {/if}
-            {#if showAddAuthorPrompt && authorInput.trim().length > 0}
-              <div class="add-author-prompt">
-                Aucun auteur trouvé pour "{authorInput}".
-              </div>
-            {/if}
-            {#if newBook.authors.length > 0}
-              <div class="selected-authors">
-                {#each newBook.authors as author (author.id)}
-                  <span class="author-chip">
-                    {author.firstname} {author.surname}
-                    <button type="button" class="remove-author" onclick={() => removeAuthor(author.id)}>&times;</button>
-                  </span>
-                {/each}
-              </div>
-            {/if}
+            <SelectionField
+              label="Sélectionner un auteur"
+              field1Label="Prénom"
+              field2Label="Nom"
+              bind:selectedObject={newBook.authors}
+              addObject={handleAddNewAuthor}
+              searchObjects={searchAuthorsLocal}></SelectionField>
           </div>
           <!-- Genres -->
           <div class="form-section">
             <h4>Genre(s)</h4>
             <div class="genre-chips">
-              {#each availableGenres as availableGenre}
+              {#each availableGenres as availableGenre (availableGenre.id)}
                 <button
                   type="button"
                   class="genre-chip"
@@ -390,7 +259,7 @@
               <button
                 type="button"
                 class="genre-chip add-genre-chip"
-                onclick={addNewGenre}
+                onclick={addNewGenreToList}
                 aria-label="Ajouter un genre"
               >
                 + Ajouter un genre
@@ -581,121 +450,5 @@
       filter: none;
       box-shadow: none;
     }
-  }
-  .author-suggestions {
-    list-style: none;
-    margin: 0.3rem 0 0 0;
-    padding: 0;
-    background: var(--tertiary);
-    border: 1px solid var(--secondary);
-    border-radius: 4px;
-    max-height: 120px;
-    overflow-y: auto;
-    li {
-      margin: 0;
-      &.selected, button.selected {
-        background: var(--secondary);
-        color: var(--accent);
-      }
-      button {
-        background: none;
-        border: none;
-        width: 100%;
-        text-align: left;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        color: var(--primary);
-        &:hover {
-          background: var(--secondary);
-        }
-      }
-    }
-  }
-  .add-author-prompt {
-    margin-top: 0.4rem;
-    color: var(--primary);
-    font-size: 0.95rem;
-    button {
-      margin-left: 0.7rem;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 3px;
-      padding: 0.2rem 0.7rem;
-      cursor: pointer;
-      font-size: 0.95rem;
-      &:hover {
-        filter: brightness(0.9);
-      }
-    }
-  }
-  .selected-authors {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    .author-chip {
-      background: var(--secondary);
-      color: var(--primary);
-      border-radius: 12px;
-      padding: 0.2rem 0.8rem;
-      display: flex;
-      align-items: center;
-      font-size: 0.97rem;
-      .remove-author {
-        background: none;
-        border: none;
-        color: var(--accent);
-        font-size: 1.1rem;
-        margin-left: 0.5rem;
-        cursor: pointer;
-        &:hover {
-          color: #b71c1c;
-        }
-      }
-    }
-  }
-  .author-row {
-    display: flex;
-    gap: 1.2rem;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
-    .author-search {
-      flex: 2;
-      position: relative;
-    }
-    .add-author-inline {
-      flex: 1.2;
-      display: flex;
-      gap: 0.3rem;
-      align-items: flex-start;
-      .author-inline-input {
-        padding: 0.4rem 0.7rem;
-        border-radius: 4px;
-        border: 1px solid var(--secondary);
-        background: var(--tertiary);
-        color: var(--primary);
-        font-size: 0.97rem;
-        width: 6.5rem;
-      }
-      .add-author-btn {
-        background: var(--accent);
-        color: white;
-        border: none;
-        border-radius: 3px;
-        padding: 0.4rem 0.9rem;
-        font-size: 1.2rem;
-        cursor: pointer;
-        font-weight: bold;
-        &:hover {
-          filter: brightness(0.9);
-        }
-      }
-    }
-  }
-  .add-author-error {
-    color: var(--accent);
-    font-size: 0.97rem;
-    margin-bottom: 0.3rem;
   }
 </style>
