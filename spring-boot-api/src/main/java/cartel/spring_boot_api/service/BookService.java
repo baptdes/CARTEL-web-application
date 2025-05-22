@@ -48,10 +48,9 @@ public interface BookService {
      * @return List of books matching the criteria
      */
     List<Book> filterBooks(int pageNumber, int pageSize, boolean asc, String sortBy,
-                          String titleBook, String publisherName,
-                          String authorFirstName, String authorSurname,
-                          String illustratorFirstName, String illustratorSurname,
-                          BookFormat category, String serieName, String genreName);
+                          String authorFirstName, String authorSurname,String authorFullName,
+                          String illustratorFirstName, String illustratorSurname, String illustratorFullName,
+                          String titleBook, String publisherName, BookFormat category, String serieName, String genreName);
     
     /**
      * Imports book information from an external API using ISBN
@@ -68,6 +67,14 @@ public interface BookService {
      * @return List of all authors
      */
     List<AuthorBook> getAllAuthors();
+
+    /**
+     * Returns all available authors with a name compatible with a query
+     *
+     * @param nameLike the string to search in the authors name.
+     * @return List of all authors matching the query
+     */
+    List<AuthorBook> getAuthorsByName(String nameLike);
 
     /**
      * Add a new author
@@ -101,6 +108,14 @@ public interface BookService {
     List<PublisherBook> getAllPublishers();
 
     /**
+     * Returns all available publisher with a name compatible with a query
+     *
+     * @param nameLike the string to search in the publisher name.
+     * @return List of all publisher matching the query
+     */
+    List<PublisherBook> getPublishersByName(String nameLike);
+
+    /**
      * Add a new publisher
      * @param name The publisher name
      * @return The added PublisherBook entity
@@ -114,6 +129,14 @@ public interface BookService {
      * @return List of all illustrator
      */
     List<Illustrator> getAllIllustrators();
+
+    /**
+     * Returns all available illustrator with a name compatible with a query
+     *
+     * @param nameLike the string to search in the illustrator name.
+     * @return List of all illustrator compatible with the query
+     */
+    List<Illustrator> getIllustratorsByName(String nameLike);
 
     /**
      * Add a new illustrator
