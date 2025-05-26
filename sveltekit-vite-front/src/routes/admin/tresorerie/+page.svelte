@@ -1,45 +1,45 @@
-<script>
-  import { goto } from '$app/navigation';
- import { adminPageState } from '../store.js';
- import { isAuthenticated, logout } from '$lib/auth';
+<div class="construction-container">
+  <div class="construction-content">
+    <h1>Page En Construction</h1>
+    <div class="icon">🚧</div>
+    <p>Cette page est actuellement en cours de développement.</p>
+    <p>Merci pour votre patience.</p>
 
-</script>
-
-
-  <main>
-    <h2>Tresorerie</h2>
-    <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>Retour</button>
-  </main>
-
-
+  </div>
+</div>
 
 <style>
-  h2 {
-    font-family: "Pirata One", cursive;
-    color: var(--orange);
-    margin-bottom: 1.5rem;
+  .construction-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    text-align: center;
+    padding: 2rem;
   }
 
-  .return-button {
-    background-color: var(--orange);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+  .construction-content {
+    max-width: 600px;
+    padding: 2rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-    .logout-button {
-    background-color: var(--dark-red);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
+  h1 {
+    color: #e63946;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
   }
 
+  .icon {
+    font-size: 5rem;
+    margin: 1.5rem 0;
+  }
+
+  p {
+    font-size: 1.2rem;
+    color: #495057;
+    margin: 0.5rem 0;
+  }
 </style>
-

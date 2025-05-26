@@ -1,7 +1,7 @@
 package cartel.spring_boot_api.repository;
 
-import cartel.spring_boot_api.model.Creator;
-import cartel.spring_boot_api.model.PublisherJDS;
+import cartel.spring_boot_api.model.AuthorGame;
+import cartel.spring_boot_api.model.PublisherGame;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface ExtensionRepository extends JpaRepository<Extension, String> {
     List<Extension> findByNameContainingIgnoreCase(String name);
-    List<Extension> findByCreator(Creator creator);
-    List<Extension> findByPublisher(PublisherJDS publisher);
+    List<Extension> findByCreators(AuthorGame creator);
+    List<Extension> findByPublisher(PublisherGame publisher);
 }

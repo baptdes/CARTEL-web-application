@@ -11,8 +11,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "creator")
-public class Creator {
+@Table(name = "authorGame")
+public class AuthorGame {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,13 +24,14 @@ public class Creator {
     @Column(nullable = false)
     private String firstname;
 
-    @ManyToMany(mappedBy = "creator")
-    private Collection<JDS> createdJDS;
+    // Games the creator has created
+    @ManyToMany(mappedBy = "authors")
+    private Collection<Game> createdGames;
 
-    public Creator() {
+    public AuthorGame() {
     }
 
-    public Creator(String surname, String firstname) {
+    public AuthorGame(String surname, String firstname) {
         this.surname = surname;
         this.firstname = firstname;
     }
@@ -59,12 +60,12 @@ public class Creator {
         this.firstname = firstname;
     }
 
-    public Collection<JDS> getCreatedJDS() {
-        return createdJDS;
+    public Collection<Game> getCreatedGames() {
+        return createdGames;
     }
 
-    public void setCreatedJDS(Collection<JDS> createdJDS) {
-        this.createdJDS = createdJDS;
+    public void setCreatedGames(Collection<Game> createdGames) {
+        this.createdGames = createdGames;
     }
     
 }

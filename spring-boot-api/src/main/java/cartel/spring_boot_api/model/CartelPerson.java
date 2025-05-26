@@ -1,10 +1,14 @@
 package cartel.spring_boot_api.model;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name="membre")
@@ -14,13 +18,25 @@ public class CartelPerson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String firstname;
 
+    @Column
     private String surname;
 
+    @Column
     private String contact;
 
-    private Integer Caution;
+    @Column
+    private Integer caution;
+
+    @Column
+    @OneToMany
+    private List<LoanByCartel> loanToPerson;
+
+    @Column
+    @OneToMany
+    private List<LoanToCartel> loanByPerson;
 
     public CartelPerson(String name, String surname,String contact) {
         this.firstname = name;
@@ -57,11 +73,11 @@ public class CartelPerson {
     }
 
     public Integer getCaution() {
-        return Caution;
+        return caution;
     }
 
     public void setCaution(Integer caution) {
-        Caution = caution;
+        this.caution = caution;
     }
 
     public String getContact() {
@@ -70,6 +86,22 @@ public class CartelPerson {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public List<LoanByCartel> getLoanToPerson() {
+        return this.loanToPerson;
+    }
+
+    public void setLoanToPerson(List<LoanByCartel> loans) {
+        this.loanToPerson = loans;
+    }
+
+    public List<LoanToCartel> getLoanByPerson() {
+        return this.loanByPerson;
+    }
+
+    public void setLoanByPerson(List<LoanToCartel> loans) {
+        this.loanByPerson = loans;
     }
 
 }

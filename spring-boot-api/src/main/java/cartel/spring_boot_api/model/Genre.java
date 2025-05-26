@@ -2,32 +2,34 @@ package cartel.spring_boot_api.model;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "series")
-public class Serie {
-    
+@Table(name = "genres")
+public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
+    
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "serie")
-    private Collection<Book> seriesitem;
+    @JsonIgnore
+    @ManyToMany(mappedBy = "genres")
+    private Collection<Book> books;
 
-    public Serie() {
+    public Genre() {
     }
 
-    public Serie(String name) {
+    public Genre(String name) {
         this.name = name;
     }
 
@@ -47,12 +49,11 @@ public class Serie {
         this.name = name;
     }
 
-    public Collection<Book> getPublishedBooks() {
-        return seriesitem;
+    public Collection<Book> getBooks() {
+        return books;
     }
 
-    public void setPublishedBooks(Collection<Book> seriesitem) {
-        this.seriesitem = seriesitem;
+    public void setBooks(Collection<Book> books) {
+        this.books = books;
     }
-
 }

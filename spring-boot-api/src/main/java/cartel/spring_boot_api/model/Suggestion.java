@@ -21,10 +21,12 @@ public class Suggestion {
     private Long id;
 
     @Transient
-    public enum TypeSuggestion {LIVRE, MANGA, BD, JDS, AUTRE};
+    public enum TypeSuggestion {LIVRE, MANGA, BD, JDS, JDR, AUTRE};
 
     @Column(nullable = false)
     private String name;
+
+    private String description;
 
     @Column(nullable = false)
     private TypeSuggestion type;
@@ -37,7 +39,8 @@ public class Suggestion {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Suggestion(String name, TypeSuggestion type) {
+    public Suggestion(String name, TypeSuggestion type, String description) {
+        this.description = description;
         this.name = name;
         this.type = type;
         this.createdAt = LocalDateTime.now();
@@ -74,5 +77,14 @@ public class Suggestion {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     
 }

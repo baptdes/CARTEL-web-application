@@ -7,6 +7,7 @@ import org.springframework.security.core.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,13 +18,12 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table( name = "Items" )
+@Table( name = "items" )
 @Inheritance( strategy = InheritanceType.JOINED )
 public abstract class Item {
 
-    //énumération des différents langues d'un livre
     @Transient
-    public enum Langues {FR,EN,JA}; 
+    public enum Languages {FR,EN,JA}; 
 
     @Id
     private String barcode;
@@ -31,52 +31,37 @@ public abstract class Item {
     private String name;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "objet")
-    private Collection<ItemCopy> copie;
+    @OneToMany(mappedBy = "objet", orphanRemoval = true, cascade = CascadeType.ALL)
+    private Collection<ItemCopy> copies;
 
-    public int getCopienumb(){
-        return this.copie.size()+1;
-    }
-
-    //description petit resumé
     @Column(length = 2000)
     private String description;
-    
-    //image de couverture
+
     private String coverImage;
     
-    //année de publication
     @Column(nullable = false)
     private Integer publicationYear;
 
-    //langue
     @Column(nullable = false)
-    private Langues langue;
+    private Languages language;
 
-    @OneToOne(mappedBy ="item")
-    Exchange statut;
-
-    //date de création de l'entité
+    // When the item was created
     @Column(nullable = false)
     private LocalDateTime createdAt;
     
-    //date de dérniére modification de l'entité
+    // When the item was last updated
     private LocalDateTime updatedAt;
 
-    public Item(String barcode, String name, Integer publicationYear, Langues langue) {
+    public Item(String barcode, String name, Integer publicationYear, Languages langue) {
         this.barcode = barcode;
         this.name = name;
         this.publicationYear = publicationYear;
-        this.langue = langue;
+        this.language = langue;
         this.createdAt = LocalDateTime.now();
     }
 
     public Item(){
         this.createdAt = LocalDateTime.now();
-    }
-
-    public Exchange getStatut() {
-        return statut;
     }
 
     public String getBarcode() {
@@ -95,12 +80,12 @@ public abstract class Item {
         this.name = name;
     }
 
-    public Collection<ItemCopy> getCopie() {
-        return copie;
+    public Collection<ItemCopy> getCopies() {
+        return copies;
     }
 
-    public void setCopie(Collection<ItemCopy> copie) {
-        this.copie = copie;
+    public void setCopies(Collection<ItemCopy> copies) {
+        this.copies = copies;
     }
 
     public String getDescription() {
@@ -127,16 +112,12 @@ public abstract class Item {
         this.publicationYear = publicationYear;
     }
 
-    public Langues getLangue() {
-        return langue;
+    public Languages getLanguage() {
+        return language;
     }
 
-    public void setLangue(Langues langue) {
-        this.langue = langue;
-    }
-
-    public void setStatut(Exchange statut) {
-        this.statut = statut;
+    public void setLanguage(Languages language) {
+        this.language = language;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -158,5 +139,9 @@ public abstract class Item {
     // Pre-update method
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public int getCopyCount() {
+    return (this.copies != null) ? this.copies.size() : 0;
     }
 }
