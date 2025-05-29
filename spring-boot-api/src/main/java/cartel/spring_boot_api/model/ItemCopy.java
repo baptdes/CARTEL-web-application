@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 @Table(name="copies")
@@ -18,8 +20,15 @@ public class ItemCopy{
     @ManyToOne
     private Item objet;
 
+    @OneToOne
+    private LoanByCartel loanToPerson;
+
+    @OneToOne
+    private LoanToCartel loanByPerson;
+
     public ItemCopy() {
     }
+
 
     public ItemCopy(Item objet) {
         this.objet = objet;

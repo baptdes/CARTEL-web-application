@@ -6,6 +6,7 @@ import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
+import cartel.spring_boot_api.model.Item.Languages;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class PublicBookController {
      * @param asc Whether to sort in ascending order
      * @param sortBy Field to sort by
      * @param titleBook Filter by title
+     * @param language Filter by book language
      * @param publisherName Filter by publisher name
      * @param authorFirstName Filter by author first name
      * @param authorSurname Filter by author surname
@@ -65,15 +67,17 @@ public class PublicBookController {
             @RequestParam(required = false) String publisherName,
             @RequestParam(required = false) String authorFirstName,
             @RequestParam(required = false) String authorSurname,
+            @RequestParam(required = false) String authorFullName,
             @RequestParam(required = false) String illustratorFirstName,
             @RequestParam(required = false) String illustratorSurname,
+            @RequestParam(required = false) String illustratorFullName,
             @RequestParam(required = false) BookFormat category,
             @RequestParam(required = false) String serieName,
             @RequestParam(required = false) String genreName) {
         
         return bookService.filterBooks(pageNumber, pageSize, asc, sortBy, titleBook, 
-                publisherName, authorFirstName, authorSurname, illustratorFirstName, 
-                illustratorSurname, category, serieName, genreName);
+                publisherName, authorFirstName, authorSurname, authorFullName, illustratorFirstName,
+                illustratorSurname, illustratorFullName, category, serieName, genreName);
     }
 
     /**
@@ -83,9 +87,14 @@ public class PublicBookController {
      * @return 
      */
     @PostMapping("/bnf/{isbn}")
-    public ResponseEntity<Book> getBookFromBNF(@PathVariable String isbn) {
-        // TODO : Wait for Tom code
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getBookFromBNF(@PathVariable String isbn) {
+        try {
+            Book bookInfo = bookService.getBookWithISBN(isbn);
+            return ResponseEntity.ok(bookInfo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+        
     }
 
     /**
@@ -124,6 +133,18 @@ public class PublicBookController {
         return bookService.getAllAuthors();
     }
 
+    /**
+     * Returns all available authors with a name compatible with a query
+     *
+     * @param nameLike the string to search in the authors name.
+     * @return List of all authors matching the query
+     */
+     @GetMapping("/authors/search/{nameLike}")
+    List<AuthorBook> getAuthorsByName(@PathVariable String nameLike){
+        System.out.println("nameLike : " + nameLike);
+        return bookService.getAuthorsByName(nameLike);
+    }
+
     /** 
      * Adds a new author to the system
      * 
@@ -152,6 +173,17 @@ public class PublicBookController {
     }
 
     /**
+     * Returns all available publisher with a name compatible with a query
+     *
+     * @param nameLike the string to search in the publisher name.
+     * @return List of all publisher matching the query
+     */
+    @GetMapping("/publishers/search/{nameLike}")
+    List<PublisherBook> getPublishersByName(@PathVariable String nameLike){
+        return bookService.getPublishersByName(nameLike);
+    }
+
+    /**
      * Adds a new publisher to the system
      * 
      * @param name The name of the publisher to add
@@ -175,6 +207,18 @@ public class PublicBookController {
     @GetMapping("/illustrators")
     public List<Illustrator> getAllIllustrators() {
         return bookService.getAllIllustrators();
+    }
+
+
+    /**
+     * Returns all available illustrator with a name compatible with a query
+     *
+     * @param nameLike the string to search in the illustrator name.
+     * @return List of all illustrator compatible with the query
+     */
+    @GetMapping("/illustrators/search/{nameLike}")
+    List<Illustrator> getIllustratorsByName(@PathVariable String nameLike){
+        return bookService.getIllustratorsByName(nameLike);
     }
 
     /**

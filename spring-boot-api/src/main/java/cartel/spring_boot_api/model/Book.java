@@ -45,12 +45,11 @@ public class Book extends Item{
     private Integer volumeNumber;
 
     // Series
-    @JsonIgnore
     @ManyToOne
     private Series series;
 
     public Book(){
-
+        super();
     }
     
     // Constructor with required fields
