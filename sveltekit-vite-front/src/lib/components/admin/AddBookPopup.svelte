@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors, addIllustrator, getAllIllustrators } from '$lib/services/bookService';
   import PeopleSelector from './PeopleSelector.svelte';
+  import MemberSelector from './MemberSelector.svelte';
 
   let { show = $bindable(false) } = $props();
 
@@ -25,7 +26,10 @@
     genres: [{id: null}], // Initial genre structure
     authors: [],
     illustrator: [],
-    volumeNumber: null
+    volumeNumber: null,
+    exemplaires: [
+      { id: Math.random().toString(36).slice(2), lender: null }
+    ]
   });
 
   const languageOptions = [
@@ -74,7 +78,10 @@
       genres: [{id: null}],
       authors: [],
       illustrator: [],
-      volumeNumber: null
+      volumeNumber: null,
+      exemplaires: [
+        { id: Math.random().toString(36).slice(2), lender: null }
+      ]
     };
     addingError = null;
     addingSuccess = false;
@@ -207,6 +214,17 @@
     }
   }
 
+  function addExemplaire() {
+    newBook.exemplaires = [
+      ...newBook.exemplaires,
+      { id: Math.random().toString(36).slice(2), lender: null }
+    ];
+  }
+
+  function removeExemplaire(idx) {
+    newBook.exemplaires = newBook.exemplaires.filter((_, i) => i !== idx);
+  }
+
   function closePopup() {
     show = false; // This will trigger the $bindable update
     dispatch('close');
@@ -310,6 +328,26 @@
                 + Ajouter un genre
               </button>
             </div>
+          </div>
+          <!-- Exemplaires -->
+          <div class="form-section">
+            <h4>Exemplaire(s)</h4>
+            {#each newBook.exemplaires as exemplaire, idx (exemplaire.id)}
+              <div class="exemplaire-row">
+                <span>Exemplaire {idx + 1}</span>
+                <button type="button" class="remove-exemplaire-btn" onclick={() => removeExemplaire(idx)} disabled={newBook.exemplaires.length === 1}>✕</button>
+                <div class="lender-section">
+                  <label>
+                    Prêté par un membre ?
+                    <MemberSelector
+                      bind:selectedMember={exemplaire.lender}
+                      placeholder="Sélectionner ou ajouter un membre"
+                    />
+                  </label>
+                </div>
+              </div>
+            {/each}
+            <button type="button" class="add-exemplaire-btn" onclick={addExemplaire}>+ Ajouter un exemplaire</button>
           </div>
           {#if addingError}
             <div class="error-message">{addingError}</div>
@@ -494,6 +532,46 @@
       background: rgba(255, 61, 0, 0.07);
       filter: none;
       box-shadow: none;
+    }
+  }
+  .exemplaire-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    background: #232323;
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    position: relative;
+    .remove-exemplaire-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    .lender-section {
+      flex: 1;
+      min-width: 220px;
+    }
+  }
+  .add-exemplaire-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 1.2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    &:hover {
+      filter: brightness(0.9);
     }
   }
 </style>
