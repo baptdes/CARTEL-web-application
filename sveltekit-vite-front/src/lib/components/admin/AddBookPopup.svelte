@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors, addIllustrator, getAllIllustrators } from '$lib/services/bookService';
   import { createItemCopy } from '$lib/services/copyService';
+  import { createLoanToCartel, searchPersons, addPerson } from '$lib/services/loanService';
   import PeopleSelector from './PeopleSelector.svelte';
   import MemberSelector from './MemberSelector.svelte';
 
@@ -48,11 +49,18 @@
     { value: "MANGA", label: "Manga" }
   ];
 
+  // Enhanced status object to track both copies and loans
   let copiesStatus = $state({
     processing: false,
     created: 0,
     total: 0,
-    errors: []
+    errors: [],
+    loans: {
+      processing: false,
+      created: 0,
+      total: 0,
+      errors: []
+    }
   });
 
   // Load reference data and reset form when popup opens
@@ -115,20 +123,38 @@
       $state.snapshot(newBook)
       const addedBook = await addBook(newBook); // Save the book response for barcode access
       
+      // Count how many exemplaires have lenders (will be loans to Cartel)
+      const loansToCreate = exemplaires.filter(ex => ex.lender && ex.lender.id).length;
+      
       // Now create copies for each exemplaire
       const exemplairesCount = exemplaires.length;
       copiesStatus = {
         processing: true,
         created: 0,
         total: exemplairesCount,
-        errors: []
+        errors: [],
+        loans: {
+          processing: false,
+          created: 0,
+          total: loansToCreate,
+          errors: []
+        }
       };
+      
+      // Array to store created copies for loan association
+      const createdCopies = [];
       
       // Create a copy for each exemplaire in the list
       for (let i = 0; i < exemplairesCount; i++) {
         try {
-          await createItemCopy(addedBook.barcode);
+          const copy = await createItemCopy(addedBook.barcode);
           copiesStatus.created++;
+          
+          // Store the copy along with its exemplaire info (including lender)
+          createdCopies.push({
+            copy,
+            exemplaire: exemplaires[i]
+          });
         } catch (err) {
           copiesStatus.errors.push(`Erreur lors de la création de l'exemplaire ${i+1}: ${err.message}`);
           console.error(`Failed to create copy ${i+1}:`, err);
@@ -136,13 +162,36 @@
       }
       
       copiesStatus.processing = false;
+      
+      // Now create loans for copies that have lenders
+      if (loansToCreate > 0) {
+        copiesStatus.loans.processing = true;
+        
+        for (const item of createdCopies) {
+          if (item.exemplaire.lender && item.exemplaire.lender.id) {
+            try {
+              await createLoanToCartel(item.exemplaire.lender.id, item.copy.id);
+              copiesStatus.loans.created++;
+            } catch (err) {
+              copiesStatus.loans.errors.push(
+                `Erreur lors de la création du prêt pour l'exemplaire (membre: ${item.exemplaire.lender.firstname} ${item.exemplaire.lender.surname}): ${err.message}`
+              );
+              console.error(`Failed to create loan:`, err);
+            }
+          }
+        }
+        
+        copiesStatus.loans.processing = false;
+      }
+      
       addingSuccess = true;
 
       // Only close the popup after a brief delay to show the success message
+      const hasErrors = copiesStatus.errors.length > 0 || copiesStatus.loans.errors.length > 0;
       setTimeout(() => {
         dispatch('added');
         closePopup();
-      }, copiesStatus.errors.length ? 2000 : 500); // Longer delay if there are errors
+      }, hasErrors ? 2000 : 2000); // Longer delay if there are errors
 
     } catch (err) {
       addingError = err.message || "Erreur lors de l'ajout du livre";
@@ -220,6 +269,39 @@
     });
   }
 
+  // Function to search for members (persons)
+  async function searchMembers(query) {
+    try {
+      const result = await searchPersons(query);
+      return result.content || [];
+    } catch (err) {
+      console.error("Error searching for members:", err);
+      return [];
+    }
+  }
+
+  // Function to add a new member (person)
+  async function handleAddNewMember(memberData) {
+    if (!memberData.field1?.trim() || !memberData.field2?.trim()) {
+      throw new Error("Le prénom et le nom du membre sont requis.");
+    }
+    
+    try {
+      const newMemberPayload = {
+        firstname: memberData.field1.trim(),
+        surname: memberData.field2.trim(),
+        contact: memberData.contact || "",
+        caution: memberData.caution || 0
+      };
+      
+      const addedMember = await addPerson(newMemberPayload);
+      return addedMember;
+    } catch (err) {
+      console.error("Erreur lors de l'ajout du membre:", err);
+      throw new Error("Erreur serveur lors de l'ajout du membre: " + (err.message || err));
+    }
+  }
+
   // Helper: returns true if the genre is selected
   function isGenreSelected(genreId) {
     return newBook.genres.some(g => g.id === genreId);
@@ -289,6 +371,25 @@
                     <li>{error}</li>
                   {/each}
                 </ul>
+              {/if}
+              
+              {#if copiesStatus.loans.total > 0}
+                {#if copiesStatus.loans.processing}
+                  <div class="loans-status">
+                    Création des prêts en cours... ({copiesStatus.loans.created}/{copiesStatus.loans.total})
+                  </div>
+                {:else}
+                  <div class="loans-status">
+                    {copiesStatus.loans.created} prêt(s) au Cartel créé(s) sur {copiesStatus.loans.total}
+                    {#if copiesStatus.loans.errors.length > 0}
+                      <ul class="loans-errors">
+                        {#each copiesStatus.loans.errors as error}
+                          <li>{error}</li>
+                        {/each}
+                      </ul>
+                    {/if}
+                  </div>
+                {/if}
               {/if}
             </div>
           {/if}
@@ -395,6 +496,8 @@
                     <MemberSelector
                       bind:selectedMember={exemplaire.lender}
                       placeholder="Sélectionner ou ajouter un membre"
+                      searchObjects={searchMembers}
+                      addObject={handleAddNewMember}
                     />
                   </label>
                 </div>
@@ -627,13 +730,13 @@
       filter: brightness(0.9);
     }
   }
-  .copies-status {
+  .copies-status, .loans-status {
     margin-top: 1rem;
     font-size: 0.95rem;
     font-weight: normal;
   }
   
-  .copies-errors {
+  .copies-errors, .loans-errors {
     margin-top: 0.5rem;
     color: var(--accent);
     text-align: left;
@@ -641,5 +744,11 @@
     background: rgba(255, 61, 0, 0.1);
     border-radius: 4px;
     padding: 0.5rem 1rem;
+  }
+  
+  .loans-status {
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--secondary);
   }
 </style>

@@ -4,8 +4,8 @@
   let {
     selectedMember = $bindable(null),
     placeholder = "Rechercher un membre...",
-    addObject = null, // non implémenté ici
-    searchObjects = null // non implémenté ici
+    addObject = null,
+    searchObjects = null
   } = $props();
 
   const dispatch = createEventDispatcher();
@@ -28,28 +28,39 @@
   // Affichage membre
   const displayMember = (item) => {
     if (item.firstname && item.surname) {
-      return `${item.firstname} ${item.surname} (${item.contact || 'contact inconnu'})`;
+      return `${item.firstname} ${item.surname} ${item.contact ? `(${item.contact})` : ''}`;
     } else {
       return "Membre inconnu";
     }
   };
 
-  // Recherche suggestions (non implémenté)
+  // Recherche suggestions
   $effect(() => {
     if (!searchInput.trim() || !searchObjects) {
-      suggestions = [];
-      showSuggestions = false;
-      showNoResultsPrompt = false;
-      selectedSuggestionIndex = -1;
+      resetSuggestions();
       return;
     }
-    // ...appel à searchObjects non implémenté...
+
+    const input = searchInput.trim().toLowerCase();
+    Promise.resolve(searchObjects(input)).then(results => {
+      suggestions = results;
+      showSuggestions = results.length > 0;
+      showNoResultsPrompt = results.length === 0 && input.length > 0;
+      selectedSuggestionIndex = results.length > 0 ? 0 : -1;
+    });
   });
+
+  function resetSuggestions() {
+    suggestions = [];
+    showSuggestions = false;
+    showNoResultsPrompt = false;
+    selectedSuggestionIndex = -1;
+  }
 
   function selectItem(item) {
     selectedMember = item;
     searchInput = '';
-    showSuggestions = false;
+    resetSuggestions();
   }
 
   function handleShowAddForm() {
@@ -70,30 +81,54 @@
     caution = '';
   }
 
-  function handleAddNewItem() {
+  async function handleAddNewItem() {
     // Validation simple
-    if (!firstname.trim() || !surname.trim() || !contact.trim() || !caution.trim()) {
-      addItemError = "Tous les champs sont obligatoires.";
+    if (!firstname.trim() || !surname.trim()) {
+      addItemError = "Le prénom et nom sont obligatoires.";
       return;
     }
     if (!/^[A-Z][a-zA-Z]*$/.test(firstname.trim()) || !/^[A-Z][a-zA-Z]*$/.test(surname.trim())) {
       addItemError = "Le prénom et le nom doivent commencer par une majuscule et ne contenir que des lettres.";
       return;
     }
-    if (isNaN(Number(caution)) || Number(caution) < 0) {
+    if (caution && (isNaN(Number(caution)) || Number(caution) < 0)) {
       addItemError = "La caution doit être un nombre positif.";
       return;
     }
-    // Ajout non implémenté, on simule juste l'objet
-    const newMember = {
-      id: Math.random().toString(36).slice(2),
-      firstname: firstname.trim(),
-      surname: surname.trim(),
-      contact: contact.trim(),
-      caution: Number(caution)
-    };
-    selectItem(newMember);
-    showAddForm = false;
+
+    if (!addObject) {
+      // Si pas de fonction d'ajout, création d'un objet local seulement
+      const newMember = {
+        id: Math.random().toString(36).slice(2),
+        firstname: firstname.trim(),
+        surname: surname.trim(),
+        contact: contact.trim(),
+        caution: caution ? Number(caution) : 0
+      };
+      selectItem(newMember);
+      showAddForm = false;
+      return;
+    }
+
+    try {
+      addItemError = '';
+      const newMember = await addObject({
+        field1: firstname.trim(),
+        field2: surname.trim(),
+        contact: contact.trim(),
+        caution: caution ? Number(caution) : 0
+      });
+      
+      // Add to selection and reset form
+      selectItem(newMember);
+      firstname = '';
+      surname = '';
+      contact = '';
+      caution = '';
+      showAddForm = false;
+    } catch (err) {
+      addItemError = "Erreur lors de l'ajout : " + (err.message || err);
+    }
   }
 </script>
 
@@ -116,9 +151,10 @@
         {#if showSuggestions}
           <ul class="suggestions-list">
             {#each suggestions as item, i}
-              <li>
+              <li class:selected={i === selectedSuggestionIndex}>
                 <button
                   type="button"
+                  class:selected={i === selectedSuggestionIndex}
                   onmousedown = {(e) => {e.preventDefault(); selectItem(item)}}
                 >
                   {displayMember(item)}
@@ -141,9 +177,17 @@
       </form>
     {/if}
   </div>
+  
   {#if addItemError}
     <div class="error-message">{addItemError}</div>
   {/if}
+
+  {#if showNoResultsPrompt && !showAddForm}
+    <div class="no-results-message">
+      Aucun résultat pour "{searchInput}".
+    </div>
+  {/if}
+  
   {#if selectedMember}
     <div class="selected-member">
       Membre sélectionné : {displayMember(selectedMember)}
@@ -286,6 +330,12 @@
     color: var(--accent);
     font-size: 0.97rem;
     margin-bottom: 0.3rem;
+  }
+  .no-results-message {
+    color: var(--accent);
+    font-size: 0.97rem;
+    margin-top: 0.5rem;
+    text-align: center;
   }
   .selected-member {
     margin-top: 0.5rem;
