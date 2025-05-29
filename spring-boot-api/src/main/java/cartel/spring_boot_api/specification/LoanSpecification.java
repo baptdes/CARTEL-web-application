@@ -1,13 +1,12 @@
 package cartel.spring_boot_api.specification;
 
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 import cartel.spring_boot_api.model.CartelPerson;
 import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.model.LoanToCartel;
-
 
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Join;
@@ -93,16 +92,81 @@ public class LoanSpecification {
         };
     }
 
+    //** FILTERING BY DATE **//
+    // Filter by loan date before a specific date
+    public static Specification<LoanByCartel> filterLoanByCartelFromStartDateBefore(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.lessThan(root.get("loanDate"), dateLimite);
+        };
+    }
+
+    // Filter by loan date after a specific date
+    public static Specification<LoanByCartel> filterLoanByCartelFromStartDateAfter(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.greaterThan(root.get("loanDate"), dateLimite);
+        };
+    }
+
+    // Filter by end date before a specific date
+    public static Specification<LoanByCartel> filterLoanByCartelFromEndDateBefore(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.lessThan(root.get("endDate"), dateLimite);
+        };
+    }
+
+    // Filter by end date after a specific date
+    public static Specification<LoanByCartel> filterLoanByCartelFromEndDateAfter(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.greaterThan(root.get("endDate"), dateLimite);
+        };
+    }
+
+    // Filter by active loans (endDate is null)
+    public static Specification<LoanByCartel> filterLoanByCartelActive(Boolean active) {
+        return (root, query, builder) -> {
+            if (active == null) return null;
+            return active ? builder.isNull(root.get("endDate")) : builder.isNotNull(root.get("endDate"));
+        };
+    }
+
+    // Same filters for LoanToCartel
+    public static Specification<LoanToCartel> filterLoanToCartelFromStartDateBefore(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.lessThan(root.get("loanDate"), dateLimite);
+        };
+    }
+
+    public static Specification<LoanToCartel> filterLoanToCartelFromStartDateAfter(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.greaterThan(root.get("loanDate"), dateLimite);
+        };
+    }
+
+    public static Specification<LoanToCartel> filterLoanToCartelFromEndDateBefore(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.lessThan(root.get("endDate"), dateLimite);
+        };
+    }
+
+    public static Specification<LoanToCartel> filterLoanToCartelFromEndDateAfter(Date dateLimite) {
+        return (root, query, builder) -> {
+            if (dateLimite == null) return null;
+            return builder.greaterThan(root.get("endDate"), dateLimite);
+        };
+    }
+
+    public static Specification<LoanToCartel> filterLoanToCartelActive(Boolean active) {
+        return (root, query, builder) -> {
+            if (active == null) return null;
+            return active ? builder.isNull(root.get("endDate")) : builder.isNotNull(root.get("endDate"));
+        };
+    }
+
 }
-    // //** FILTERING BY DATE **//
-    // Pour l'implementer, il faut d'abord changer toutes les dates dans les bases de données par des java.sql.Date
-    //
-    // // Filter by borrowing date before a dateLimite.
-    // public static Specification<LoanByCartel> filterLoanByCartelfromDateBefore(LocalDateTime dateLimite) {
-    //     return (loan, query, builder) -> builder.greaterThan(dateLimite, loan.get("loanDate"));
-    // }
-    //
-    // // Filter by borrowing date after a dateLimite.
-    // public static Specification<LoanByCartel> filterLoanByCartelfromDateAfter(LocalDateTime dateLimite) {
-    //     return (loan, query, builder) -> builder.greaterThan(loan.get("loanDate"), dateLimite);
-    // }

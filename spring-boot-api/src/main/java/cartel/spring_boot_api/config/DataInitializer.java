@@ -5,6 +5,7 @@ import cartel.spring_boot_api.repository.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.sql.Date; // Changed from java.util.Date to java.sql.Date
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -389,9 +390,23 @@ public class DataInitializer {
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> borrowItems = getRandomListAmong(allItemCopies, count, count);
-        for (ItemCopy item : borrowItems) {
+        
+        for (int i = 0; i < borrowItems.size(); i++) {
+            ItemCopy item = borrowItems.get(i);
             CartelPerson borrower = getRandomElement(allPerson);
             LoanByCartel loan = new LoanByCartel(borrower, item);
+            
+            // Make some loans completed
+            if (i % 3 == 0) {  // Every third loan is completed
+                // Calculate past dates for completed loans
+                // Current time minus random number of days
+                long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
+                long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
+                
+                loan.setLoanDate(new Date(loanTimeMillis));
+                loan.setEndDate(new Date(endTimeMillis));
+            }
+            
             loanByCartelRepository.save(loan);
             loanBy.add(loan);
         }
@@ -403,9 +418,23 @@ public class DataInitializer {
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> lentItems = getRandomListAmong(allItemCopies, count, count);
-        for (ItemCopy item : lentItems) {
+        
+        for (int i = 0; i < lentItems.size(); i++) {
+            ItemCopy item = lentItems.get(i);
             CartelPerson owner = getRandomElement(allPerson);
             LoanToCartel loan = new LoanToCartel(owner, item);
+            
+            // Make some loans completed
+            if (i % 3 == 0) {  // Every third loan is completed
+                // Calculate past dates for completed loans
+                // Current time minus random number of days
+                long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
+                long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
+                
+                loan.setLoanDate(new Date(loanTimeMillis));
+                loan.setEndDate(new Date(endTimeMillis));
+            }
+            
             loanToCartelRepository.save(loan);
             loanTo.add(loan);
         }

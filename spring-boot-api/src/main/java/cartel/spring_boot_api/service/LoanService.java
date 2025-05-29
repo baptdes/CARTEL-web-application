@@ -4,7 +4,8 @@ import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.model.LoanToCartel;
 import cartel.spring_boot_api.model.CartelPerson;
 import cartel.spring_boot_api.model.ItemCopy;
-import java.time.LocalDateTime;
+
+import java.sql.Date;
 
 import java.util.List;
 import java.util.Map;
@@ -46,4 +47,38 @@ public interface LoanService {
 	public CartelPerson createPerson(String firstname, String surname, String contact, Integer caution);
 	
 	public void createLoanToCartelById(Long personId, Long itemCopyId);
+	
+	// Compléter un emprunt existant (marquer comme terminé)
+    public void completeLoanByCartel(long loanByCartelId);
+    
+    // Compléter un prêt existant (marquer comme terminé)
+    public void completeLoanToCartel(long loanToCartelId);
+    
+    // Créer un emprunt à partir des IDs
+    public void createLoanByCartelById(Long personId, Long itemCopyId);
+    
+    // Méthodes de filtrage améliorées
+    public List<LoanToCartel> filterLoanToCartel(
+        int pageNumber, int pageSize,
+        boolean asc, String sortBy, 
+        String itemName,
+        String ownerFirstName, 
+        String ownerSurname,
+        Date startDateBefore,
+        Date startDateAfter,
+        Date endDateBefore,
+        Date endDateAfter,
+        Boolean active);
+        
+    public List<LoanByCartel> filterLoanByCartel(
+        int pageNumber, int pageSize,
+        boolean asc, String sortBy, 
+        String itemName,
+        String borrowerFirstName, 
+        String borrowerSurname,
+        Date startDateBefore,
+        Date startDateAfter,
+        Date endDateBefore,
+        Date endDateAfter,
+        Boolean active);
 }

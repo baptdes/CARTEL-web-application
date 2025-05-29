@@ -1,10 +1,8 @@
 package cartel.spring_boot_api.model;
 
 import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.time.LocalDateTime;
+import java.sql.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
@@ -28,8 +26,11 @@ public class LoanToCartel {
     @JoinColumn(nullable = false)
     private CartelPerson itemOwner;
 
-    @Column/*(nullable = false)*/
-    private LocalDateTime loanDate;
+    @Column(nullable = false)
+    private Date loanDate;
+
+    @Column
+    private Date endDate;
 
     @OneToOne
     @JoinColumn(nullable = false)
@@ -41,20 +42,14 @@ public class LoanToCartel {
     public LoanToCartel(CartelPerson itemOwner, ItemCopy itemShared) {
         this.itemOwner = itemOwner;
         this.itemShared = itemShared;
-        this.loanDate = LocalDateTime.now();
+        this.loanDate = new Date(System.currentTimeMillis());
     }
 
-	public LoanToCartel(CartelPerson itemOwner, ItemCopy itemShared, LocalDateTime loanDate) {
+    public LoanToCartel(CartelPerson itemOwner, ItemCopy itemShared, Date loanDate) {
         this.itemOwner = itemOwner;
         this.itemShared = itemShared;
         this.loanDate = loanDate;
     }
-
-    // public LoanToCartel(CartelPerson itemOwner, Collection<ItemCopy> itemShared, LocalDateTime loanDate) {
-    //     this.itemOwner = itemOwner;
-    //     this.itemShared = itemShared;
-    //     this.loanDate = loanDate;
-    // }
 
     public Long getId() {
         return id;
@@ -78,5 +73,29 @@ public class LoanToCartel {
 
     public void setItemShared(ItemCopy itemShared) {
         this.itemShared = itemShared;
+    }
+
+    public Date getLoanDate() {
+        return loanDate;
+    }
+
+    public void setLoanDate(Date loanDate) {
+        this.loanDate = loanDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public void completeLoan() {
+        this.endDate = new Date(System.currentTimeMillis());
+    }
+    
+    public boolean isActive() {
+        return this.endDate == null;
     }
 }
