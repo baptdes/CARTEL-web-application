@@ -10,30 +10,34 @@
 export async function fetchBooks(params = {}) {
   try {
     const queryParams = new URLSearchParams();
-    
-    // Add all possible filter parameters from PublicBookController
+
+    // Required/default params
     if (params.pageNumber !== undefined) queryParams.append('pageNumber', params.pageNumber);
     if (params.pageSize !== undefined) queryParams.append('pageSize', params.pageSize);
     if (params.asc !== undefined) queryParams.append('asc', params.asc);
     if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-    if (params.title) queryParams.append('titleBook', params.title);
+
+    // Optional filters
+    if (params.titleBook) queryParams.append('titleBook', params.titleBook);
     if (params.publisherName) queryParams.append('publisherName', params.publisherName);
     if (params.authorFirstName) queryParams.append('authorFirstName', params.authorFirstName);
     if (params.authorSurname) queryParams.append('authorSurname', params.authorSurname);
+    if (params.authorFullName) queryParams.append('authorFullName', params.authorFullName);
     if (params.illustratorFirstName) queryParams.append('illustratorFirstName', params.illustratorFirstName);
     if (params.illustratorSurname) queryParams.append('illustratorSurname', params.illustratorSurname);
+    if (params.illustratorFullName) queryParams.append('illustratorFullName', params.illustratorFullName);
     if (params.category) queryParams.append('category', params.category);
     if (params.serieName) queryParams.append('serieName', params.serieName);
     if (params.genreName) queryParams.append('genreName', params.genreName);
-    
+
     const url = `/api/public/books${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (err) {
     console.error('Error fetching books:', err);
