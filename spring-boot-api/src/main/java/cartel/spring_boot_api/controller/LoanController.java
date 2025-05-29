@@ -10,6 +10,7 @@ import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.service.LoanService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -159,8 +160,51 @@ public class LoanController {
         loanService.createLoanByCartel(itemBorrower, itemShared);
     }
 
-    // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
+    /**
+     * Recherche une personne par son nom complet (prénom ou nom)
+     * 
+     * @param fullname Le nom ou prénom à rechercher
+     * @param pageNumber Le numéro de la page
+     * @param pageSize La taille de la page
+     * @return Une page de personnes correspondant aux critères
+     */
+    @GetMapping("/persons/search")
+    public Page<CartelPerson> searchPersons(
+            @RequestParam String fullname,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        
+        return loanService.searchPersonByFullname(fullname, pageNumber, pageSize);
+    }
 
-    // public void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
+    /**
+     * Ajoute une nouvelle personne
+     * 
+     * @param personData Les données de la personne (firstname, surname, contact)
+     * @return La personne créée
+     */
+    @PostMapping("/persons/add")
+    public CartelPerson addPerson(@RequestBody Map<String, String> personData) {
+        String firstname = personData.get("firstname");
+        String surname = personData.get("surname");
+        String contact = personData.get("contact");
+        Integer caution = Integer.valueOf(personData.get("caution"));
+        return loanService.createPerson(firstname, surname, contact, caution);
+    }
 
+    /**
+     * Crée un prêt au Cartel en utilisant l'id de la personne et l'id de l'item
+     * 
+     * @param personId L'ID de la personne propriétaire
+     * @param itemCopyId L'ID de la copie de l'item à prêter
+     * @return Une confirmation
+     */
+    @PostMapping("/toCartel/addById")
+    public ResponseEntity<String> createLoanToCartelById(
+            @RequestParam Long personId,
+            @RequestParam Long itemCopyId) {
+        
+        loanService.createLoanToCartelById(personId, itemCopyId);
+        return ResponseEntity.ok("Loan created successfully");
+    }
 }

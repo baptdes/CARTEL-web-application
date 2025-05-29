@@ -44,6 +44,13 @@ public class CartelPerson {
         this.contact = contact;
     }
 
+    public CartelPerson(String name, String surname,String contact, Integer caution) {
+        this.firstname = name;
+        this.surname = surname;
+        this.contact = contact;
+        this.caution = caution;
+    }
+
     public CartelPerson(){
         
     }

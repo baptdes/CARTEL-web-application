@@ -23,6 +23,7 @@ import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.repository.LoanByCartelRepository;
 import cartel.spring_boot_api.repository.LoanToCartelRepository;
 import cartel.spring_boot_api.repository.ItemCopyRepository;
+import cartel.spring_boot_api.repository.CartelPersonRepository;
 
 
 @Service
@@ -36,6 +37,9 @@ public class LoanServiceImpl implements LoanService {
 
     @Autowired
     private ItemCopyRepository itemCopyRepository;
+    
+    @Autowired
+    private CartelPersonRepository cartelPersonRepository;
 
     @Override
     public List<LoanToCartel> getAllLoanToCartel(){
@@ -132,4 +136,28 @@ public class LoanServiceImpl implements LoanService {
         }
     }
 
+    @Override
+    public Page<CartelPerson> searchPersonByFullname(String fullname, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return cartelPersonRepository.findByFirstnameContainingIgnoreCaseOrSurnameContainingIgnoreCase(
+            fullname, fullname, pageable);
+    }
+
+    @Override
+    public CartelPerson createPerson(String firstname, String surname, String contact, Integer caution) {
+        CartelPerson person = new CartelPerson(firstname, surname, contact, caution);
+        return cartelPersonRepository.save(person);
+    }
+
+    @Override
+    public void createLoanToCartelById(Long personId, Long itemCopyId) {
+        CartelPerson owner = cartelPersonRepository.findById(personId)
+            .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
+        
+        ItemCopy itemCopy = itemCopyRepository.findById(itemCopyId)
+            .orElseThrow(() -> new IllegalArgumentException("Item copy not found with id: " + itemCopyId));
+        
+        LoanToCartel loan = new LoanToCartel(owner, itemCopy);
+        loanToCartelRepository.save(loan);
+    }
 }

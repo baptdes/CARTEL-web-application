@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import { addAuthor, addBook, getAllGenres, addGenre, getAllAuthors, addIllustrator, getAllIllustrators } from '$lib/services/bookService';
+  import { createItemCopy } from '$lib/services/copyService';
   import PeopleSelector from './PeopleSelector.svelte';
   import MemberSelector from './MemberSelector.svelte';
 
@@ -15,6 +16,11 @@
   let availableGenres = $state([]);
   let availableAuthors = $state([]);
   let availableIllustrators = $state([]);
+  
+  // Manage exemplaires separately from newBook
+  let exemplaires = $state([
+    { id: Math.random().toString(36).slice(2), lender: null }
+  ]);
 
   let newBook = $state({
     barcode: "",
@@ -27,9 +33,7 @@
     authors: [],
     illustrator: [],
     volumeNumber: null,
-    exemplaires: [
-      { id: Math.random().toString(36).slice(2), lender: null }
-    ]
+    // exemplaires property removed from here
   });
 
   const languageOptions = [
@@ -43,6 +47,13 @@
     { value: "BD", label: "Bande Dessinée" },
     { value: "MANGA", label: "Manga" }
   ];
+
+  let copiesStatus = $state({
+    processing: false,
+    created: 0,
+    total: 0,
+    errors: []
+  });
 
   // Load reference data and reset form when popup opens
   $effect(() => {
@@ -78,11 +89,15 @@
       genres: [{id: null}],
       authors: [],
       illustrator: [],
-      volumeNumber: null,
-      exemplaires: [
-        { id: Math.random().toString(36).slice(2), lender: null }
-      ]
+      volumeNumber: null
+      // exemplaires removed from here
     };
+    
+    // Reset exemplaires separately
+    exemplaires = [
+      { id: Math.random().toString(36).slice(2), lender: null }
+    ];
+    
     addingError = null;
     addingSuccess = false;
   }
@@ -98,14 +113,36 @@
       }
 
       $state.snapshot(newBook)
-      await addBook(newBook); // Pass the current value of the $state object
-
+      const addedBook = await addBook(newBook); // Save the book response for barcode access
+      
+      // Now create copies for each exemplaire
+      const exemplairesCount = exemplaires.length;
+      copiesStatus = {
+        processing: true,
+        created: 0,
+        total: exemplairesCount,
+        errors: []
+      };
+      
+      // Create a copy for each exemplaire in the list
+      for (let i = 0; i < exemplairesCount; i++) {
+        try {
+          await createItemCopy(addedBook.barcode);
+          copiesStatus.created++;
+        } catch (err) {
+          copiesStatus.errors.push(`Erreur lors de la création de l'exemplaire ${i+1}: ${err.message}`);
+          console.error(`Failed to create copy ${i+1}:`, err);
+        }
+      }
+      
+      copiesStatus.processing = false;
       addingSuccess = true;
 
+      // Only close the popup after a brief delay to show the success message
       setTimeout(() => {
         dispatch('added');
         closePopup();
-      }, 500);
+      }, copiesStatus.errors.length ? 2000 : 500); // Longer delay if there are errors
 
     } catch (err) {
       addingError = err.message || "Erreur lors de l'ajout du livre";
@@ -215,14 +252,14 @@
   }
 
   function addExemplaire() {
-    newBook.exemplaires = [
-      ...newBook.exemplaires,
+    exemplaires = [
+      ...exemplaires,
       { id: Math.random().toString(36).slice(2), lender: null }
     ];
   }
 
   function removeExemplaire(idx) {
-    newBook.exemplaires = newBook.exemplaires.filter((_, i) => i !== idx);
+    exemplaires = exemplaires.filter((_, i) => i !== idx);
   }
 
   function closePopup() {
@@ -239,6 +276,22 @@
       {#if addingSuccess}
         <div class="success-message">
           Livre ajouté avec succès!
+          {#if copiesStatus.processing}
+            <div class="copies-status">
+              Création des exemplaires en cours... ({copiesStatus.created}/{copiesStatus.total})
+            </div>
+          {:else}
+            <div class="copies-status">
+              {copiesStatus.created} exemplaire(s) créé(s) sur {copiesStatus.total}
+              {#if copiesStatus.errors.length > 0}
+                <ul class="copies-errors">
+                  {#each copiesStatus.errors as error}
+                    <li>{error}</li>
+                  {/each}
+                </ul>
+              {/if}
+            </div>
+          {/if}
         </div>
       {:else}
         <form class="add-book-form" onsubmit = {(e) => {e.preventDefault(); submitBookForm()}}>
@@ -332,10 +385,10 @@
           <!-- Exemplaires -->
           <div class="form-section">
             <h4>Exemplaire(s)</h4>
-            {#each newBook.exemplaires as exemplaire, idx (exemplaire.id)}
+            {#each exemplaires as exemplaire, idx (exemplaire.id)}
               <div class="exemplaire-row">
                 <span>Exemplaire {idx + 1}</span>
-                <button type="button" class="remove-exemplaire-btn" onclick={() => removeExemplaire(idx)} disabled={newBook.exemplaires.length === 1}>✕</button>
+                <button type="button" class="remove-exemplaire-btn" onclick={() => removeExemplaire(idx)} disabled={exemplaires.length === 1}>✕</button>
                 <div class="lender-section">
                   <label>
                     Prêté par un membre ?
@@ -573,5 +626,20 @@
     &:hover {
       filter: brightness(0.9);
     }
+  }
+  .copies-status {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    font-weight: normal;
+  }
+  
+  .copies-errors {
+    margin-top: 0.5rem;
+    color: var(--accent);
+    text-align: left;
+    font-size: 0.9rem;
+    background: rgba(255, 61, 0, 0.1);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
   }
 </style>
