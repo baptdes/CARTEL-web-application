@@ -15,7 +15,6 @@
   let suggestions = $state([]);
   let showSuggestions = $state(false);
   let selectedSuggestionIndex = $state(-1);
-  let showNoResultsPrompt = $state(false);
 
   // Ajout membre
   let firstname = $state('');
@@ -27,11 +26,7 @@
 
   // Affichage membre
   const displayMember = (item) => {
-    if (item.firstname && item.surname) {
       return `${item.firstname} ${item.surname} ${item.contact ? `(${item.contact})` : ''}`;
-    } else {
-      return "Membre inconnu";
-    }
   };
 
   // Recherche suggestions
@@ -45,7 +40,6 @@
     Promise.resolve(searchObjects(input)).then(results => {
       suggestions = results;
       showSuggestions = results.length > 0;
-      showNoResultsPrompt = results.length === 0 && input.length > 0;
       selectedSuggestionIndex = results.length > 0 ? 0 : -1;
     });
   });
@@ -53,7 +47,6 @@
   function resetSuggestions() {
     suggestions = [];
     showSuggestions = false;
-    showNoResultsPrompt = false;
     selectedSuggestionIndex = -1;
   }
 
@@ -134,7 +127,7 @@
 
 <div class="member-selector">
   <div class="input-row">
-    {#if !showAddForm}
+    {#if !showAddForm && !selectedMember}
       <div class="autocomplete-container">
         <input
           type="text"
@@ -164,7 +157,7 @@
           </ul>
         {/if}
       </div>
-    {:else}
+    {:else if showAddForm}
       <form class="add-form" onsubmit = {(e) => {e.preventDefault(); handleAddNewItem()}}>
         <input type="text" placeholder="Prénom" bind:value={firstname} class="field-input" />
         <input type="text" placeholder="Nom" bind:value={surname} class="field-input" />
@@ -182,15 +175,9 @@
     <div class="error-message">{addItemError}</div>
   {/if}
 
-  {#if showNoResultsPrompt && !showAddForm}
-    <div class="no-results-message">
-      Aucun résultat pour "{searchInput}".
-    </div>
-  {/if}
-  
   {#if selectedMember}
     <div class="selected-member">
-      Membre sélectionné : {displayMember(selectedMember)}
+      {displayMember(selectedMember)}
       <button type="button" class="remove-button" onclick={() => selectedMember = null} aria-label="Retirer">
         <img src="/icons/cancel.svg" alt="Supprimer" class="remove-icon" />
       </button>
@@ -331,18 +318,11 @@
     font-size: 0.97rem;
     margin-bottom: 0.3rem;
   }
-  .no-results-message {
-    color: var(--accent);
-    font-size: 0.97rem;
-    margin-top: 0.5rem;
-    text-align: center;
-  }
   .selected-member {
     margin-top: 0.5rem;
-    background: var(--secondary);
-    color: var(--primary);
+    color: var(--white);
     border-radius: 90px;
-    padding: 0 1rem;
+    padding: 0 0;
     display: flex;
     align-items: center;
     font-size: 0.97rem;
