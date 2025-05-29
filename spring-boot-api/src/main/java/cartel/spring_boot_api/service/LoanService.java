@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 public interface LoanService {
 
@@ -39,4 +40,10 @@ public interface LoanService {
 	public List<LoanByCartel> filterLoanByCartel(int pageNumber, int pageSize,
 		boolean asc, String sortBy, String itemName,
 		String borrowerFirstName, String borrowerSurname);
+		
+	public Page<CartelPerson> searchPersonByFullname(String fullname, int pageNumber, int pageSize);
+	
+	public CartelPerson createPerson(String firstname, String surname, String contact, Integer caution);
+	
+	public void createLoanToCartelById(Long personId, Long itemCopyId);
 }
