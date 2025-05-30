@@ -48,13 +48,7 @@
       };
 
       if (searchTerm) {
-        if (isEmpruntMode) {
-          filters.borrowerFirstName = searchTerm;
-          filters.borrowerSurname = searchTerm;
-        } else {
-          filters.ownerFirstName = searchTerm;
-          filters.ownerSurname = searchTerm;
-        }
+        filters.itemName = searchTerm;
       }
 
       if (isEmpruntMode) {
@@ -189,7 +183,7 @@
     <input
       type="text"
       bind:value={searchTerm}
-      placeholder="Rechercher par nom/prénom..."
+      placeholder="Rechercher par nom de l'objet..."
       onkeyup={(event) => event.key === "Enter" && handleSearch()}
     />
     <button class="admin-button" onclick={handleSearch}>Rechercher</button>
