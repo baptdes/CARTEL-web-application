@@ -6,38 +6,29 @@
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
   import * as loanService from "$lib/services/loanService";
+  import AddLoanPopup from "$lib/components/admin/AddLoanPopup.svelte";
 
   // Mode toggle - true for emprunts (loanByCartel), false for prêts (loanToCartel)
-  let isEmpruntMode = true;
+  let isEmpruntMode = $state(true);
 
   // Search state
-  let searchTerm = "";
-  let isSearching = false;
+  let searchTerm = $state("");
+  let isSearching = $state(false);
 
   // Sorting and filtering state
-  let sortField = "loanDate";
-  let sortAsc = false;
-  let filterActive = null; // null = all, true = active only, false = completed only
-  let filterDateStart = null;
-  let filterDateEnd = null;
+  let sortField = $state("loanDate");
+  let sortAsc = $state(false);
+  let filterActive = $state(null); // null = all, true = active only, false = completed only
+  let filterDateStart = $state(null);
+  let filterDateEnd = $state(null);
 
   // Data state
-  let loans = [];
-  let loading = true;
-  let error = null;
+  let loans = $state([]);
+  let loading = $state(true);
+  let error = $state(null);
 
   // Dialog state for adding loans
-  let showAddDialog = false;
-  let newLoan = {
-    personId: "",
-    itemCopyId: "",
-    personName: "",
-  };
-
-  // Person search for adding loans
-  let personSearchResults = [];
-  let personSearchTerm = "";
-  let showPersonSearch = false;
+  let showAddDialog = $state(false);
 
   // Load loans based on current state
   async function loadLoans() {
@@ -112,49 +103,6 @@
     }
   }
 
-  // Search for persons
-  async function searchPersons() {
-    if (!personSearchTerm) return;
-
-    try {
-      const results = await loanService.searchPersons(personSearchTerm);
-      personSearchResults = results.content || [];
-    } catch (e) {
-      console.error("Error searching for persons:", e);
-      error = "Erreur lors de la recherche de personnes";
-    }
-  }
-
-  // Select a person for new loan
-  function selectPerson(person) {
-    newLoan.personId = person.id;
-    newLoan.personName = `${person.firstname} ${person.surname}`;
-    showPersonSearch = false;
-  }
-
-  // Add new loan
-  async function addLoan() {
-    if (!newLoan.personId || !newLoan.itemCopyId) {
-      error = "Veuillez remplir tous les champs";
-      return;
-    }
-
-    try {
-      if (isEmpruntMode) {
-        await loanService.createLoanByCartel(newLoan.personId, newLoan.itemCopyId);
-      } else {
-        await loanService.createLoanToCartel(newLoan.personId, newLoan.itemCopyId);
-      }
-
-      showAddDialog = false;
-      newLoan = { personId: "", itemCopyId: "", personName: "" };
-      await loadLoans(); // Reload after adding
-    } catch (e) {
-      console.error("Error adding loan:", e);
-      error = "Erreur lors de l'ajout du prêt";
-    }
-  }
-
   // Format date for display
   function formatDate(dateStr) {
     if (!dateStr) return "N/A";
@@ -186,6 +134,11 @@
     loadLoans();
   }
 
+  // Handle loan added event
+  function handleLoanAdded() {
+    loadLoans();
+  }
+
   onMount(() => {
     loadLoans();
   });
@@ -199,7 +152,7 @@
     <div class="toggle-container">
       <button
         class="toggle-btn {isEmpruntMode ? 'active' : ''}"
-        on:click={() => {
+        onclick={() => {
           isEmpruntMode = true;
           loadLoans();
         }}
@@ -208,7 +161,7 @@
       </button>
       <button
         class="toggle-btn {!isEmpruntMode ? 'active' : ''}"
-        on:click={() => {
+        onclick={() => {
           isEmpruntMode = false;
           loadLoans();
         }}
@@ -217,7 +170,7 @@
       </button>
     </div>
 
-    <button class="admin-button add-btn" on:click={() => (showAddDialog = true)}>
+    <button class="admin-button add-btn" onclick={() => (showAddDialog = true)}>
       <i class="fas fa-plus"></i> Ajouter {isEmpruntMode ? "un emprunt" : "un prêt"}
     </button>
   </div>
@@ -227,33 +180,33 @@
       type="text"
       bind:value={searchTerm}
       placeholder="Rechercher par nom/prénom..."
-      on:keyup={(event) => event.key === "Enter" && handleSearch()}
+      onkeyup={(event) => event.key === "Enter" && handleSearch()}
     />
-    <button class="admin-button" on:click={handleSearch}>Rechercher</button>
+    <button class="admin-button" onclick={handleSearch}>Rechercher</button>
   </div>
 
   <div class="filter-controls">
     <div class="filter-group">
       <label for="sortField">Trier par:</label>
-      <select id="sortField" bind:value={sortField} on:change={loadLoans}>
+      <select id="sortField" bind:value={sortField} onchange={loadLoans}>
         <option value="loanDate">Date d'emprunt</option>
         <option value="endDate">Date de retour</option>
         {#if isEmpruntMode}
-        <option value="itemBorrower.firstname">Emprunteur</option>
+          <option value="itemBorrower.firstname">Emprunteur</option>
         {:else}
-        <option value="itemOwner.firstname">Prêteur</option>
+          <option value="itemOwner.firstname">Prêteur</option>
         {/if}
         <option value="itemShared.objet.name">Nom de l'objet</option>
       </select>
 
-      <button class="sort-dir" on:click={() => { sortAsc = !sortAsc; loadLoans(); }}>
+      <button class="sort-dir" onclick={() => { sortAsc = !sortAsc; loadLoans(); }}>
         {sortAsc ? '↑' : '↓'}
       </button>
     </div>
 
     <div class="filter-group">
       <label for="filterActive">Statut:</label>
-      <select id="filterActive" bind:value={filterActive} on:change={loadLoans}>
+      <select id="filterActive" bind:value={filterActive} onchange={loadLoans}>
         <option value={null}>Tous</option>
         <option value={true}>Actifs</option>
         <option value={false}>Terminés</option>
@@ -262,123 +215,94 @@
 
     <div class="filter-group">
       <label>Période du:</label>
-      <input type="date" bind:value={filterDateStart} on:change={loadLoans} />
+      <input type="date" bind:value={filterDateStart} onchange={loadLoans} />
       <label>au:</label>
-      <input type="date" bind:value={filterDateEnd} on:change={loadLoans} />
+      <input type="date" bind:value={filterDateEnd} onchange={loadLoans} />
     </div>
 
-    <button class="admin-button reset-btn" on:click={resetFilters}>
+    <button class="admin-button reset-btn" onclick={resetFilters}>
       Réinitialiser
     </button>
   </div>
 
   {#if error}
-  <div class="error">{error}</div>
+    <div class="error">{error}</div>
   {/if}
 
   {#if loading}
-  <div class="loading">Chargement en cours...</div>
+    <div class="loading">Chargement en cours...</div>
   {:else if loans.length === 0}
-  <div class="no-results">
-    {isSearching ? "Aucun résultat trouvé" : "Aucun prêt disponible"}
-  </div>
+    <div class="no-results">
+      {#if isSearching}
+        Aucun résultat trouvé
+      {:else}
+        Aucun prêt disponible
+      {/if}
+    </div>
   {:else}
-  <div class="results">
-    {#each loans as loan}
-    <div class="item">
-      <div class="itemInfo">
-        <img
-          src={loan.itemShared?.objet?.coverImage || "/placeholder_game.png"}
-          class="itemImage"
-          alt="Image de {loan.itemShared?.objet?.name}"
-        />
-        <div class="itemDetails">
-          <p class="type">
-            {isEmpruntMode ? "Emprunt" : "Prêt"} —
-            {loan.endDate ? "Terminé" : "En cours"}
-          </p>
-          <p class="title">{loan.itemShared?.objet?.name || "Sans titre"}</p>
-          <p class="details">
-            {#if isEmpruntMode}
-            Emprunté par <strong>{loan.itemBorrower?.firstname} {loan.itemBorrower?.surname}</strong>
-            {:else}
-            Prêté par <strong>{loan.itemOwner?.firstname} {loan.itemOwner?.surname}</strong>
-            {/if}
-            <br />
-            Date d'emprunt: <strong>{formatDate(loan.loanDate)}</strong>
-            {#if loan.endDate}
-            <br />
-            Date de retour: <strong>{formatDate(loan.endDate)}</strong>
-            {/if}
-          </p>
-        </div>
-      </div>
-
-      <div class="loanInfo">
-        {#if !loan.endDate}
-        <button class="complete-btn" on:click={() => completeLoan(loan.id)}>
-          Terminer
-        </button>
-        {/if}
-      </div>
-
-      <button class="cross" on:click={() => deleteLoan(loan.id)}>
-        <img src="/src/assets/img/icons/star_rf.svg" alt="cross" />
-      </button>
-    </div>
-    {/each}
-  </div>
-  {/if}
-
-  <!-- Add Loan Dialog -->
-  {#if showAddDialog}
-  <div class="dialog-overlay">
-    <div class="dialog">
-      <h2>Ajouter {isEmpruntMode ? "un emprunt" : "un prêt"}</h2>
-
-      <div class="dialog-field">
-        <label>Personne:</label>
-        {#if newLoan.personName}
-        <div class="selected-person">
-          {newLoan.personName}
-          <button on:click={() => { newLoan.personId = ""; newLoan.personName = ""; }}>✕</button>
-        </div>
-        {:else}
-        <div class="person-search">
-          <input
-            type="text"
-            bind:value={personSearchTerm}
-            placeholder="Rechercher une personne..."
-            on:focus={() => (showPersonSearch = true)}
-            on:keyup={(event) => event.key === "Enter" && searchPersons()}
-          />
-          <button on:click={searchPersons}>🔍</button>
-
-          {#if showPersonSearch && personSearchResults.length > 0}
-          <div class="search-results">
-            {#each personSearchResults as person}
-            <div class="person-result" on:click={() => selectPerson(person)}>
-              {person.firstname} {person.surname}
+    <div class="results">
+      {#each loans as loan}
+        <div class="item">
+          <div class="itemInfo">
+            <img
+              src={loan.itemShared?.objet?.coverImage || "/placeholder_game.png"}
+              class="itemImage"
+              alt={"Image de " + (loan.itemShared?.objet?.name || "")}
+            />
+            <div class="itemDetails">
+              <p class="type">
+                {#if isEmpruntMode}
+                  Emprunt
+                {:else}
+                  Prêt
+                {/if}
+                —
+                {#if loan.endDate}
+                  Terminé
+                {:else}
+                  En cours
+                {/if}
+              </p>
+              <p class="title">{loan.itemShared?.objet?.name || "Sans titre"}</p>
+              <p class="details">
+                {#if isEmpruntMode}
+                  Emprunté par <strong>{loan.itemBorrower?.firstname} {loan.itemBorrower?.surname}</strong>
+                {:else}
+                  Prêté par <strong>{loan.itemOwner?.firstname} {loan.itemOwner?.surname}</strong>
+                {/if}
+                <br />
+                Date d'emprunt: <strong>{formatDate(loan.loanDate)}</strong>
+                {#if loan.endDate}
+                  <br />
+                  Date de retour: <strong>{formatDate(loan.endDate)}</strong>
+                {/if}
+              </p>
             </div>
-            {/each}
           </div>
-          {/if}
+
+          <div class="loanInfo">
+            {#if !loan.endDate}
+              <button class="complete-btn" onclick={() => completeLoan(loan.id)}>
+                Terminer
+              </button>
+            {/if}
+          </div>
+
+          <button class="cross" onclick={() => deleteLoan(loan.id)}>
+            <img src="/src/assets/img/icons/star_rf.svg" alt="cross" />
+          </button>
         </div>
-        {/if}
-      </div>
-
-      <div class="dialog-field">
-        <label>ID de l'objet:</label>
-        <input type="text" bind:value={newLoan.itemCopyId} placeholder="ID de la copie" />
-      </div>
-
-      <div class="dialog-actions">
-        <button class="admin-button" on:click={addLoan}>Ajouter</button>
-        <button class="admin-button cancel" on:click={() => (showAddDialog = false)}>Annuler</button>
-      </div>
+      {/each}
     </div>
-  </div>
   {/if}
+
+  <!-- Add Loan Dialog using the new component -->
+  <AddLoanPopup 
+    show={showAddDialog} 
+    isEmpruntMode={isEmpruntMode}
+    on:close={() => showAddDialog = false}
+    on:added={handleLoanAdded}
+  />
 </main>
 
 <style lang="scss">
