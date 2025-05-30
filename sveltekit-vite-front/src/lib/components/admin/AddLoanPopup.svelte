@@ -1,7 +1,9 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import * as loanService from '$lib/services/loanService';
+  import * as itemService from '$lib/services/itemService';
   import MemberSelector from './MemberSelector.svelte';
+  import ItemSelector from './ItemSelector.svelte';
 
   let { show = $bindable(false), isEmpruntMode = $bindable(true) } = $props();
   
@@ -10,10 +12,12 @@
   // State for loan creation
   let newLoan = $state({
     person: null,
+    itemCopy: null,
     itemCopyId: ""
   });
   
   let error = $state(null);
+  let selectedItem = $state(null);
   
   // Reset form when popup opens
   $effect(() => {
@@ -21,12 +25,21 @@
       resetForm();
     }
   });
+
+  $effect(() => {
+    if (selectedItem) {
+      // Clear the manual itemCopyId when an item is selected
+      newLoan.itemCopyId = "";
+    }
+  });
   
   function resetForm() {
     newLoan = {
       person: null,
+      itemCopy: null,
       itemCopyId: ""
     };
+    selectedItem = null;
     error = null;
   }
 
@@ -38,6 +51,21 @@
     } catch (err) {
       console.error("Error searching for members:", err);
       return [];
+    }
+  }
+
+  // Function to search for items
+  async function searchItems(query) {
+    try {
+      const params = {
+        name: query,
+        pageSize: 10,
+        pageNumber: 0
+      };
+      return await itemService.searchItems(params);
+    } catch (err) {
+      console.error("Error searching for items:", err);
+      return { content: [] };
     }
   }
 
@@ -63,18 +91,47 @@
     }
   }
 
+  // Create item copy if an item is selected
+  async function createItemCopyFromSelection() {
+    if (!selectedItem) return null;
+    
+    try {
+      const newCopy = await itemService.createItemCopy(selectedItem.barcode);
+      return newCopy.id;
+    } catch (err) {
+      console.error("Error creating item copy:", err);
+      throw new Error("Erreur lors de la création de la copie: " + (err.message || err));
+    }
+  }
+
   // Add new loan
   async function addLoan() {
-    if (!newLoan.person || !newLoan.itemCopyId) {
-      error = "Veuillez remplir tous les champs";
+    if (!newLoan.person) {
+      error = "Veuillez sélectionner une personne";
+      return;
+    }
+
+    if (!selectedItem && !newLoan.itemCopyId) {
+      error = "Veuillez sélectionner un objet ou entrer un ID de copie";
       return;
     }
 
     try {
+      let itemCopyIdToUse = newLoan.itemCopyId;
+      
+      // If an item is selected but no itemCopyId entered, create a copy
+      if (selectedItem && !itemCopyIdToUse) {
+        itemCopyIdToUse = await createItemCopyFromSelection();
+        if (!itemCopyIdToUse) {
+          error = "Impossible de créer une copie pour cet objet";
+          return;
+        }
+      }
+
       if (isEmpruntMode) {
-        await loanService.createLoanByCartel(newLoan.person.id, newLoan.itemCopyId);
+        await loanService.createLoanByCartel(newLoan.person.id, itemCopyIdToUse);
       } else {
-        await loanService.createLoanToCartel(newLoan.person.id, newLoan.itemCopyId);
+        await loanService.createLoanToCartel(newLoan.person.id, itemCopyIdToUse);
       }
 
       dispatch('added');
@@ -108,8 +165,26 @@
       </div>
 
       <div class="dialog-field">
-        <label>ID de l'objet:</label>
-        <input type="text" bind:value={newLoan.itemCopyId} placeholder="ID de la copie" />
+        <label>Objet:</label>
+        <ItemSelector
+          bind:selectedItem={selectedItem}
+          placeholder="Rechercher un objet"
+          searchObjects={searchItems}
+        />
+      </div>
+
+      <div class="dialog-field">
+        <label>OU ID de la copie:</label>
+        <input 
+          type="text" 
+          bind:value={newLoan.itemCopyId} 
+          placeholder="ID de la copie" 
+          disabled={selectedItem !== null}
+          class={selectedItem !== null ? "disabled" : ""}
+        />
+        {#if selectedItem}
+          <small class="hint">L'ID de copie sera généré automatiquement</small>
+        {/if}
       </div>
 
       {#if error}
@@ -117,8 +192,8 @@
       {/if}
 
       <div class="dialog-actions">
-        <button class="admin-button" onclick={addLoan}>Ajouter</button>
-        <button class="admin-button cancel" onclick={closePopup}>Annuler</button>
+        <button class="admin-button" on:click={addLoan}>Ajouter</button>
+        <button class="admin-button cancel" on:click={closePopup}>Annuler</button>
       </div>
     </div>
   </div>
@@ -172,6 +247,19 @@
       border-radius: 4px;
       background-color: var(--tertiary);
       color: var(--primary);
+      
+      &.disabled {
+        background-color: var(--secondary);
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+    
+    .hint {
+      display: block;
+      color: var(--secondary);
+      margin-top: 0.3em;
+      font-style: italic;
     }
   }
 
