@@ -13,7 +13,5 @@ public interface LoanToCartelRepository extends JpaRepository<LoanToCartel, Long
 
     public List<LoanToCartel> findAll();
 
-	public List<LoanToCartel> findById(long id);
-
 	public void deleteById(long id);
 }
