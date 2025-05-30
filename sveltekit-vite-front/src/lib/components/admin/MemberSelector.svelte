@@ -56,6 +56,40 @@
     resetSuggestions();
   }
 
+  function handleKeydown(e) {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch(e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        selectedSuggestionIndex = (selectedSuggestionIndex + 1) % suggestions.length;
+        scrollToSelected();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        selectedSuggestionIndex = (selectedSuggestionIndex - 1 + suggestions.length) % suggestions.length;
+        scrollToSelected();
+        break;
+      case 'Enter':
+        if (selectedSuggestionIndex >= 0) {
+          e.preventDefault();
+          selectItem(suggestions[selectedSuggestionIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        resetSuggestions();
+        break;
+    }
+  }
+
+  function scrollToSelected() {
+    setTimeout(() => {
+      const el = document.getElementById(`suggestion-${selectedSuggestionIndex}`);
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }, 0);
+  }
+
   function handleShowAddForm() {
     showAddForm = true;
     addItemError = '';
@@ -133,7 +167,12 @@
           type="text"
           placeholder={placeholder}
           bind:value={searchInput}
+          onkeydown={handleKeydown}
+          onblur={() => setTimeout(() => { showSuggestions = false; }, 120)}
           aria-autocomplete="list"
+          aria-controls="suggestions-list"
+          aria-activedescendant={showSuggestions && selectedSuggestionIndex >= 0 ? 
+            `suggestion-${selectedSuggestionIndex}` : undefined}
         />
         <button
           type="button"
@@ -142,11 +181,17 @@
           onclick={handleShowAddForm}
         >+</button>
         {#if showSuggestions}
-          <ul class="suggestions-list">
+          <ul class="suggestions-list" id="suggestions-list" role="listbox">
             {#each suggestions as item, i}
-              <li class:selected={i === selectedSuggestionIndex}>
+              <li
+                id={`suggestion-${i}`}
+                class:selected={i === selectedSuggestionIndex}
+                role="option"
+                aria-selected={i === selectedSuggestionIndex}
+              >
                 <button
                   type="button"
+                  tabindex="-1"
                   class:selected={i === selectedSuggestionIndex}
                   onmousedown = {(e) => {e.preventDefault(); selectItem(item)}}
                 >
@@ -249,6 +294,11 @@
 
         li {
           margin: 0;
+          &.selected, button.selected {
+            background: var(--secondary);
+            color: var(--accent);
+          }
+          
           button {
             background: none;
             border: none;
@@ -337,7 +387,7 @@
       padding-right: 0;
       &:hover {
         .remove-icon {
-          filter: brightness(0.7);
+          filter: invert(18%) sepia(99%) saturate(2000%) hue-rotate(357deg) brightness(92%) contrast(119%);
         }
       }
       .remove-icon {
