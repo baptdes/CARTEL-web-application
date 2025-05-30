@@ -280,10 +280,13 @@
 
     button {
       padding: 0.5em 1em;
+      background-color: var(--primary);
+      color: var(--back);
     }
 
     .cancel {
-      background-color: var(--secondary);
+      color: var(--secondary);
+      background-color: var(--back);
     }
   }
 </style>

@@ -54,7 +54,11 @@
           Prêté par <strong>{loan.itemOwner?.firstname} {loan.itemOwner?.surname}</strong>
         {/if}
         <br />
-        Contact : <strong>{loan.itemBorrower?.contact || "N/A"}</strong>
+        {#if isEmpruntMode}
+          Contact : <strong>{loan.itemBorrower?.contact || "N/A"}</strong>
+        {:else}
+          Contact : <strong>{loan.itemOwner?.contact || "N/A"}</strong>
+        {/if}
         <br />
         {#if isEmpruntMode}
             Date d'emprunt:

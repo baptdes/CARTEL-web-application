@@ -5,7 +5,6 @@
   let {
     selectedItem = $bindable(null),
     placeholder = "Rechercher un objet...",
-    addObject = null,
     searchObjects = null
   } = $props();
 
@@ -17,23 +16,8 @@
   let showSuggestions = $state(false);
   let selectedSuggestionIndex = $state(-1);
 
-  // Ajout objet
-  let name = $state('');
-  let barcode = $state('');
-  let publicationYear = $state('');
-  let language = $state('FR');
-  let addItemError = $state('');
-  let showAddForm = $state(false);
-
-  const languages = ['FR', 'EN', 'JA'];
-
-  // Affichage item
-  const displayItem = (item) => {
-    return `${item.name} (${item.publicationYear})`;
-  };
-
   // Placeholder image when cover not available
-  const placeholderImage = "/images/placeholder-cover.png";
+  const placeholderImage = "/placeholder_book.png";
 
   // Recherche suggestions
   $effect(() => {
@@ -95,70 +79,11 @@
       if (el) el.scrollIntoView({ block: 'nearest' });
     }, 0);
   }
-
-  function handleShowAddForm() {
-    showAddForm = true;
-    addItemError = '';
-    name = '';
-    barcode = '';
-    publicationYear = new Date().getFullYear().toString();
-    language = 'FR';
-  }
-
-  function handleCancelAdd() {
-    showAddForm = false;
-    addItemError = '';
-  }
-
-  async function handleAddNewItem() {
-    // Validation simple
-    if (!name.trim()) {
-      addItemError = "Le nom est obligatoire.";
-      return;
-    }
-    if (!barcode.trim()) {
-      addItemError = "Le code-barres est obligatoire.";
-      return;
-    }
-    if (!publicationYear || isNaN(Number(publicationYear)) || Number(publicationYear) < 0) {
-      addItemError = "L'année de publication doit être un nombre positif.";
-      return;
-    }
-
-    if (!addObject) {
-      // Si pas de fonction d'ajout, création d'un objet local seulement
-      const newItem = {
-        barcode: barcode.trim(),
-        name: name.trim(),
-        publicationYear: Number(publicationYear),
-        language: language
-      };
-      selectItem(newItem);
-      showAddForm = false;
-      return;
-    }
-
-    try {
-      addItemError = '';
-      const newItem = await addObject({
-        barcode: barcode.trim(),
-        name: name.trim(),
-        publicationYear: Number(publicationYear),
-        language: language
-      });
-      
-      // Add to selection and reset form
-      selectItem(newItem);
-      showAddForm = false;
-    } catch (err) {
-      addItemError = "Erreur lors de l'ajout : " + (err.message || err);
-    }
-  }
 </script>
 
 <div class="item-selector">
   <div class="input-row">
-    {#if !showAddForm && !selectedItem}
+    {#if !selectedItem}
       <div class="autocomplete-container">
         <input
           type="text"
@@ -171,12 +96,6 @@
           aria-activedescendant={showSuggestions && selectedSuggestionIndex >= 0 ? 
             `suggestion-${selectedSuggestionIndex}` : undefined}
         />
-        <button
-          type="button"
-          class="add-btn"
-          title="Ajouter un nouvel objet"
-          onclick={handleShowAddForm}
-        >+</button>
         {#if showSuggestions}
           <ul class="suggestions-list" id="suggestions-list" role="listbox">
             {#each suggestions as item, i}
@@ -211,27 +130,8 @@
           </ul>
         {/if}
       </div>
-    {:else if showAddForm}
-      <form class="add-form" onsubmit = {(e) => {e.preventDefault(); handleAddNewItem()}}>
-        <input type="text" placeholder="Code-barres" bind:value={barcode} class="field-input" />
-        <input type="text" placeholder="Nom" bind:value={name} class="field-input" />
-        <input type="number" placeholder="Année de publication" bind:value={publicationYear} min="0" class="field-input" />
-        <select bind:value={language} class="field-input">
-          {#each languages as lang}
-            <option value={lang}>{lang}</option>
-          {/each}
-        </select>
-        <div class="form-actions">
-          <button type="submit" class="validate-btn">Valider</button>
-          <button type="button" class="cancel-btn" onclick={handleCancelAdd}>Annuler</button>
-        </div>
-      </form>
     {/if}
   </div>
-  
-  {#if addItemError}
-    <div class="error-message">{addItemError}</div>
-  {/if}
 
   {#if selectedItem}
     <div class="selected-item">
@@ -240,7 +140,7 @@
           <img 
             src={selectedItem.coverImage || placeholderImage} 
             alt={selectedItem.name} 
-            onerror={(e) => e.target.src = placeholderImage} 
+            onerror={(e) => e.target.src = placeholderImage}
           />
         </div>
         <div class="item-details">
@@ -275,7 +175,7 @@
         width: 100%;
         min-width: 0;
         padding: 0.45rem 0.8rem;
-        border-radius: 4px 0 0 4px;
+        border-radius: 4px;
         border: 1px solid var(--secondary);
         background: var(--tertiary);
         color: var(--primary);
@@ -284,21 +184,6 @@
           outline: none;
           box-shadow: none;
           border-color: var(--secondary);
-        }
-      }
-      .add-btn {
-        border-radius: 0 4px 4px 0;
-        border: 1px solid var(--secondary);
-        border-left: none;
-        background: var(--accent);
-        color: #fff;
-        font-size: 1.3rem;
-        font-weight: bold;
-        padding: calc(0.42rem - 2px) 0.8rem;
-        cursor: pointer;
-        transition: filter 0.15s;
-        &:hover {
-          filter: brightness(0.9);
         }
       }
       .suggestions-list {
@@ -373,58 +258,6 @@
         }
       }
     }
-    .add-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-      width: 100%;
-      .field-input {
-        padding: 0.4rem 0.7rem;
-        border-radius: 4px;
-        border: 1px solid var(--secondary);
-        background: var(--tertiary);
-        color: var(--primary);
-        font-size: 0.97rem;
-        width: 100%;
-      }
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.7rem;
-        margin-top: 0.2rem;
-        .validate-btn {
-          background: var(--accent);
-          color: white;
-          border: none;
-          border-radius: 3px;
-          padding: 0.4rem 1.1rem;
-          font-size: 1rem;
-          cursor: pointer;
-          font-weight: bold;
-          &:hover {
-            filter: brightness(0.9);
-          }
-        }
-        .cancel-btn {
-          background: none;
-          border: 1px solid var(--secondary);
-          color: var(--accent);
-          border-radius: 3px;
-          font-size: 1rem;
-          padding: 0.4rem 1.1rem;
-          cursor: pointer;
-          &:hover {
-            background: var(--secondary);
-            color: #b71c1c;
-          }
-        }
-      }
-    }
-  }
-  .error-message {
-    color: var(--accent);
-    font-size: 0.97rem;
-    margin-bottom: 0.3rem;
   }
   .selected-item {
     margin-top: 0.5rem;

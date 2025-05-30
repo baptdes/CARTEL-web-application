@@ -74,7 +74,7 @@
         <div class="card-layout">
           <div class="img">
             <img 
-              src={item.coverImage || (type === 'book' ? "/placeholder_book.png" : "/placeholder_game.png")}
+              src={item.coverImage || (type === 'book' ? "/placeholder_book.png" : "/placeholder_game.jpg")}
               alt={`Couverture de ${item.name || (type === 'book' ? 'Livre sans titre' : 'Jeu sans titre')}`}
               loading="lazy"
             />
