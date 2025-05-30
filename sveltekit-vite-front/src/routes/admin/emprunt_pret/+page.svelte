@@ -7,6 +7,7 @@
   import PointBar from "$lib/misc/PointBar.svelte";
   import * as loanService from "$lib/services/loanService";
   import AddLoanPopup from "$lib/components/admin/AddLoanPopup.svelte";
+  import LoanCard from "$lib/components/admin/LoanCard.svelte";
 
   // Mode toggle - true for emprunts (loanByCartel), false for prêts (loanToCartel)
   let isEmpruntMode = $state(true);
@@ -139,6 +140,15 @@
     loadLoans();
   }
 
+  // Handle events from the LoanCard component
+  function handleLoanComplete(event) {
+    completeLoan(event.detail.id);
+  }
+
+  function handleLoanDelete(event) {
+    deleteLoan(event.detail.id);
+  }
+
   onMount(() => {
     loadLoans();
   });
@@ -170,8 +180,8 @@
       </button>
     </div>
 
-    <button class="admin-button add-btn" onclick={() => (showAddDialog = true)}>
-      <i class="fas fa-plus"></i> Ajouter {isEmpruntMode ? "un emprunt" : "un prêt"}
+    <button class="admin-button" onclick={() => (showAddDialog = true)}>
+      Ajouter {isEmpruntMode ? "un emprunt" : "un prêt"}
     </button>
   </div>
 
@@ -214,10 +224,10 @@
     </div>
 
     <div class="filter-group">
-      <label>Période du:</label>
-      <input type="date" bind:value={filterDateStart} onchange={loadLoans} />
-      <label>au:</label>
-      <input type="date" bind:value={filterDateEnd} onchange={loadLoans} />
+      <label for="filterDateStart">Période du:</label>
+      <input id="filterDateStart" type="date" bind:value={filterDateStart} onchange={loadLoans} />
+      <label for="filterDateEnd">au:</label>
+      <input id="filterDateEnd" type="date" bind:value={filterDateEnd} onchange={loadLoans} />
     </div>
 
     <button class="admin-button reset-btn" onclick={resetFilters}>
@@ -242,56 +252,12 @@
   {:else}
     <div class="results">
       {#each loans as loan}
-        <div class="item">
-          <div class="itemInfo">
-            <img
-              src={loan.itemShared?.objet?.coverImage || "/placeholder_game.png"}
-              class="itemImage"
-              alt={"Image de " + (loan.itemShared?.objet?.name || "")}
-            />
-            <div class="itemDetails">
-              <p class="type">
-                {#if isEmpruntMode}
-                  Emprunt
-                {:else}
-                  Prêt
-                {/if}
-                —
-                {#if loan.endDate}
-                  Terminé
-                {:else}
-                  En cours
-                {/if}
-              </p>
-              <p class="title">{loan.itemShared?.objet?.name || "Sans titre"}</p>
-              <p class="details">
-                {#if isEmpruntMode}
-                  Emprunté par <strong>{loan.itemBorrower?.firstname} {loan.itemBorrower?.surname}</strong>
-                {:else}
-                  Prêté par <strong>{loan.itemOwner?.firstname} {loan.itemOwner?.surname}</strong>
-                {/if}
-                <br />
-                Date d'emprunt: <strong>{formatDate(loan.loanDate)}</strong>
-                {#if loan.endDate}
-                  <br />
-                  Date de retour: <strong>{formatDate(loan.endDate)}</strong>
-                {/if}
-              </p>
-            </div>
-          </div>
-
-          <div class="loanInfo">
-            {#if !loan.endDate}
-              <button class="complete-btn" onclick={() => completeLoan(loan.id)}>
-                Terminer
-              </button>
-            {/if}
-          </div>
-
-          <button class="cross" onclick={() => deleteLoan(loan.id)}>
-            <img src="/src/assets/img/icons/star_rf.svg" alt="cross" />
-          </button>
-        </div>
+        <LoanCard 
+          loan={loan} 
+          isEmpruntMode={isEmpruntMode}
+          on:complete={handleLoanComplete}
+          on:delete={handleLoanDelete}
+        />
       {/each}
     </div>
   {/if}
@@ -326,27 +292,29 @@
 
   .toggle-container {
     display: flex;
-    border: 2px solid var(--primary);
-    border-radius: 4px;
+    border: 1px solid var(--primary);
     overflow: hidden;
+    padding: 0.5em;
   }
 
   .toggle-btn {
+    color : var(--primary);
     padding: 0.5em 1em;
     background: none;
     border: none;
+    border-radius: 0;
     font-family: Guisol;
     font-size: 1.2em;
     cursor: pointer;
     transition: background-color 0.3s;
 
     &.active {
-      background-color: var(--primary);
-      color: var(--back);
+      border: 2px solid var(--primary);
+      color: var(--accent);
     }
 
-    &:not(.active):hover {
-      background-color: rgba(var(--primary-rgb), 0.2);
+    &:hover {
+      color: var(--accent);
     }
   }
 
@@ -378,12 +346,8 @@
     width: 90%;
     display: flex;
     flex-wrap: wrap;
-    gap: 1em;
     margin-bottom: 1.5em;
     justify-content: space-between;
-    padding: 0.5em;
-    background-color: rgba(var(--secondary-rgb), 0.1);
-    border-radius: 4px;
     align-items: center;
   }
 
@@ -391,25 +355,25 @@
     display: flex;
     align-items: center;
     gap: 0.5em;
+    border-radius: 0;
 
     label {
       font-weight: bold;
-      color: var(--secondary);
+      color: var(--primary);
     }
 
     select,
     input[type="date"] {
       padding: 0.3em 0.5em;
-      border: 1px solid var(--secondary);
-      border-radius: 4px;
-      background-color: var(--back);
+      border: 1px solid var(--primary);
       font-family: inherit;
+      background-color: var(--back);
       color: var(--secondary);
     }
   }
 
   .sort-dir {
-    background: var(--primary);
+    background: var(--back);
     color: white;
     width: 30px;
     height: 30px;
@@ -417,16 +381,14 @@
     align-items: center;
     justify-content: center;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
     font-size: 1.2em;
     padding: 0;
+    border-radius: 0;
   }
 
   .reset-btn {
-    padding: 0.3em 0.8em;
-    font-size: 0.9em;
-    background-color: var(--secondary);
+    border : 1px solid var(--accent);
   }
 
   .error {
@@ -452,233 +414,5 @@
     display: flex;
     flex-direction: column;
     gap: 1em;
-  }
-
-  .item {
-    display: flex;
-    flex-grow: 1;
-    gap: 0.5em;
-    min-height: 160px;
-    width: 100%;
-    flex-direction: row;
-    border: 1px solid var(--primary);
-    padding: 0.5em;
-  }
-
-  .itemInfo {
-    display: flex;
-    flex-direction: row;
-    gap: 1em;
-    flex-grow: 3;
-
-    .itemImage {
-      aspect-ratio: 1;
-      object-fit: cover;
-      max-height: 150px;
-    }
-
-    .itemDetails {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1em;
-      font-size: 1.2em;
-      align-content: space-between;
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
-      margin-right: 0.5em;
-
-      .type {
-        color: var(--accent);
-        font-size: 0.8em;
-        text-transform: uppercase;
-      }
-
-      .title {
-        font-weight: bold;
-        font-size: 1.5em;
-        color: var(--primary);
-      }
-
-      .details {
-        min-width: 0px;
-        font-size: 0.9em;
-        color: var(--secondary);
-        height: 100%;
-        word-wrap: break-word;
-
-        strong {
-          color: var(--primary);
-        }
-      }
-    }
-  }
-
-  .loanInfo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--accent);
-    padding: 0.5em;
-    flex-grow: 1;
-    color: var(--accent);
-
-    .complete-btn {
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.5em 1em;
-      cursor: pointer;
-      border-radius: 4px;
-      text-transform: uppercase;
-      font-family: inherit;
-      font-weight: bold;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-  }
-
-  .cross {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    position: relative;
-    background-color: var(--back);
-    padding: 0%;
-    border: 1px solid var(--accent);
-    border-radius: 0%;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      rotate: 45deg;
-      transition: rotate 1s ease-out;
-    }
-
-    &:hover {
-      img {
-        rotate: 315deg;
-      }
-    }
-  }
-
-  .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .dialog {
-    background-color: var(--back);
-    padding: 2em;
-    border-radius: 4px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-
-    h2 {
-      margin-top: 0;
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 1.5em;
-    }
-  }
-
-  .dialog-field {
-    margin-bottom: 1.5em;
-
-    label {
-      display: block;
-      margin-bottom: 0.5em;
-      font-weight: bold;
-      color: var(--secondary);
-    }
-
-    input {
-      width: 100%;
-      padding: 0.5em;
-      font-size: 1em;
-      border: 1px solid var(--secondary);
-      border-radius: 4px;
-    }
-  }
-
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1em;
-
-    button {
-      padding: 0.5em 1em;
-    }
-
-    .cancel {
-      background-color: var(--secondary);
-    }
-  }
-
-  .person-search {
-    position: relative;
-    display: flex;
-
-    input {
-      flex-grow: 1;
-    }
-
-    button {
-      width: 40px;
-      padding: 0;
-    }
-  }
-
-  .search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: var(--back);
-    border: 1px solid var(--secondary);
-    z-index: 10;
-    max-height: 200px;
-    overflow-y: auto;
-
-    .person-result {
-      padding: 0.5em;
-      cursor: pointer;
-
-      &:hover {
-        background-color: rgba(var(--primary-rgb), 0.1);
-      }
-    }
-  }
-
-  .selected-person {
-    padding: 0.5em;
-    border: 1px solid var(--primary);
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    button {
-      background-color: transparent;
-      border: none;
-      color: var(--secondary);
-      cursor: pointer;
-      font-size: 1.2em;
-
-      &:hover {
-        color: var(--primary);
-      }
-    }
   }
 </style>
