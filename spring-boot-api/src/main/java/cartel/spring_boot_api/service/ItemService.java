@@ -1,8 +1,12 @@
 package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.model.Item;
+import cartel.spring_boot_api.model.ItemCopy;
 
 import org.springframework.data.domain.Page;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemService {
@@ -37,4 +41,11 @@ public interface ItemService {
      * @return Une page d'items
      */
     Page<Item> getAllItems(int pageNumber, int pageSize, boolean asc, String sortBy);
+
+    /**
+     * Récupérer les copies d'un item par son ID
+     * @param itemId L'ID de l'item dont on veut les copies
+     * @return Une page de copies d'items
+     */
+    Collection<ItemCopy> getItemCopiesByItemId(String itemId);
 }

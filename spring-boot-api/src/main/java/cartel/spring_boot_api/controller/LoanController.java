@@ -116,6 +116,23 @@ public class LoanController {
     }
 
     /**
+     * Crée un prêt au Cartel en utilisant l'id de l'item (pas de copy)
+     * Une nouvelle copy de l'item sera créée et associée au prêt
+     * 
+     * @param personId L'ID de la personne propriétaire
+     * @param itemId L'ID (barcode) de l'item à prêter
+     * @return Une confirmation
+     */
+    @PostMapping("/toCartel/addByItemId")
+    public ResponseEntity<String> createLoanToCartelByItemId(
+            @RequestParam Long personId,
+            @RequestParam String itemId) {
+        
+        loanService.createLoanToCartelWithItemId(personId, itemId);
+        return ResponseEntity.ok("Loan created successfully with new item copy");
+    }
+
+    /**
      * Filters loan to cartel by various criteria with pagination (enhanced version)
      * 
      * @param pageNumber The page number (0-based)
@@ -216,7 +233,7 @@ public class LoanController {
         loanService.completeLoanToCartel(loanId);
         return ResponseEntity.ok("Loan completed successfully");
     }
-
+    
     /**
      * Marque un emprunt par le Cartel comme terminé
      * 

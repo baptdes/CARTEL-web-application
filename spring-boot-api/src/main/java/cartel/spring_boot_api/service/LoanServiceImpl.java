@@ -24,6 +24,7 @@ import cartel.spring_boot_api.repository.LoanByCartelRepository;
 import cartel.spring_boot_api.repository.LoanToCartelRepository;
 import cartel.spring_boot_api.repository.ItemCopyRepository;
 import cartel.spring_boot_api.repository.CartelPersonRepository;
+import cartel.spring_boot_api.repository.ItemRepository;
 
 
 @Service
@@ -40,6 +41,9 @@ public class LoanServiceImpl implements LoanService {
     
     @Autowired
     private CartelPersonRepository cartelPersonRepository;
+    
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Override
     public List<LoanToCartel> getAllLoanToCartel(){
@@ -249,5 +253,24 @@ public class LoanServiceImpl implements LoanService {
 
         Page<LoanByCartel> pageLoanByCartel = loanByCartelRepository.findAll(filters, page);
         return pageLoanByCartel.getContent();
+    }
+
+    @Override
+    public LoanToCartel createLoanToCartelWithItemId(Long personId, String itemId) {
+        // Trouver la personne
+        CartelPerson owner = cartelPersonRepository.findById(personId)
+            .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
+        
+        // Trouver l'item
+        Item item = itemRepository.findById(itemId)
+            .orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + itemId));
+        
+        // Créer une nouvelle copie de l'item
+        ItemCopy newCopy = new ItemCopy(item);
+        newCopy = itemCopyRepository.save(newCopy);
+        
+        // Créer un nouveau prêt avec la nouvelle copie
+        LoanToCartel loan = new LoanToCartel(owner, newCopy);
+        return loanToCartelRepository.save(loan);
     }
 }

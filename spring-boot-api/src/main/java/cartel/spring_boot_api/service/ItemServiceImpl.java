@@ -1,6 +1,7 @@
 package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.model.Item;
+import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.repository.ItemRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,5 +42,12 @@ public class ItemServiceImpl implements ItemService {
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
         
         return itemRepository.findAll(page);
+    }
+
+    @Override
+    public Collection<ItemCopy> getItemCopiesByItemId(String itemId){
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
+        return item.getCopies();
     }
 }

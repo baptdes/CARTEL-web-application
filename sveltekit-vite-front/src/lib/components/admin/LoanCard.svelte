@@ -28,7 +28,7 @@
 <div class="item">
   <div class="itemInfo">
     <img
-      src={loan.itemShared?.objet?.coverImage || "/placeholder_game.png"}
+      src={loan.itemShared?.objet?.coverImage || "/placeholder.jpg"}
       class="itemImage"
       alt={"Image de " + (loan.itemShared?.objet?.name || "")}
     />

@@ -1,6 +1,10 @@
 package cartel.spring_boot_api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -93,5 +97,44 @@ public class ItemCopyController {
     public ResponseEntity<Iterable<ItemCopy>> getAllItemCopies() {
         Iterable<ItemCopy> copies = itemCopyRepository.findAll();
         return ResponseEntity.ok(copies);
+    }
+
+    /**
+     * Recherche des copies d'items par le nom de l'item avec pagination
+     * 
+     * @param itemName Le nom (ou partie du nom) de l'item à rechercher
+     * @param pageNumber Le numéro de la page (0-based)
+     * @param pageSize Le nombre d'éléments par page
+     * @param asc Ordre de tri croissant (true) ou décroissant (false)
+     * @param sortBy Champ sur lequel effectuer le tri
+     * @return Une page de copies d'items correspondant aux critères
+     */
+    @GetMapping("/search")
+    public Page<ItemCopy> searchItemCopiesByItemName(
+            @RequestParam String itemName,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(defaultValue = "true") boolean asc,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        
+        Pageable pageable = asc ?
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+        
+        return itemCopyRepository.findByItemNameContainingIgnoreCase(itemName, pageable);
+    }
+
+    /**
+     * Est-ce que cette copie est empruntable ?
+     * @return true si la copie est empruntable, false sinon
+     */
+    @GetMapping("/{copyId}/isAvailable")
+    public ResponseEntity<Boolean> isItemCopyBorrowable(@PathVariable Long copyId) {
+        ItemCopy copy = itemCopyRepository.findById(copyId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Item copy not found with ID: " + copyId));
+        
+        boolean isBorrowable = copy.isAvailable();
+        return ResponseEntity.ok(isBorrowable);
     }
 }

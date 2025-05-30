@@ -50,4 +50,7 @@ public class ItemCopy{
         this.objet = objet;
     }
     
+    public boolean isAvailable() {
+        return loanToPerson == null && loanByPerson == null;
+    }
 }

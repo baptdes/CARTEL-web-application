@@ -81,4 +81,14 @@ public interface LoanService {
         Date endDateBefore,
         Date endDateAfter,
         Boolean active);
+    
+    /**
+     * Crée un prêt au Cartel en utilisant l'id de l'item (pas de copy)
+     * Une nouvelle copy de l'item sera créée et associée au prêt
+     * 
+     * @param personId L'ID de la personne propriétaire
+     * @param itemId L'ID (barcode) de l'item à prêter
+     * @return Le prêt créé
+     */
+    public LoanToCartel createLoanToCartelWithItemId(Long personId, String itemId);
 }

@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import * as loanService from '$lib/services/loanService';
   import * as itemService from '$lib/services/itemService';
+  import * as copyService from '$lib/services/copyService';
   import MemberSelector from './MemberSelector.svelte';
   import ItemSelector from './ItemSelector.svelte';
 
@@ -12,12 +13,13 @@
   // State for loan creation
   let newLoan = $state({
     person: null,
-    itemCopy: null,
     itemCopyId: ""
   });
   
   let error = $state(null);
   let selectedItem = $state(null);
+  let searchingCopies = $state(false);
+  let availableCopies = $state([]);
   
   // Reset form when popup opens
   $effect(() => {
@@ -27,20 +29,53 @@
   });
 
   $effect(() => {
-    if (selectedItem) {
-      // Clear the manual itemCopyId when an item is selected
-      newLoan.itemCopyId = "";
+    if (selectedItem && isEmpruntMode) {
+      loadItemCopies(selectedItem.barcode);
+      console.log("Selected item for emprunt mode:", selectedItem.barcode);
     }
   });
   
   function resetForm() {
     newLoan = {
       person: null,
-      itemCopy: null,
       itemCopyId: ""
     };
     selectedItem = null;
     error = null;
+    availableCopies = [];
+    searchingCopies = false;
+  }
+
+  // Load available copies for an item (for emprunt mode)
+  async function loadItemCopies(itemId) {
+    if (!itemId) return;
+    
+    searchingCopies = true;
+    try {
+      const response = await copyService.searchItemCopies(itemId);
+      const copies = Array.isArray(response) ? response : response.content || [];
+      
+      // Check availability for each copy
+      availableCopies = [];
+      for (const copy of copies) {
+        try {
+          const isAvailable = await copyService.isItemCopyBorrowable(copy.id);
+          if (isAvailable) {
+            // Only add available copies
+            availableCopies.push({...copy, available: true});
+          }
+        } catch (err) {
+          console.error(`Error checking availability for copy ${copy.id}:`, err);
+        }
+      }
+      
+      console.log("Available copies filtered:", availableCopies);
+    } catch (err) {
+      console.error("Error loading item copies:", err);
+      error = "Erreur lors du chargement des copies disponibles";
+    } finally {
+      searchingCopies = false;
+    }
   }
 
   // Function to search for members (persons)
@@ -91,19 +126,6 @@
     }
   }
 
-  // Create item copy if an item is selected
-  async function createItemCopyFromSelection() {
-    if (!selectedItem) return null;
-    
-    try {
-      const newCopy = await itemService.createItemCopy(selectedItem.barcode);
-      return newCopy.id;
-    } catch (err) {
-      console.error("Error creating item copy:", err);
-      throw new Error("Erreur lors de la création de la copie: " + (err.message || err));
-    }
-  }
-
   // Add new loan
   async function addLoan() {
     if (!newLoan.person) {
@@ -111,27 +133,24 @@
       return;
     }
 
-    if (!selectedItem && !newLoan.itemCopyId) {
-      error = "Veuillez sélectionner un objet ou entrer un ID de copie";
-      return;
-    }
-
     try {
-      let itemCopyIdToUse = newLoan.itemCopyId;
-      
-      // If an item is selected but no itemCopyId entered, create a copy
-      if (selectedItem && !itemCopyIdToUse) {
-        itemCopyIdToUse = await createItemCopyFromSelection();
-        if (!itemCopyIdToUse) {
-          error = "Impossible de créer une copie pour cet objet";
+      if (isEmpruntMode) {
+        // For loans BY Cartel, we need an item copy ID
+        if (!newLoan.itemCopyId) {
+          error = "Veuillez sélectionner une copie d'objet";
           return;
         }
-      }
-
-      if (isEmpruntMode) {
-        await loanService.createLoanByCartel(newLoan.person.id, itemCopyIdToUse);
+        
+        await loanService.createLoanByCartel(newLoan.person.id, newLoan.itemCopyId);
       } else {
-        await loanService.createLoanToCartel(newLoan.person.id, itemCopyIdToUse);
+        // For loans TO Cartel, we need an item ID (not an item copy)
+        if (!selectedItem) {
+          error = "Veuillez sélectionner un objet";
+          return;
+        }
+        
+        // Use the special endpoint that creates a copy automatically
+        await loanService.createLoanToCartelWithItem(newLoan.person.id, selectedItem.barcode);
       }
 
       dispatch('added');
@@ -147,6 +166,10 @@
     dispatch('close');
     resetForm();
   }
+
+  function selectCopy(copyId) {
+    newLoan.itemCopyId = copyId;
+  }
 </script>
 
 {#if show}
@@ -155,7 +178,9 @@
       <h2>Ajouter {isEmpruntMode ? "un emprunt" : "un prêt"}</h2>
 
       <div class="dialog-field">
-        <label>Personne:</label>
+        <label>
+          {isEmpruntMode ? "Emprunteur" : "Prêteur"}:
+        </label>
         <MemberSelector
           bind:selectedMember={newLoan.person}
           placeholder="Sélectionner ou ajouter une personne"
@@ -173,19 +198,37 @@
         />
       </div>
 
-      <div class="dialog-field">
-        <label>OU ID de la copie:</label>
-        <input 
-          type="text" 
-          bind:value={newLoan.itemCopyId} 
-          placeholder="ID de la copie" 
-          disabled={selectedItem !== null}
-          class={selectedItem !== null ? "disabled" : ""}
-        />
-        {#if selectedItem}
-          <small class="hint">L'ID de copie sera généré automatiquement</small>
-        {/if}
-      </div>
+      {#if isEmpruntMode && selectedItem}
+        <!-- For "emprunt par Cartel", we need to select a specific item copy -->
+        <div class="dialog-field">
+          <label>Sélectionner une copie:</label>
+          
+          {#if searchingCopies}
+            <div class="loading">Chargement des copies...</div>
+          {:else if availableCopies.length === 0}
+            <div class="no-copies">Aucune copie disponible pour cet objet</div>
+          {:else}
+            <div class="copies-list">
+              {#each availableCopies as copy}
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <div 
+                  class="copy-item" 
+                  class:selected={newLoan.itemCopyId === copy.id.toString()}
+                  onclick={() => selectCopy(copy.id.toString())}
+                >
+                  Copie #{copy.id}
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {:else if !isEmpruntMode && selectedItem}
+        <!-- For "prêt au Cartel", inform that a copy will be created -->
+        <div class="dialog-field info-box">
+          <p>Une nouvelle copie de <strong>{selectedItem.name}</strong> sera automatiquement créée.</p>
+        </div>
+      {/if}
 
       {#if error}
         <div class="error-message">{error}</div>
@@ -260,6 +303,48 @@
       color: var(--secondary);
       margin-top: 0.3em;
       font-style: italic;
+    }
+  }
+
+  .copies-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5em;
+    margin-bottom: 1em;
+    
+    .copy-item {
+      padding: 0.5em;
+      border: 1px solid var(--secondary);
+      text-align: center;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: var(--tertiary);
+      }
+      
+      &.selected {
+        background-color: var(--primary);
+        color: var(--back);
+      }
+    }
+  }
+
+  .loading, .no-copies {
+    padding: 1em;
+    text-align: center;
+    color: var(--secondary);
+    border: 1px dashed var(--secondary);
+    margin-bottom: 1em;
+  }
+
+  .info-box {
+    padding: 0.8em;
+    border: 1px dashed var(--primary);
+    color: var(--primary);
+    text-align: center;
+    
+    p {
+      margin: 0;
     }
   }
 

@@ -118,6 +118,37 @@ export async function createLoanByCartel(personId, itemCopyId) {
 }
 
 /**
+ * Create a loan to Cartel using an item ID (not item copy)
+ * This will automatically create a copy of the item
+ * 
+ * @param {number} personId - ID of the person lending the item
+ * @param {string} itemId - Barcode of the item being lent
+ * @returns {Promise<string>} - Confirmation message
+ */
+export async function createLoanToCartelWithItem(personId, itemId) {
+  try {
+    const params = new URLSearchParams({
+      personId,
+      itemId
+    });
+    
+    const response = await fetch(`/api/public/loans/toCartel/addByItemId?${params.toString()}`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error creating loan. Status: ${response.status}`);
+    }
+    
+    return await response.text();
+  } catch (error) {
+    console.error('Error creating loan:', error);
+    throw error;
+  }
+}
+
+/**
  * Check if an item can be borrowed from Cartel
  * @param {string} itemId - The item barcode
  * @returns {Promise<boolean>} - True if the item can be borrowed

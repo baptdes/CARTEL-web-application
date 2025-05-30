@@ -70,4 +70,15 @@ public class ItemController {
         
         return itemService.getAllItems(pageNumber, pageSize, asc, sortBy);
     }
+
+    /**
+     * Récupérer les copies d'un item par son ID
+     * 
+     * @param itemId L'ID de l'item dont on veut les copies
+     * @return Une liste de copies d'items
+     */
+    @GetMapping("/{itemId}/copies")
+    public ResponseEntity<?> getItemCopiesByItemId(@PathVariable String itemId) {
+        return ResponseEntity.ok(itemService.getItemCopiesByItemId(itemId));
+    }
 }
