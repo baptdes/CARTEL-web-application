@@ -192,8 +192,8 @@
       {/if}
 
       <div class="dialog-actions">
-        <button class="admin-button" on:click={addLoan}>Ajouter</button>
-        <button class="admin-button cancel" on:click={closePopup}>Annuler</button>
+        <button class="admin-button" onclick={addLoan}>Ajouter</button>
+        <button class="admin-button cancel" onclick={closePopup}>Annuler</button>
       </div>
     </div>
   </div>
