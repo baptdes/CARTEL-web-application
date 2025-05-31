@@ -1,5 +1,6 @@
 package cartel.spring_boot_api.service;
 
+import cartel.spring_boot_api.dto.CopyDTO;
 import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.repository.ItemRepository;
@@ -45,9 +46,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemCopy> getItemCopiesByItemId(String itemId){
+    public Collection<CopyDTO> getItemCopiesByItemId(String itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-        return item.getCopies();
+        return item.getCopies().stream()
+                .map(CopyDTO::new)
+                .toList();
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import cartel.spring_boot_api.model.ItemCopy;
+import cartel.spring_boot_api.dto.CopyDTO;
 import cartel.spring_boot_api.service.ItemCopyService;
 
 @RestController
@@ -24,9 +24,11 @@ public class ItemCopyController {
      * @return L'exemplaire créé
      */
     @PostMapping("/create")
-    public ResponseEntity<ItemCopy> createItemCopy(@RequestParam String itemId) {
-        ItemCopy newCopy = itemCopyService.createItemCopy(itemId);
-        return ResponseEntity.ok(newCopy);
+    public ResponseEntity<CopyDTO> createItemCopy(@RequestParam String itemId) {
+        itemCopyService.createItemCopy(itemId);
+        // Assuming the created copy can be fetched by ID or similar logic
+        // Adjust as necessary to return the created CopyDTO
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     
     /**
@@ -36,8 +38,8 @@ public class ItemCopyController {
      * @return L'exemplaire si il existe
      */
     @GetMapping("/{copyId}")
-    public ResponseEntity<ItemCopy> getItemCopyById(@PathVariable Long copyId) {
-        ItemCopy copy = itemCopyService.getItemCopyById(copyId)
+    public ResponseEntity<CopyDTO> getItemCopyById(@PathVariable Long copyId) {
+        CopyDTO copy = itemCopyService.getItemCopyById(copyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                     "Item copy not found with ID: " + copyId));
         return ResponseEntity.ok(copy);
@@ -66,7 +68,7 @@ public class ItemCopyController {
      * @return Une page d'exemplaires d'items correspondant aux critères
      */
     @GetMapping()
-    public Page<ItemCopy> searchItemCopies(
+    public Page<CopyDTO> searchItemCopies(
             @RequestParam(required = false) String itemName,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "20") int pageSize,

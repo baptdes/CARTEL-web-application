@@ -121,12 +121,10 @@
       }
 
       $state.snapshot(newBook)
-      const addedBook = await addBook(newBook); // Save the book response for barcode access
-      
+      const addedBook = await addBook(newBook);
+
       // Count how many exemplaires have lenders (will be loans to Cartel)
       const loansToCreate = exemplaires.filter(ex => ex.lender && ex.lender.id).length;
-      
-      // Now create copies for each exemplaire
       const exemplairesCount = exemplaires.length;
       copiesStatus = {
         processing: true,
@@ -140,50 +138,36 @@
           errors: []
         }
       };
-      
-      // Array to store created copies for loan association
-      const createdCopies = [];
-      
-      // Create a copy for each exemplaire in the list
+
+      // If exemplaire has lender, use createLoanToCartel, else use createItemCopy
       for (let i = 0; i < exemplairesCount; i++) {
+        const ex = exemplaires[i];
         try {
-          const copy = await createItemCopy(addedBook.barcode);
-          copiesStatus.created++;
-          
-          // Store the copy along with its exemplaire info (including lender)
-          createdCopies.push({
-            copy,
-            exemplaire: exemplaires[i]
-          });
-        } catch (err) {
-          copiesStatus.errors.push(`Erreur lors de la création de l'exemplaire ${i+1}: ${err.message}`);
-          console.error(`Failed to create copy ${i+1}:`, err);
-        }
-      }
-      
-      copiesStatus.processing = false;
-      
-      // Now create loans for copies that have lenders
-      if (loansToCreate > 0) {
-        copiesStatus.loans.processing = true;
-        
-        for (const item of createdCopies) {
-          if (item.exemplaire.lender && item.exemplaire.lender.id) {
-            try {
-              await createLoanToCartel(item.exemplaire.lender.id, item.copy.id);
-              copiesStatus.loans.created++;
-            } catch (err) {
-              copiesStatus.loans.errors.push(
-                `Erreur lors de la création du prêt pour l'exemplaire (membre: ${item.exemplaire.lender.firstname} ${item.exemplaire.lender.surname}): ${err.message}`
-              );
-              console.error(`Failed to create loan:`, err);
-            }
+          if (ex.lender && ex.lender.id) {
+            // This will create the copy and the loan in one call
+            await createLoanToCartel(ex.lender.id, addedBook.barcode);
+            copiesStatus.created++;
+            copiesStatus.loans.created++;
+          } else {
+            await createItemCopy(addedBook.barcode);
+            copiesStatus.created++;
           }
+        } catch (err) {
+          if (ex.lender && ex.lender.id) {
+            copiesStatus.errors.push(`Erreur lors de la création du prêt et de l'exemplaire ${i+1} (membre: ${ex.lender.firstname} ${ex.lender.surname}): ${err.message}`);
+            copiesStatus.loans.errors.push(
+              `Erreur lors de la création du prêt pour l'exemplaire (membre: ${ex.lender.firstname} ${ex.lender.surname}): ${err.message}`
+            );
+          } else {
+            copiesStatus.errors.push(`Erreur lors de la création de l'exemplaire ${i+1}: ${err.message}`);
+          }
+          console.error(`Failed to create copy/loan ${i+1}:`, err);
         }
-        
-        copiesStatus.loans.processing = false;
       }
-      
+
+      copiesStatus.processing = false;
+      copiesStatus.loans.processing = false;
+
       addingSuccess = true;
 
       // Only close the popup after a brief delay to show the success message
@@ -191,7 +175,7 @@
       setTimeout(() => {
         dispatch('added');
         closePopup();
-      }, hasErrors ? 2000 : 2000); // Longer delay if there are errors
+      }, hasErrors ? 2000 : 2000);
 
     } catch (err) {
       addingError = err.message || "Erreur lors de l'ajout du livre";

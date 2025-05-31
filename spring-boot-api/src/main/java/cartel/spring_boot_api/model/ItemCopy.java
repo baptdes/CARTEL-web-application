@@ -56,4 +56,12 @@ public class ItemCopy{
     public boolean isBorrowable() {
         return loanByPerson == null && loanToPerson == null;
     }
+
+    public LoanByCartel getLoanToPerson() {
+        return loanToPerson;
+    }
+
+    public void setLoanToPerson(LoanByCartel loanToPerson) {
+        this.loanToPerson = loanToPerson;
+    }
 }

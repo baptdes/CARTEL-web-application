@@ -95,9 +95,6 @@ public class DataInitializer {
             System.out.println("Loading Publisher Book data...");
             List<PublisherBook> publishersBook = loadPublisherBookData(numPublishersBook);
             
-            System.out.println("Loading Series data...");
-            List<Series> series = loadSerieData(numSeries);
-            
             System.out.println("Loading Creator data...");
             List<AuthorGame> creators = loadCreatorData(numCreators);
             
@@ -105,13 +102,10 @@ public class DataInitializer {
             List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
             
             System.out.println("Loading Book data...");
-            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series, genres);
+            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, null, genres); // Pass null for series
             
             System.out.println("Loading JDS data...");
             List<Game> jdsList = loadJDSData(numJDS, creators, publishersJDS);
-            
-            System.out.println("Loading Extension data...");
-            List<Extension> extensions = loadExtensionData(numExtensions, creators, publishersJDS, jdsList);
             
             System.out.println("Loading Cartel Person data...");
             List<CartelPerson> cartelPersons = loadCartelPersonData(numCartelPersons);
@@ -199,18 +193,6 @@ public class DataInitializer {
         return publishers;
     }
     
-    private List<Series> loadSerieData(int count) {
-        List<Series> series = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Series serie = new Series(
-                faker.book().title() + " Series"
-            );
-            serieRepository.save(serie);
-            series.add(serie);
-        }
-        return series;
-    }
-    
     private List<AuthorGame> loadCreatorData(int count) {
         List<AuthorGame> creators = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -267,7 +249,7 @@ public class DataInitializer {
             }
             
             // 70% chance to be part of a series
-            if (random.nextInt(100) < 70) {
+            if (random.nextInt(100) < 70 && series != null) {
                 book.setSeries(getRandomElement(series));
                 book.setVolumeNumber(random.nextInt(10) + 1);
             }
@@ -318,37 +300,6 @@ public class DataInitializer {
         }
         
         return jdsList;
-    }
-    
-    private List<Extension> loadExtensionData(int count, List<AuthorGame> creators, List<PublisherGame> publishers, List<Game> jdsList) {
-        List<Extension> extensions = new ArrayList<>();
-        
-        for (int i = 0; i < count; i++) {
-            Collection<AuthorGame> extCreators = getRandomSubList(creators, 1, 2);
-            Game baseGame = getRandomElement(jdsList);
-            
-            String barcode = IntStream.range(0, 13)
-                .mapToObj(n -> String.valueOf(random.nextInt(10)))
-                .collect(Collectors.joining());
-            
-            Extension extension = new Extension(
-                baseGame.getName() + ": " + faker.marketing().buzzwords(), // Ensure name is not null
-                extCreators,
-                baseGame.getPublisher(),
-                baseGame.getPublicationYear() + random.nextInt(3) + 1,
-                baseGame.getLanguage(),
-                baseGame,
-                barcode
-            );
-            
-            extension.setDescription(faker.lorem().paragraph(1));
-            extension.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
-            
-            itemRepository.save(extension);
-            extensions.add(extension);
-        }
-        
-        return extensions;
     }
     
     private List<CartelPerson> loadCartelPersonData(int count) {

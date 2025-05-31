@@ -1,5 +1,6 @@
 package cartel.spring_boot_api.controller;
 
+import cartel.spring_boot_api.dto.LoanByCartelDTO;
 import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.service.LoanByCartelService;
 
@@ -34,7 +35,7 @@ public class LoanByCartelController {
      * @return Liste des prêts correspondant aux critères.
      */
     @GetMapping
-    public List<LoanByCartel> filterLoanByCartels(
+    public List<LoanByCartelDTO> filterLoanByCartels(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "20") int pageSize,
             @RequestParam(defaultValue = "false") boolean asc,
@@ -57,7 +58,7 @@ public class LoanByCartelController {
      * @return Objet LoanByCartel correspondant.
      */
     @GetMapping("/{loanByCartelId}")
-    public LoanByCartel getLoanByCartel(@PathVariable long loanByCartelId) {
+    public LoanByCartelDTO getLoanByCartel(@PathVariable long loanByCartelId) {
         return loanByCartelService.getLoanByCartel(loanByCartelId);
     }
 

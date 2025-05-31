@@ -30,7 +30,7 @@ public class PersonController {
      * @param pageSize La taille de la page
      * @return Une page de membres correspondant aux critères
      */
-    @GetMapping()
+    @GetMapping
     public Page<PersonDTO> searchPersons(
             @RequestParam(required = false) String fullname,
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -63,7 +63,7 @@ public class PersonController {
      * @param personData Les données de la personne (firstname, surname, contact)
      * @return La personne créée
      */
-    @PostMapping("/add")
+    @PostMapping
     public CartelPerson addPerson(@RequestBody Map<String, String> personData) {
         String firstname = personData.get("firstname");
         String surname = personData.get("surname");
@@ -80,7 +80,7 @@ public class PersonController {
      * @param personData Les nouvelles données de la personne
      * @return La personne mise à jour
      */
-    @PutMapping("/update/{personId}")
+    @PutMapping("/{personId}")
     public CartelPerson updatePerson(
             @PathVariable Long personId,
             @RequestBody Map<String, String> personData) {
@@ -98,7 +98,7 @@ public class PersonController {
      * 
      * @param personId L'ID de la personne à supprimer
      */
-    @DeleteMapping("/delete/{personId}")
+    @DeleteMapping("/{personId}")
     public void deletePerson(@PathVariable Long personId) {
         cartelPersonRepository.deleteById(personId);
     }

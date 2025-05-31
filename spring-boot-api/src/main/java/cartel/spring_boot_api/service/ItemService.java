@@ -1,5 +1,6 @@
 package cartel.spring_boot_api.service;
 
+import cartel.spring_boot_api.dto.CopyDTO;
 import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.ItemCopy;
 
@@ -47,5 +48,5 @@ public interface ItemService {
      * @param itemId L'ID de l'item dont on veut les copies
      * @return Une page de copies d'items
      */
-    Collection<ItemCopy> getItemCopiesByItemId(String itemId);
+    Collection<CopyDTO> getItemCopiesByItemId(String itemId);
 }

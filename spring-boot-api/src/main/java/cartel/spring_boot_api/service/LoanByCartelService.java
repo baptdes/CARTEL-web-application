@@ -1,5 +1,6 @@
 package cartel.spring_boot_api.service;
 
+import cartel.spring_boot_api.dto.LoanByCartelDTO;
 import cartel.spring_boot_api.model.LoanByCartel;
 
 import java.sql.Date;
@@ -12,7 +13,7 @@ public interface LoanByCartelService {
      * @param loanByCartelId ID du prêt.
      * @return Objet LoanByCartel correspondant.
      */
-    LoanByCartel getLoanByCartel(long loanByCartelId);
+    LoanByCartelDTO getLoanByCartel(long loanByCartelId);
 
     /**
      * Supprimer un prêt par Cartel en utilisant son ID.
@@ -43,7 +44,7 @@ public interface LoanByCartelService {
      * @param active Statut actif ou inactif du prêt.
      * @return Liste des prêts correspondant aux critères.
      */
-    List<LoanByCartel> filterLoanByCartel(
+    List<LoanByCartelDTO> filterLoanByCartel(
             int pageNumber, int pageSize,
             boolean asc, String sortBy,
             String itemName, String borrowerFirstName,

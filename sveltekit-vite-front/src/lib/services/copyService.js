@@ -95,25 +95,3 @@ export async function searchItemCopies(itemId) {
     throw error;
   }
 }
-
-/**
- * Check if a copy is available (borrowable)
- * @param {number} copyId - The ID of the copy to check
- * @returns {Promise<boolean>} True if the copy is available, false otherwise
- */
-export async function isItemCopyBorrowable(copyId) {
-  try {
-    const response = await fetch(`/api/public/copies/${copyId}/isAvailable`, {
-      credentials: 'include'
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error checking if item copy is borrowable. Status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error checking if item copy is borrowable:', error);
-    throw error;
-  }
-}

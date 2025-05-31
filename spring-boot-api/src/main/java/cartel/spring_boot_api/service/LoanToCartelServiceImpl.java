@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import static cartel.spring_boot_api.specification.LoanSpecification.*;
 
+import cartel.spring_boot_api.dto.LoanToCartelDTO;
 import cartel.spring_boot_api.model.CartelPerson;
 import cartel.spring_boot_api.model.Item;
 import cartel.spring_boot_api.model.ItemCopy;
@@ -38,14 +39,14 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
     private ItemRepository itemRepository;
 
     @Override
-    public LoanToCartel getLoanToCartel(long loanToCartelId) {
-        // Throws an exception if the loan is not found
-        return loanToCartelRepository.findById(loanToCartelId)
+    public LoanToCartelDTO getLoanToCartel(long loanToCartelId) {
+        LoanToCartel loan = loanToCartelRepository.findById(loanToCartelId)
             .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanToCartelId));
+        return new LoanToCartelDTO(loan);
     }
 
     @Override
-    public List<LoanToCartel> filterLoanToCartel(
+    public List<LoanToCartelDTO> filterLoanToCartel(
             int pageNumber, int pageSize,
             boolean asc, String sortBy, 
             String itemName,
@@ -57,21 +58,12 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
             Date endDateAfter,
             Boolean active) {
 
-        // Create a pageable object for pagination and sorting
         Pageable page = asc ?
             PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) :
             PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
-        // Build the specification filters dynamically based on input parameters
-        Specification<LoanToCartel> filters = Specification.where(null); // Start with empty specification
-        
-        // Only apply item name filter if a value is provided
-        if (itemName != null) {
-            filters = filters.and(filterLoanToCartelfromItemSharedByName(itemName));
-        }
-        
-        // Apply remaining filters
-        filters = filters
+        Specification<LoanToCartel> filters = ((itemName == null) ? filterLoanToCartelfromItemSharedByName("") :
+                filterLoanToCartelfromItemSharedByName(itemName))
             .and((ownerFirstName == null) ? null : filterLoanToCartelfromOwnerByFirstName(ownerFirstName))
             .and((ownerSurname == null) ? null : filterLoanToCartelfromOwnerBySurname(ownerSurname))
             .and(filterLoanToCartelFromStartDateBefore(startDateBefore))
@@ -80,9 +72,10 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
             .and(filterLoanToCartelFromEndDateAfter(endDateAfter))
             .and(filterLoanToCartelActive(active));
 
-        // Fetch the filtered loans and return the content
         Page<LoanToCartel> pageLoanToCartel = loanToCartelRepository.findAll(filters, page);
-        return pageLoanToCartel.getContent();
+        return pageLoanToCartel.getContent().stream()
+            .map(LoanToCartelDTO::new)
+            .toList();
     }
 
     @Override

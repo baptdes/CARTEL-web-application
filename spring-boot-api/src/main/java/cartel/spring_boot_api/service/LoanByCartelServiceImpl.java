@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import cartel.spring_boot_api.dto.LoanByCartelDTO;
 import cartel.spring_boot_api.model.CartelPerson;
 import cartel.spring_boot_api.model.ItemCopy;
 import cartel.spring_boot_api.model.LoanByCartel;
@@ -33,14 +34,30 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
     private ItemCopyRepository itemCopyRepository;
 
     @Override
-    public LoanByCartel getLoanByCartel(long loanByCartelId) {
-        return loanByCartelRepository.findById(loanByCartelId)
+    public LoanByCartelDTO getLoanByCartel(long loanByCartelId) {
+        LoanByCartel loan = loanByCartelRepository.findById(loanByCartelId)
             .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanByCartelId));
+        return new LoanByCartelDTO(loan);
     }
 
     @Override
-    public void removeLoanByCartel(long loanByCartelId){
-        loanByCartelRepository.deleteById(loanByCartelId);
+    public void removeLoanByCartel(long loanByCartelId) {
+        LoanByCartel loan = loanByCartelRepository.findById(loanByCartelId)
+            .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanByCartelId));
+
+        // Get the ItemCopy before breaking the relationship
+        ItemCopy itemCopy = loan.getItemShared();
+        
+        if (itemCopy != null) {
+            // Break the bidirectional relationship
+            // This is necessary because ItemCopy has a reference back to this loan
+            // that would cause issues when deleting
+            itemCopy.setLoanToPerson(null);
+            itemCopyRepository.save(itemCopy);
+        }
+        
+        // Now we can safely delete the loan
+        loanByCartelRepository.delete(loan);
     }
 
     @Override
@@ -52,7 +69,7 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
             .orElseThrow(() -> new IllegalArgumentException("Item copy not found with id: " + itemCopyId));
 
         // Check if the item copy is already loaned out
-        if (itemCopy.isBorrowable()) {
+        if (!itemCopy.isBorrowable()) {
             throw new IllegalArgumentException("Item copy is already loaned out: " + itemCopyId);
         }
         
@@ -61,7 +78,7 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
     }
 
     @Override
-    public List<LoanByCartel> filterLoanByCartel(
+    public List<LoanByCartelDTO> filterLoanByCartel(
             int pageNumber, int pageSize,
             boolean asc, String sortBy, 
             String itemName,
@@ -88,7 +105,9 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
             .and(filterLoanByCartelActive(active));
 
         Page<LoanByCartel> pageLoanByCartel = loanByCartelRepository.findAll(filters, page);
-        return pageLoanByCartel.getContent();
+        return pageLoanByCartel.getContent().stream()
+            .map(LoanByCartelDTO::new)
+            .toList();
     }
 
     @Override
@@ -96,6 +115,12 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
         LoanByCartel loan = loanByCartelRepository.findById(loanByCartelId)
             .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanByCartelId));
         loan.completeLoan();
+
+        // Remove the item copy from the loan
+        ItemCopy itemCopy = loan.getItemShared();
+        itemCopy.setLoanToPerson(null);
+        itemCopyRepository.save(itemCopy);
+
         loanByCartelRepository.save(loan);
     }
 }

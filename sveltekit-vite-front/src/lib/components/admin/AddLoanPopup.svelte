@@ -49,26 +49,16 @@
   // Load available copies for an item (for emprunt mode)
   async function loadItemCopies(itemId) {
     if (!itemId) return;
-    
+
     searchingCopies = true;
     try {
       const response = await copyService.searchItemCopies(itemId);
       const copies = Array.isArray(response) ? response : response.content || [];
-      
-      // Check availability for each copy
-      availableCopies = [];
-      for (const copy of copies) {
-        try {
-          const isAvailable = await copyService.isItemCopyBorrowable(copy.id);
-          if (isAvailable) {
-            // Only add available copies
-            availableCopies.push({...copy, available: true});
-          }
-        } catch (err) {
-          console.error(`Error checking availability for copy ${copy.id}:`, err);
-        }
-      }
-      
+      console.log("Loaded item copies:", copies);
+
+      // Fix: Use copy.borrowable instead of copy.isBorrowable
+      availableCopies = copies.filter(copy => copy.borrowable);
+
       console.log("Available copies filtered:", availableCopies);
     } catch (err) {
       console.error("Error loading item copies:", err);
@@ -150,7 +140,7 @@
         }
         
         // Use the special endpoint that creates a copy automatically
-        await loanService.createLoanToCartelWithItem(newLoan.person.id, selectedItem.barcode);
+        await loanService.createLoanToCartel(newLoan.person.id, selectedItem.barcode);
       }
 
       dispatch('added');

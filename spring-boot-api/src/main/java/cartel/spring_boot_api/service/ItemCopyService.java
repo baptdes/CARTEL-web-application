@@ -1,6 +1,6 @@
 package cartel.spring_boot_api.service;
 
-import cartel.spring_boot_api.model.ItemCopy;
+import cartel.spring_boot_api.dto.CopyDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ public interface ItemCopyService {
      * @param itemId L'ID de l'item pour lequel on créé un exemplaire
      * @return L'exemplaire créé
      */
-    ItemCopy createItemCopy(String itemId);
+    void createItemCopy(String itemId);
 
     /**
      * Récupérer un exemplaire par son ID
@@ -21,7 +21,7 @@ public interface ItemCopyService {
      * @param copyId L'ID de l'exemplaire à récupérer
      * @return L'exemplaire si il existe
      */
-    Optional<ItemCopy> getItemCopyById(Long copyId);
+    Optional<CopyDTO> getItemCopyById(Long copyId);
 
     /**
      * Supprimer un exemplaire par son ID
@@ -40,7 +40,7 @@ public interface ItemCopyService {
      * @param sortBy Champ sur lequel effectuer le tri
      * @return Une page d'exemplaires d'items correspondant aux critères
      */
-    Page<ItemCopy> searchItemCopiesByItemName(String itemName, int pageNumber, int pageSize, boolean asc, String sortBy);
+    Page<CopyDTO> searchItemCopiesByItemName(String itemName, int pageNumber, int pageSize, boolean asc, String sortBy);
 
     /**
      * Récupérer tous les exemplaires d'items avec pagination
@@ -51,7 +51,7 @@ public interface ItemCopyService {
      * @param sortBy Champ sur lequel effectuer le tri
      * @return Une page d'exemplaires d'items
      */
-    Page<ItemCopy> getAllItemCopies(int pageNumber, int pageSize, boolean asc, String sortBy);
+    Page<CopyDTO> getAllItemCopies(int pageNumber, int pageSize, boolean asc, String sortBy);
 
     /**
      * Vérifie si un exemplaire est empruntable
