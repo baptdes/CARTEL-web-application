@@ -122,6 +122,17 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
 
     @Override
     public void removeLoanToCartel(long loanToCartelId) {
+
+        // Remove connection to item copy
+        LoanToCartel loan = loanToCartelRepository.findById(loanToCartelId)
+            .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanToCartelId));
+        ItemCopy itemCopy = loan.getItemShared();
+        if (itemCopy != null) {
+            loan.setItemShared(null);
+            loanToCartelRepository.save(loan);
+            itemCopyRepository.delete(itemCopy);
+        }
+
         loanToCartelRepository.deleteById(loanToCartelId);
     }
 }
