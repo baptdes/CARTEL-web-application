@@ -54,11 +54,6 @@ public class LoanByCartel {
         this.loanDate = loanDate;
     }
 
-    // public LoanByCartel(CartelPerson itemBorrower, Collection<ItemCopy> itemShared, LocalDateTime loanDate) {
-    //     this.itemBorrower = itemBorrower;
-    //     this.itemShared = itemShared;
-    //     this.loanDate = loanDate;
-    // }
 
     public Long getId() {
         return id;

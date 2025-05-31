@@ -20,10 +20,10 @@ public class ItemCopy{
     @ManyToOne
     private Item objet;
 
-    @OneToOne
+    @OneToOne(mappedBy = "itemShared")
     private LoanByCartel loanToPerson;
 
-    @OneToOne
+    @OneToOne(mappedBy = "itemShared")
     private LoanToCartel loanByPerson;
 
     public ItemCopy() {
@@ -51,6 +51,10 @@ public class ItemCopy{
     }
     
     public boolean isAvailable() {
-        return loanToPerson == null && loanByPerson == null;
+        return loanToPerson == null;
+    }
+
+    public boolean isBorrowable() {
+        return loanByPerson == null && loanToPerson == null;
     }
 }
