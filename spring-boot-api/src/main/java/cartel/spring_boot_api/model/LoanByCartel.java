@@ -4,6 +4,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Date;
 
+import cartel.spring_boot_api.dto.PersonDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Entity;
@@ -23,6 +24,7 @@ public class LoanByCartel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(nullable = false)
     private CartelPerson itemBorrower;
@@ -54,11 +56,6 @@ public class LoanByCartel {
         this.loanDate = loanDate;
     }
 
-    // public LoanByCartel(CartelPerson itemBorrower, Collection<ItemCopy> itemShared, LocalDateTime loanDate) {
-    //     this.itemBorrower = itemBorrower;
-    //     this.itemShared = itemShared;
-    //     this.loanDate = loanDate;
-    // }
 
     public Long getId() {
         return id;
@@ -106,5 +103,9 @@ public class LoanByCartel {
     
     public boolean isActive() {
         return this.endDate == null;
+    }
+
+    public PersonDTO getBorrower() {
+        return itemBorrower != null ? new PersonDTO(itemBorrower) : null;
     }
 }

@@ -116,7 +116,7 @@ export async function createItemCopy(itemId) {
  */
 export async function getItemCopyById(copyId) {
   try {
-    const response = await fetch(`/api/public/copies/${copyId}`);
+    const response = await fetch(`/api/public/${copyId}/copies`);
     
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);

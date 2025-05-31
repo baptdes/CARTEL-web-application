@@ -65,21 +65,50 @@ public class LoanSpecification {
         };
     }
 
-    // Filter by borrowed item name.
     public static Specification<LoanToCartel> filterLoanToCartelfromItemSharedByName(String itemCopyNameLike) {
-        return (root, query, builder) -> {
-            Join<LoanToCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
-            Join<Join<LoanToCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
-            return builder.like(builder.lower(loanWithItem.get("name")), "%" + itemCopyNameLike.toLowerCase() + "%");
-        };
-    }
+    return (root, query, builder) -> {
+        String searchPattern = "%" + itemCopyNameLike.toLowerCase() + "%";
+        
+        // Prend en compte à la fois les prêts actifs (avec itemShared) et complétés (avec savedItemName)
+        return builder.or(
+            // Pour les prêts actifs avec itemShared non null
+            builder.and(
+                builder.isNotNull(root.get("itemShared")),
+                builder.like(
+                    builder.lower(root.join("itemShared").join("objet").get("name")), 
+                    searchPattern
+                )
+            ),
+            // Pour les prêts complétés avec savedItemName
+            builder.and(
+                builder.isNotNull(root.get("savedItemName")),
+                builder.like(builder.lower(root.get("savedItemName")), searchPattern)
+            )
+        );
+    };
+}
 
     // Filter by shared item barcode.
     public static Specification<LoanToCartel> filterLoanToCartelfromItemBarcode(String barcode) {
         return (root, query, builder) -> {
-            Join<LoanToCartel,ItemCopy> loanWithItemCopy = root.join("itemShared");
-            Join<Join<LoanToCartel,ItemCopy>, Item> loanWithItem = loanWithItemCopy.join("objet");
-            return builder.like(loanWithItem.get("barcode"), "%" + barcode + "%");
+            String searchPattern = "%" + barcode + "%";
+            
+            // Handle both active loans (with itemShared) and completed loans (with savedBarcode)
+            return builder.or(
+                // For active loans with non-null itemShared
+                builder.and(
+                    builder.isNotNull(root.get("itemShared")),
+                    builder.like(
+                        root.join("itemShared").join("objet").get("barcode"), 
+                        searchPattern
+                    )
+                ),
+                // For completed loans with savedBarcode
+                builder.and(
+                    builder.isNotNull(root.get("savedBarcode")),
+                    builder.like(root.get("savedBarcode"), searchPattern)
+                )
+            );
         };
     }
 

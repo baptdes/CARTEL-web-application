@@ -9,18 +9,19 @@
  */
 export async function createItemCopy(itemId) {
   try {
-    const response = await fetch(`/api/public/copies/create?itemId=${itemId}`, {
+    const params = new URLSearchParams({
+      itemId
+    });
+    
+    const response = await fetch(`/api/public/copies/create?${params.toString()}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       credentials: 'include'
     });
-
+    
     if (!response.ok) {
       throw new Error(`Error creating item copy. Status: ${response.status}`);
     }
-
+    
     return await response.json();
   } catch (error) {
     console.error('Error creating item copy:', error);
@@ -33,16 +34,16 @@ export async function createItemCopy(itemId) {
  * @param {number} copyId - The ID of the copy to retrieve
  * @returns {Promise<Object>} The copy object
  */
-export async function getItemCopyById(copyId) {
+export async function getItemCopy(copyId) {
   try {
     const response = await fetch(`/api/public/copies/${copyId}`, {
       credentials: 'include'
     });
-
+    
     if (!response.ok) {
       throw new Error(`Error retrieving item copy. Status: ${response.status}`);
     }
-
+    
     return await response.json();
   } catch (error) {
     console.error('Error retrieving item copy:', error);
@@ -69,6 +70,28 @@ export async function deleteItemCopy(copyId) {
     return await response.text();
   } catch (error) {
     console.error('Error deleting item copy:', error);
+    throw error;
+  }
+}
+
+/**
+ * Search for item copies by item ID (barcode)
+ * @param {string} itemId - The item ID/barcode
+ * @returns {Promise<Object>} - List of item copies matching the itemId
+ */
+export async function searchItemCopies(itemId) {
+  try {
+    const response = await fetch(`/api/public/items/${itemId}/copies`, {
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error searching item copies. Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error searching item copies:', error);
     throw error;
   }
 }

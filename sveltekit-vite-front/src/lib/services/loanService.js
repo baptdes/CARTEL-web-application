@@ -17,7 +17,7 @@ export async function searchPersons(fullname, pageNumber = 0, pageSize = 20) {
       pageSize
     });
     
-    const response = await fetch(`/api/public/loans/persons/search?${params.toString()}`, {
+    const response = await fetch(`/api/public/persons?${params.toString()}`, {
       credentials: 'include'
     });
     
@@ -39,7 +39,7 @@ export async function searchPersons(fullname, pageNumber = 0, pageSize = 20) {
  */
 export async function addPerson(personData) {
   try {
-    const response = await fetch('/api/public/loans/persons/add', {
+    const response = await fetch('/api/public/persons', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -60,35 +60,6 @@ export async function addPerson(personData) {
 }
 
 /**
- * Create a loan to Cartel
- * @param {number} personId - ID of the person lending the item
- * @param {number} itemCopyId - ID of the item copy being lent
- * @returns {Promise<string>} - Confirmation message
- */
-export async function createLoanToCartel(personId, itemCopyId) {
-  try {
-    const params = new URLSearchParams({
-      personId,
-      itemCopyId
-    });
-    
-    const response = await fetch(`/api/public/loans/toCartel/addById?${params.toString()}`, {
-      method: 'POST',
-      credentials: 'include'
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error creating loan. Status: ${response.status}`);
-    }
-    
-    return await response.text();
-  } catch (error) {
-    console.error('Error creating loan:', error);
-    throw error;
-  }
-}
-
-/**
  * Create a loan by Cartel
  * @param {number} personId - ID of the person borrowing the item
  * @param {number} itemCopyId - ID of the item copy being borrowed
@@ -101,7 +72,7 @@ export async function createLoanByCartel(personId, itemCopyId) {
       itemCopyId
     });
     
-    const response = await fetch(`/api/public/loans/byCartel/addById?${params.toString()}`, {
+    const response = await fetch(`/api/public/loans/byCartel?${params.toString()}`, {
       method: 'POST',
       credentials: 'include'
     });
@@ -118,65 +89,32 @@ export async function createLoanByCartel(personId, itemCopyId) {
 }
 
 /**
- * Check if an item can be borrowed from Cartel
- * @param {string} itemId - The item barcode
- * @returns {Promise<boolean>} - True if the item can be borrowed
+ * Create a loan to Cartel using an item ID (not item copy)
+ * This will automatically create a copy of the item
+ * 
+ * @param {number} personId - ID of the person lending the item
+ * @param {string} itemId - Barcode of the item being lent
+ * @returns {Promise<string>} - Confirmation message
  */
-export async function checkItemSharable(itemId) {
+export async function createLoanToCartel(personId, itemId) {
   try {
-    const response = await fetch(`/api/public/loans/check/sharable/${itemId}`, {
+    const params = new URLSearchParams({
+      personId,
+      itemId
+    });
+    
+    const response = await fetch(`/api/public/loans/toCartel?${params.toString()}`, {
+      method: 'POST',
       credentials: 'include'
     });
     
     if (!response.ok) {
-      throw new Error(`Error checking if item is sharable. Status: ${response.status}`);
+      throw new Error(`Error creating loan. Status: ${response.status}`);
     }
     
-    return await response.json();
+    return await response.text();
   } catch (error) {
-    console.error('Error checking if item is sharable:', error);
-    throw error;
-  }
-}
-
-/**
- * Get all loans to Cartel
- * @returns {Promise<Array>} - List of all loans to Cartel
- */
-export async function getAllLoansToCartel() {
-  try {
-    const response = await fetch('/api/public/loans/toCartel/all/', {
-      credentials: 'include'
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error retrieving loans to Cartel. Status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error retrieving loans to Cartel:', error);
-    throw error;
-  }
-}
-
-/**
- * Get all loans from Cartel
- * @returns {Promise<Array>} - List of all loans from Cartel
- */
-export async function getAllLoansFromCartel() {
-  try {
-    const response = await fetch('/api/public/loans/byCartel/all/', {
-      credentials: 'include'
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error retrieving loans from Cartel. Status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error retrieving loans from Cartel:', error);
+    console.error('Error creating loan:', error);
     throw error;
   }
 }

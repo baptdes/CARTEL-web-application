@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -20,10 +19,10 @@ public class ItemCopy{
     @ManyToOne
     private Item objet;
 
-    @OneToOne
+    @OneToOne(mappedBy = "itemShared")
     private LoanByCartel loanToPerson;
 
-    @OneToOne
+    @OneToOne(mappedBy = "itemShared")
     private LoanToCartel loanByPerson;
 
     public ItemCopy() {
@@ -50,4 +49,19 @@ public class ItemCopy{
         this.objet = objet;
     }
     
+    public boolean isAvailable() {
+        return loanToPerson == null;
+    }
+
+    public boolean isBorrowable() {
+        return loanByPerson == null && loanToPerson == null;
+    }
+
+    public LoanByCartel getLoanToPerson() {
+        return loanToPerson;
+    }
+
+    public void setLoanToPerson(LoanByCartel loanToPerson) {
+        this.loanToPerson = loanToPerson;
+    }
 }

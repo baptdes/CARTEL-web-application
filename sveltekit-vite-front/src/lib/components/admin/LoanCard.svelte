@@ -28,9 +28,9 @@
 <div class="item">
   <div class="itemInfo">
     <img
-      src={loan.itemShared?.objet?.coverImage || "/placeholder_game.png"}
+      src={loan.itemCoverImage || "/placeholder.jpg"}
       class="itemImage"
-      alt={"Image de " + (loan.itemShared?.objet?.name || "")}
+      alt={"Image de " + (loan.itemName || "")}
     />
     <div class="itemDetails">   
       <p class="type">
@@ -46,18 +46,18 @@
           En cours
         {/if}
       </p>
-      <p class="title">{loan.itemShared?.objet?.name || "Sans titre"}</p>
+      <p class="title">{loan.itemName || "Sans titre"}</p>
       <p class="details">
         {#if isEmpruntMode}
-          Emprunté par <strong>{loan.itemBorrower?.firstname} {loan.itemBorrower?.surname}</strong>
+          Emprunté par <strong>{loan.borrowerName}</strong>
         {:else}
-          Prêté par <strong>{loan.itemOwner?.firstname} {loan.itemOwner?.surname}</strong>
+          Prêté par <strong>{loan.ownerName}</strong>
         {/if}
         <br />
         {#if isEmpruntMode}
-          Contact : <strong>{loan.itemBorrower?.contact || "N/A"}</strong>
+          Contact : <strong>{loan.borrowerContact || "N/A"}</strong>
         {:else}
-          Contact : <strong>{loan.itemOwner?.contact || "N/A"}</strong>
+          Contact : <strong>{loan.ownerContact || "N/A"}</strong>
         {/if}
         <br />
         {#if isEmpruntMode}
