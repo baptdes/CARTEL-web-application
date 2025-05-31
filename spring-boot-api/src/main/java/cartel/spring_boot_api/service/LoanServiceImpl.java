@@ -37,10 +37,10 @@ public class LoanServiceImpl implements LoanService {
     private LoanToCartelRepository loanToCartelRepository;
 
     @Autowired
-    private ItemCopyRepository itemCopyRepository;
-    
-    @Autowired
     private CartelPersonRepository cartelPersonRepository;
+
+    @Autowired
+    private ItemCopyRepository itemCopyRepository;
     
     @Autowired
     private ItemRepository itemRepository;
@@ -76,11 +76,6 @@ public class LoanServiceImpl implements LoanService {
         LoanByCartel loan = new LoanByCartel(itemBorrower, itemShared);
         loanByCartelRepository.save(loan);
     }
-    /*
-    void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
-
-    void createLoanToCartel(CartelPerson itemOwner, List<ItemCopy> itemsShared);
-    */
 
     @Override
     public List<LoanByCartel> filterLoanByCartel(int pageNumber, int pageSize,
@@ -116,41 +111,6 @@ public class LoanServiceImpl implements LoanService {
 
         Page<LoanToCartel> pageLoanToCartel = loanToCartelRepository.findAll(filters, page);
         return pageLoanToCartel.getContent();
-    }
-
-    @Override
-    public boolean checkItemBorrowable(String itemId){
-        long nbItemCopy = itemCopyRepository.count(filterItemCopyFromBarcode(itemId));
-        long nbLoanToCartel = loanToCartelRepository.count(filterLoanToCartelfromItemBarcode(itemId));
-        long nbLoanByCartel = loanByCartelRepository.count(filterLoanByCartelfromItemBarcode(itemId));
-        if (nbItemCopy - (nbLoanToCartel + nbLoanByCartel) >= 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean checkItemReadable(String itemId){
-        long nbLoanToCartel = loanToCartelRepository.count(filterLoanToCartelfromItemBarcode(itemId));
-        if (nbLoanToCartel >= 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public Page<CartelPerson> searchPersonByFullname(String fullname, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return cartelPersonRepository.findByFirstnameContainingIgnoreCaseOrSurnameContainingIgnoreCase(
-            fullname, fullname, pageable);
-    }
-
-    @Override
-    public CartelPerson createPerson(String firstname, String surname, String contact, Integer caution) {
-        CartelPerson person = new CartelPerson(firstname, surname, contact, caution);
-        return cartelPersonRepository.save(person);
     }
 
     @Override

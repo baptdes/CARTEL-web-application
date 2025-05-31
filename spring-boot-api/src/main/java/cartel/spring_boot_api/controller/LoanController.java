@@ -2,20 +2,15 @@ package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.model.LoanByCartel;
 import cartel.spring_boot_api.model.LoanToCartel;
-import cartel.spring_boot_api.model.CartelPerson;
-import cartel.spring_boot_api.model.ItemCopy;
 
 import cartel.spring_boot_api.service.LoanService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * REST controller for managing loans through public endpoints
@@ -26,28 +21,6 @@ public class LoanController {
 
     @Autowired
     private LoanService loanService;
-
-    /**
-     * Check if an item can be borrowed from Cartel
-     *
-     * @param barcode the item barcode
-     * @return true if their is an available copy of the item owned by the cartel
-     */
-    @GetMapping("/check/sharable/{itemId}")
-    public boolean checkItemSharable(@PathVariable String itemId){
-        return loanService.checkItemBorrowable(itemId);
-    }
-
-    /**
-     * Check if an item can be consulted in the Cartel
-     *
-     * @param barcode the item barcode
-     * @return true if their is an readable copy of the item shared by somebody to the cartel
-     */
-    @GetMapping("/check/readable/{itemId}")
-    public boolean checkItemReadable(@PathVariable String itemId){
-        return loanService.checkItemReadable(itemId);
-    }
 
     /**
      * Deletes a loan to cartel by its ID
@@ -65,38 +38,6 @@ public class LoanController {
     @DeleteMapping("/byCartel/{loanByCartelId}")
     public void removeLoanByCartel(@PathVariable long loanByCartelId) {
         loanService.removeLoanByCartel(loanByCartelId);
-    }
-
-    /**
-     * Recherche une personne par son nom complet (prénom ou nom)
-     * 
-     * @param fullname Le nom ou prénom à rechercher
-     * @param pageNumber Le numéro de la page
-     * @param pageSize La taille de la page
-     * @return Une page de personnes correspondant aux critères
-     */
-    @GetMapping("/persons/search")
-    public Page<CartelPerson> searchPersons(
-            @RequestParam String fullname,
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "20") int pageSize) {
-        
-        return loanService.searchPersonByFullname(fullname, pageNumber, pageSize);
-    }
-
-    /**
-     * Ajoute une nouvelle personne
-     * 
-     * @param personData Les données de la personne (firstname, surname, contact)
-     * @return La personne créée
-     */
-    @PostMapping("/persons/add")
-    public CartelPerson addPerson(@RequestBody Map<String, String> personData) {
-        String firstname = personData.get("firstname");
-        String surname = personData.get("surname");
-        String contact = personData.get("contact");
-        Integer caution = Integer.valueOf(personData.get("caution"));
-        return loanService.createPerson(firstname, surname, contact, caution);
     }
 
     /**
