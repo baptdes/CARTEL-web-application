@@ -105,7 +105,6 @@ public class LoanByCartel {
         return this.endDate == null;
     }
 
-    // Add method to get borrower as DTO
     public PersonDTO getBorrower() {
         return itemBorrower != null ? new PersonDTO(itemBorrower) : null;
     }

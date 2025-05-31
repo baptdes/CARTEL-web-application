@@ -39,7 +39,7 @@ public class LoanToCartelController {
     }
 
     /**
-     * Crée un nouveau prêt pour une personne et un objet.
+     * Crée un nouveau prêt pour une personne et un objet en en créant un nouvel exemplaire.
      *
      * @param personId l'ID de la personne
      * @param itemId l'ID de l'objet
@@ -89,7 +89,7 @@ public class LoanToCartelController {
     }
 
     /**
-     * Marque un prêt comme terminé.
+     * Marque un prêt comme terminé et supprime l'exemplaire associé.
      *
      * @param loanId l'ID du prêt
      * @return une réponse indiquant que le prêt a été terminé avec succès

@@ -63,8 +63,15 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
             PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
         // Build the specification filters dynamically based on input parameters
-        Specification<LoanToCartel> filters = ((itemName == null) ? filterLoanToCartelfromItemSharedByName("") :
-                filterLoanToCartelfromItemSharedByName(itemName))
+        Specification<LoanToCartel> filters = Specification.where(null); // Start with empty specification
+        
+        // Only apply item name filter if a value is provided
+        if (itemName != null) {
+            filters = filters.and(filterLoanToCartelfromItemSharedByName(itemName));
+        }
+        
+        // Apply remaining filters
+        filters = filters
             .and((ownerFirstName == null) ? null : filterLoanToCartelfromOwnerByFirstName(ownerFirstName))
             .and((ownerSurname == null) ? null : filterLoanToCartelfromOwnerBySurname(ownerSurname))
             .and(filterLoanToCartelFromStartDateBefore(startDateBefore))
@@ -102,7 +109,21 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
         // Find the loan by ID
         LoanToCartel loan = loanToCartelRepository.findById(loanToCartelId)
             .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanToCartelId));
+        
+        // Complete the loan - this will also save item information internally
         loan.completeLoan();
+
+        // Save the item information before deleting the item copy
+        loan.saveItemInfo();
+
+        // Delete the item copy associated with the loan
+        ItemCopy itemCopy = loan.getItemShared();
+        if (itemCopy != null) {
+            loan.setItemShared(null);
+            loanToCartelRepository.save(loan);
+            itemCopyRepository.delete(itemCopy);
+        }
+
         loanToCartelRepository.save(loan);
     }
 

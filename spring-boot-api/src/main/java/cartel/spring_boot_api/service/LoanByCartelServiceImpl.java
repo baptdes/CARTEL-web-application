@@ -50,6 +50,11 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
         
         ItemCopy itemCopy = itemCopyRepository.findById(itemCopyId)
             .orElseThrow(() -> new IllegalArgumentException("Item copy not found with id: " + itemCopyId));
+
+        // Check if the item copy is already loaned out
+        if (itemCopy.isBorrowable()) {
+            throw new IllegalArgumentException("Item copy is already loaned out: " + itemCopyId);
+        }
         
         LoanByCartel loan = new LoanByCartel(borrower, itemCopy);
         loanByCartelRepository.save(loan);

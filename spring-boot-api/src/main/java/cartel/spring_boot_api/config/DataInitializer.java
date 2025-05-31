@@ -385,56 +385,64 @@ public class DataInitializer {
         return copies;
     }
 
-    private List<LoanByCartel> loadLoanByCartelData(int count){
+    private List<LoanByCartel> loadLoanByCartelData(int count) {
         List<LoanByCartel> loanBy = new ArrayList<>();
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> borrowItems = getRandomListAmong(allItemCopies, count, count);
-        
+
         for (int i = 0; i < borrowItems.size(); i++) {
             ItemCopy item = borrowItems.get(i);
+
+            // Ensure the item is borrowable
+            if (!item.isBorrowable()) {
+                continue;
+            }
+
             CartelPerson borrower = getRandomElement(allPerson);
             LoanByCartel loan = new LoanByCartel(borrower, item);
-            
+
             // Make some loans completed
             if (i % 3 == 0) {  // Every third loan is completed
-                // Calculate past dates for completed loans
-                // Current time minus random number of days
                 long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
                 long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
-                
+
                 loan.setLoanDate(new Date(loanTimeMillis));
                 loan.setEndDate(new Date(endTimeMillis));
             }
-            
+
             loanByCartelRepository.save(loan);
             loanBy.add(loan);
         }
         return loanBy;
     }
 
-    private List<LoanToCartel> loadLoanToCartelData(int count){
+    private List<LoanToCartel> loadLoanToCartelData(int count) {
         List<LoanToCartel> loanTo = new ArrayList<>();
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> lentItems = getRandomListAmong(allItemCopies, count, count);
-        
+
         for (int i = 0; i < lentItems.size(); i++) {
             ItemCopy item = lentItems.get(i);
+
+            // Ensure the item is available
+            if (!item.isAvailable()) {
+                continue;
+            }
+
             CartelPerson owner = getRandomElement(allPerson);
             LoanToCartel loan = new LoanToCartel(owner, item);
-            
+
             // Make some loans completed
             if (i % 3 == 0) {  // Every third loan is completed
-                // Calculate past dates for completed loans
-                // Current time minus random number of days
                 long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
                 long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
-                
+
                 loan.setLoanDate(new Date(loanTimeMillis));
                 loan.setEndDate(new Date(endTimeMillis));
             }
-            
+
             loanToCartelRepository.save(loan);
             loanTo.add(loan);
         }
