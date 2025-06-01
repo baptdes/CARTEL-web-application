@@ -4,7 +4,7 @@
   import { adminPageState } from '../store.js';
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
-  import { createFacture, getAllFactures, deleteFacture } from '$lib/services/factureService.js';
+  import { createFacture, getAllFactures, deleteFacture, getFactureById } from '$lib/services/factureService.js';
   import { fetchBooks } from '$lib/services/bookService.js';
   import { fetchGames } from '$lib/services/gameService.js';
   import { isAuthenticated, logout } from '$lib/auth';
@@ -20,6 +20,10 @@
   let isSubmitting = $state(false);
   let submitError = $state(null);
   let submitSuccess = $state(false);
+
+  // Facture detail popup state
+  let showFactureDetailPopup = $state(false);
+  let selectedFacture = $state(null);
 
   // Form fields
   let factureName = $state('');
@@ -41,7 +45,8 @@
     try {
       factures = await getAllFactures();
       // Sort by date desc
-      factures.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      factures.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      console.log('Loaded factures:', factures);
     } catch (err) {
       // Check if it's an auth error (403 Forbidden)
       if (err.status === 403) {
@@ -61,6 +66,7 @@
     logout();
     goto('/login');
   }
+  
   // Search for books or games
   async function handleSearch() {
     if (!searchQuery.trim()) {
@@ -69,17 +75,23 @@
     }
     
     try {
+      console.log(`Searching for ${searchType} with query "${searchQuery}"`);
+      
       if (searchType === 'books') {
+        // Book search params - titleBook is the correct parameter name
         const params = {
-          title: searchQuery.trim(),
+          titleBook: searchQuery.trim(),
           pageNumber: 0,
           pageSize: 10,
           sortBy: 'name',
           asc: true
         };
+        console.log('Book search params:', params);
         const result = await fetchBooks(params);
-        searchResults = result.content || [];
+        console.log('Book search result:', result);
+        searchResults = result.content || result || [];
       } else {
+        // Game search params - titleGame is the correct parameter name
         const params = {
           titleGame: searchQuery.trim(),
           pageNumber: 0,
@@ -87,8 +99,10 @@
           sortBy: 'name',
           asc: true
         };
+        console.log('Game search params:', params);
         const result = await fetchGames(params);
-        searchResults = result.content || [];
+        console.log('Game search result:', result);
+        searchResults = result.content || result || [];
       }
     } catch (err) {
       console.error('Search error:', err);
@@ -99,9 +113,10 @@
   // Add item to selected items
   function addItem(item) {
     // Check if item already exists in selected items
-    if (!selectedItems.some(selectedItem => selectedItem.id === item.id)) {
+    if (!selectedItems.some(selectedItem => selectedItem.barcode === item.barcode)) {
       selectedItems = [...selectedItems, {
         ...item,
+        id: item.barcode, // Use barcode as ID
         type: searchType === 'books' ? 'BOOK' : 'GAME',
         quantity: 1
       }];
@@ -142,6 +157,23 @@
     showAddFacturePopup = false;
   }
 
+  // Open facture detail popup
+  async function openFactureDetailPopup(facture) {
+    // If we need to fetch detailed facture info
+    try {
+      selectedFacture = facture;
+      showFactureDetailPopup = true;
+    } catch (err) {
+      error = `Erreur lors du chargement des détails de la facture: ${err.message || err}`;
+    }
+  }
+
+  // Close facture detail popup
+  function closeFactureDetailPopup() {
+    showFactureDetailPopup = false;
+    selectedFacture = null;
+  }
+
   // Handle facture submission
   async function submitFacture() {
     if (!factureName.trim()) {
@@ -159,14 +191,15 @@
     
     try {
       const factureData = {
-        name: factureName.trim(),
+        filename: factureName.trim(),
         items: selectedItems.map(item => ({
-          itemId: item.id,
+          itemId: item.barcode || item.id, // Try barcode first, then fallback to id
           itemType: item.type,
           quantity: item.quantity
         }))
       };
 
+      console.log('Submitting facture:', factureData);
       await createFacture(factureData);
       submitSuccess = true;
       
@@ -181,7 +214,7 @@
       isSubmitting = false;
     }
   }
-
+  
   // Handle delete facture
   async function handleDeleteFacture(factureId) {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette facture ?")) {
@@ -211,6 +244,25 @@
   function calculateTotal(items) {
     if (!items || !items.length) return 0;
     return items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+  }
+
+  // Get item type display name
+  function getItemTypeName(item) {
+    if (!item) return "Inconnu";
+    
+    if (item.format) {
+      // Book formats
+      if (item.format === 'LIVRE') return 'Livre';
+      if (item.format === 'BD') return 'Bande Dessinée';
+      if (item.format === 'MANGA') return 'Manga';
+      return item.format;
+    }
+    
+    // Try to guess from item properties
+    if (item.authors) return 'Livre';
+    if (item.minPlayers) return 'Jeu';
+    
+    return "Article";
   }
 
   // Handle search input keydown
@@ -254,18 +306,18 @@
         <div class="spinner"></div>
         <p>Chargement des factures...</p>
       </div>
-<!-- Replace your existing error message display with this -->
-{:else if error}
-  <div class="error-message">
-    {error}
-    {#if isAuthError}
-      <div class="auth-error-actions">
-        <button class="admin-button" on:click={handleAuthError}>Se reconnecter</button>
+    <!-- Error Message -->
+    {:else if error}
+      <div class="error-message">
+        {error}
+        {#if isAuthError}
+          <div class="auth-error-actions">
+            <button class="admin-button" on:click={handleAuthError}>Se reconnecter</button>
+          </div>
+        {:else}
+          <button class="admin-button" on:click={loadFactures}>Réessayer</button>
+        {/if}
       </div>
-    {:else}
-      <button class="admin-button" on:click={loadFactures}>Réessayer</button>
-    {/if}
-  </div>
     {:else}
       <!-- Factures List -->
       <div class="factures-list">
@@ -282,16 +334,16 @@
               <div class="grid-cell">Nom</div>
               <div class="grid-cell">Date</div>
               <div class="grid-cell">Nombre d'articles</div>
-              <div class="grid-cell">Total</div>
               <div class="grid-cell">Actions</div>
             </div>
             
             {#each factures as facture}
               <div class="grid-row">
-                <div class="grid-cell">{facture.name}</div>
-                <div class="grid-cell">{formatDate(facture.createdAt)}</div>
+                <div class="grid-cell facture-name" on:click={() => openFactureDetailPopup(facture)} on:keydown={() => {}}>
+                  {facture.filename || "Sans nom"}
+                </div>
+                <div class="grid-cell">{formatDate(facture.updatedAt)}</div>
                 <div class="grid-cell">{facture.items ? facture.items.length : 0}</div>
-                <div class="grid-cell">{calculateTotal(facture.items).toFixed(2)} €</div>
                 <div class="grid-cell actions-cell">
                   <button 
                     class="action-btn delete-btn" 
@@ -449,6 +501,143 @@
   </div>
 {/if}
 
+{#if showFactureDetailPopup && selectedFacture}
+  <div class="popup-backdrop" on:click={closeFactureDetailPopup} on:keydown={() => {}}>
+    <div class="popup-content facture-detail-popup" on:click|stopPropagation on:keydown={() => {}}>
+      <h3>Détails de la facture : {selectedFacture.filename || "Sans nom"}</h3>
+      
+      <div class="facture-detail">
+        <div class="facture-info">
+          <div class="info-row">
+            <span class="info-label">Date:</span> {formatDate(selectedFacture.updatedAt)}
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nombre d'articles:</span> {selectedFacture.items ? selectedFacture.items.length : 0}
+          </div>
+        </div>
+        
+        <h4>Articles</h4>
+        
+        {#if selectedFacture.items && selectedFacture.items.length > 0}
+          <div class="items-detail-container">
+            {#each selectedFacture.items as item}
+              <div class="item-detail-card">
+                <div class="item-card-header">
+                  <div class="item-image">
+                    <img src={item.coverImage || "/placeholder_book.png"} alt={item.name} />
+                  </div>
+                  <div class="item-header-info">
+                    <h4>{item.name || "Sans nom"}</h4>
+                    <div class="item-type-badge">{getItemTypeName(item)}</div>
+                  </div>
+                </div>
+                
+                <div class="item-details-grid">
+                  <!-- Common information for all items -->
+                  <div class="detail-item">
+                    <span class="detail-label">Code-barres:</span>
+                    <span class="detail-value">{item.barcode || "N/A"}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Année de publication:</span>
+                    <span class="detail-value">{item.publicationYear || "N/A"}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Langue:</span>
+                    <span class="detail-value">{item.language || "N/A"}</span>
+                  </div>
+                  
+                  <!-- Book-specific information -->
+                  {#if item.format && (item.format === 'LIVRE' || item.format === 'BD' || item.format === 'MANGA')}
+                    <div class="detail-item">
+                      <span class="detail-label">Format:</span>
+                      <span class="detail-value">{item.format}</span>
+                    </div>
+                    {#if item.authors && item.authors.length}
+                      <div class="detail-item">
+                        <span class="detail-label">Auteur(s):</span>
+                        <span class="detail-value">
+                          {item.authors.map(a => `${a.firstname || ''} ${a.surname || ''}`).join(', ')}
+                        </span>
+                      </div>
+                    {/if}
+                    {#if item.publisher}
+                      <div class="detail-item">
+                        <span class="detail-label">Éditeur:</span>
+                        <span class="detail-value">{item.publisher.name || "N/A"}</span>
+                      </div>
+                    {/if}
+                    {#if item.series}
+                      <div class="detail-item">
+                        <span class="detail-label">Série:</span>
+                        <span class="detail-value">{item.series.name || "N/A"}</span>
+                      </div>
+                    {/if}
+                    {#if item.volumeNumber}
+                      <div class="detail-item">
+                        <span class="detail-label">Tome:</span>
+                        <span class="detail-value">{item.volumeNumber}</span>
+                      </div>
+                    {/if}
+                  
+                  <!-- Game-specific information -->
+                  {:else if item.minPlayers || item.maxPlayers}
+                    {#if item.minPlayers && item.maxPlayers}
+                      <div class="detail-item">
+                        <span class="detail-label">Joueurs:</span>
+                        <span class="detail-value">
+                          {item.minPlayers === item.maxPlayers 
+                            ? `${item.minPlayers} joueur${item.minPlayers > 1 ? 's' : ''}` 
+                            : `${item.minPlayers} - ${item.maxPlayers} joueurs`}
+                        </span>
+                      </div>
+                    {/if}
+                    {#if item.avgPlaytime}
+                      <div class="detail-item">
+                        <span class="detail-label">Durée:</span>
+                        <span class="detail-value">{item.avgPlaytime} min</span>
+                      </div>
+                    {/if}
+                    {#if item.creator}
+                      <div class="detail-item">
+                        <span class="detail-label">Créateur:</span>
+                        <span class="detail-value">
+                          {item.creator.firstname} {item.creator.surname}
+                        </span>
+                      </div>
+                    {/if}
+                    {#if item.categories && item.categories.length}
+                      <div class="detail-item">
+                        <span class="detail-label">Catégories:</span>
+                        <span class="detail-value">{item.categories.join(', ')}</span>
+                      </div>
+                    {/if}
+                  {/if}
+                </div>
+                
+                {#if item.description}
+                  <div class="item-description">
+                    <span class="description-label">Description:</span>
+                    <p>{item.description}</p>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="no-items">Cette facture ne contient aucun article.</div>
+        {/if}
+      </div>
+      
+      <div class="popup-actions">
+        <button type="button" class="close-btn" on:click={closeFactureDetailPopup}>
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <style lang="scss">
   @use "/src/lib/sass/base";
   
@@ -484,10 +673,10 @@
   }
 
   .auth-error-actions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: center;
-}
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+  }
   
   .loading-spinner {
     display: flex;
@@ -543,9 +732,9 @@
     
     .grid-header {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+      grid-template-columns: 2fr 1fr 1fr 0.5fr;
       background: var(--primary);
-      color: white;
+      color: black;
       font-weight: 600;
       
       .grid-cell {
@@ -556,8 +745,9 @@
     
     .grid-row {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      grid-template-columns: 2fr 1fr 1fr 0.5fr;
+      border-bottom: 1px solid white;
+      color: var(--primary); // Added explicit text color for better contrast
       
       &:last-child {
         border-bottom: none;
@@ -579,6 +769,17 @@
         gap: 0.5rem;
         justify-content: center;
       }
+    }
+  }
+  
+  .facture-name {
+    cursor: pointer;
+    color: var(--primary);
+    text-decoration: underline;
+    transition: color 0.2s;
+    
+    &:hover {
+      color: var(--accent);
     }
   }
   
@@ -626,6 +827,37 @@
       font-size: 1.8rem;
     }
   }
+
+  .facture-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .facture-info {
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+      padding: 1rem;
+      
+      .info-row {
+        margin-bottom: 0.5rem;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .info-label {
+          font-weight: 600;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+    
+    h4 {
+      color: var(--primary);
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
+    }
+  }
   
   .facture-form {
     display: flex;
@@ -665,6 +897,81 @@
       &:focus {
         outline: none;
         border-color: var(--accent);
+      }
+    }
+  }
+  
+  .items-grid {
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    
+    .items-header {
+      display: grid;
+      grid-template-columns: 80px 2fr 1fr 1fr;
+      background: var(--primary);
+      color: black;
+      font-weight: 600;
+      
+      .item-cell {
+        padding: 0.8rem;
+        text-align: center;
+      }
+    }
+    
+    .item-row {
+      display: grid;
+      grid-template-columns: 80px 2fr 1fr 1fr;
+      border-bottom: 1px solid var(--secondary);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &:nth-child(even) {
+        background: rgba(0, 0, 0, 0.03);
+      }
+      
+      .item-cell {
+        padding: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        img {
+          width: 50px;
+          height: 70px;
+          object-fit: cover;
+          border-radius: 4px;
+        }
+      }
+    }
+  }
+
+  .no-items {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--secondary);
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  .popup-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    
+    .close-btn {
+      padding: 0.8rem 2rem;
+      border-radius: 4px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      
+      &:hover {
+        filter: brightness(0.9);
       }
     }
   }
@@ -730,6 +1037,7 @@
       border-bottom: 1px solid var(--secondary);
       cursor: pointer;
       transition: background 0.2s;
+      color: var(--primary); // Added explicit text color
       
       &:last-child {
         border-bottom: none;
@@ -758,6 +1066,7 @@
         .item-name {
           font-weight: 600;
           margin-bottom: 0.3rem;
+          color: var(--primary); // Explicit color
         }
         
         .item-info {
@@ -779,6 +1088,7 @@
       padding: 0.5rem;
       background: rgba(0, 0, 0, 0.03);
       border-radius: 4px;
+      color: var(--primary); // Added explicit text color
       
       .item-image {
         width: 40px;
@@ -798,6 +1108,7 @@
         
         .item-name {
           font-weight: 600;
+          color: var(--primary); // Explicit color
         }
         
         .item-type {
@@ -898,4 +1209,109 @@
     text-align: center;
     color: #dc3545;
   }
+
+  .facture-detail-popup {
+  width: 95%;
+  max-width: 900px;
+}
+
+.items-detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.item-detail-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  .item-card-header {
+    display: flex;
+    gap: 1rem;
+    
+    .item-image {
+      width: 80px;
+      min-width: 80px;
+      height: 120px;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+    }
+    
+    .item-header-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      
+      h4 {
+        margin: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        color: var(--primary);
+      }
+      
+      .item-type-badge {
+        display: inline-block;
+        background-color: var(--accent);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+        align-self: flex-start;
+      }
+    }
+  }
+  
+  .item-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      
+      .detail-label {
+        font-size: 0.8rem;
+        color: var(--secondary);
+        margin-bottom: 0.2rem;
+      }
+      
+      .detail-value {
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .item-description {
+    .description-label {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    
+    p {
+      margin: 0;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      color: var(--primary);
+    }
+  }
+}
 </style>

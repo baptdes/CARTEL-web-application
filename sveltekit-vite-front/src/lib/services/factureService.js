@@ -9,7 +9,7 @@
  */
 export async function createFacture(factureData) {
   try {
-    const response = await fetch('/api/factures', {
+    const response = await fetch('/api/public/factures', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -19,7 +19,10 @@ export async function createFacture(factureData) {
     });
     
     if (!response.ok) {
-      throw new Error(`Error creating facture. Status: ${response.status}`);
+      const errorText = await response.text().catch(() => null);
+      const error = new Error(`Error creating facture. Status: ${response.status}${errorText ? ` - ${errorText}` : ''}`);
+      error.status = response.status;
+      throw error;
     }
     
     return await response.json();
@@ -35,7 +38,7 @@ export async function createFacture(factureData) {
  */
 export async function getAllFactures() {
   try {
-    const response = await fetch('/api/factures', {
+    const response = await fetch('/api/public/factures', {
       credentials: 'include'
     });
     
@@ -57,7 +60,7 @@ export async function getAllFactures() {
  */
 export async function getFactureById(id) {
   try {
-    const response = await fetch(`/api/factures/${id}`, {
+    const response = await fetch(`/api/public/factures/${id}`, {
       credentials: 'include'
     });
     
@@ -79,7 +82,7 @@ export async function getFactureById(id) {
  */
 export async function deleteFacture(id) {
   try {
-    const response = await fetch(`/api/factures/${id}`, {
+    const response = await fetch(`/api/public/factures/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     });
