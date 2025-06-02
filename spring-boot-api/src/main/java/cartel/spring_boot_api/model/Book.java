@@ -34,7 +34,6 @@ public class Book extends Item{
     private Collection<Illustrator> illustrator;
     
     // Book format
-    @Column(nullable = false)
     private BookFormat format;
 
     // Book genre
@@ -116,5 +115,12 @@ public class Book extends Item{
 
     public void setSeries(Series series) {
         this.series = series;
+    }
+
+    public void addAuthor(AuthorBook author) {
+        if (this.authors == null) {
+            this.authors = new java.util.ArrayList<>();
+        }
+        this.authors.add(author);
     }
 }

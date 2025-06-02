@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * REST controller for managing Book entities through public endpoints
@@ -86,15 +87,17 @@ public class PublicBookController {
      * @param isbn The ISBN code of the book
      * @return 
      */
-    @PostMapping("/bnf/{isbn}")
+    @GetMapping("/bnf/{isbn}")
     public ResponseEntity<?> getBookFromBNF(@PathVariable String isbn) {
         try {
-            Book bookInfo = bookService.getBookWithISBN(isbn);
+            Optional<Book> bookInfo = bookService.getBookFromBNF(isbn);
+            if (bookInfo.isEmpty()) {
+                return ResponseEntity.status(404).body("Book not found in BNF");
+            }
             return ResponseEntity.ok(bookInfo);
         } catch (RuntimeException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }
-        
     }
 
     /**
