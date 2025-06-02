@@ -122,6 +122,7 @@
 
       $state.snapshot(newBook)
       const addedBook = await addBook(newBook);
+      console.log("Adding book:", newBook);
 
       // Count how many exemplaires have lenders (will be loans to Cartel)
       const loansToCreate = exemplaires.filter(ex => ex.lender && ex.lender.id).length;

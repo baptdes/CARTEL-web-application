@@ -22,7 +22,7 @@ export async function createItemCopy(itemId) {
       throw new Error(`Error creating item copy. Status: ${response.status}`);
     }
     
-    return await response.json();
+    return await response.text();
   } catch (error) {
     console.error('Error creating item copy:', error);
     throw error;
