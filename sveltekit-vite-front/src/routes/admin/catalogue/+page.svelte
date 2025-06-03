@@ -56,7 +56,7 @@
       
       // Add search parameter if present
       if (searchQuery.trim()) {
-        params.title = searchQuery.trim();
+        params.titleBook = searchQuery.trim();
       }
       
       books = await fetchBooks(params);
