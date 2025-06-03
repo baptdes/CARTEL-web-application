@@ -94,7 +94,6 @@ public class BookServiceImpl implements BookService {
                 .and((illustratorFirstName == null) ? null : fromIllustratorByFirstName(illustratorFirstName))
                 .and((illustratorFullName == null) ? null : fromIllustratorByCompleteName(illustratorFullName))
                 .and((genreName == null) ? null : fromGenreByName(genreName));
-//fromIllustratorByCompleteName
         Page<Book> pageBook = bookRepository.findAll(filters, page);
         return pageBook.getContent();
     }

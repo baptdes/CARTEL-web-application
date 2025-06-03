@@ -12,8 +12,6 @@ import java.util.Collection;
 
 import org.springframework.security.core.Transient;
 
-import io.micrometer.common.lang.Nullable;
-
 @Entity
 @Table(name = "books")
 @PrimaryKeyJoinColumn( name = "barcode" )

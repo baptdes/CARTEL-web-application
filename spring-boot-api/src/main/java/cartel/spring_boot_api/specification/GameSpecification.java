@@ -3,8 +3,6 @@ package cartel.spring_boot_api.specification;
 import cartel.spring_boot_api.model.Game;
 import cartel.spring_boot_api.model.Game.GameCategories;
 import cartel.spring_boot_api.model.AuthorGame;
-import cartel.spring_boot_api.model.PublisherGame;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Expression;
 
 
