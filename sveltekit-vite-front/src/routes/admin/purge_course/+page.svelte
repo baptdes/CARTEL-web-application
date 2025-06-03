@@ -244,19 +244,19 @@
   }
 
   .error {
-    color: red;
+    color: var(--accent);
     margin: 1rem 0;
   }
   button {
-    background: #d32f2f;
+    background: var(--tertiary);
     color: #fff;
     border: none;
     padding: 0.4em 1em;
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.5s;
   }
   button:hover {
-    background: #b71c1c;
+    background: var(--accent);
   }
 </style>

@@ -7,12 +7,12 @@
   let authenticated = $state(false);
   let { children } = $props();
 
-  // $effect(() => {
-  //   authenticated = $isAuthenticated;
-  //   if (!authenticated) {
-  //     goto('/login');
-  //   }
-  // });
+  $effect(() => {
+    authenticated = $isAuthenticated;
+    if (!authenticated) {
+      goto('/login');
+    }
+  });
 
   function handleLogout() {
     logout();
