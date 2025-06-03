@@ -254,7 +254,7 @@
       // Book formats
       if (item.format === 'LIVRE') return 'Livre';
       if (item.format === 'BD') return 'Bande Dessinée';
-      if (item.format === 'MANGA') return 'Manga';
+      if (item.format === 'MANGA') return 'Manga'; 
       return item.format;
     }
     
