@@ -29,17 +29,13 @@ import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.management.RuntimeErrorException;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.*;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -227,141 +223,183 @@ public class BookServiceImpl implements BookService {
     public Optional<Book> getBookFromBNF(String isbn) {
         // Quand ISBN-13, le 4ème caractère est le code du pays
         // Quand ISBN-10, le 1er caractère est le code du pays
-        int language = isbn.length() == 13 ? isbn.charAt(3) : isbn.charAt(0) ;
+        // int language = isbn.length() == 13 ? isbn.charAt(3) : isbn.charAt(0) ;
 
         // On crée un objet Book vide pour y stocker les informations récupérées
         Book book = new Book();
         book.setBarcode(isbn);
 
-        if(language == '2'){
-            // Utiliser l'API BnF pour récupérer les informations du livre
-            // Uniquement pour les livres français (ISBN-13 commençant par 2)
+        // Utiliser l'API BnF pour récupérer les informations du livre
+        // Uniquement pour les livres français (ISBN-13 commençant par 2)
 
-            book.setLanguage(Languages.FR);
+        book.setLanguage(Languages.FR);
 
-            // Use Dublin Core schema for easier parsing
-            String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=\"" + isbn + "\"";
-        
-            try {
-                // Create RestTemplate for making HTTP requests
-                RestTemplate restTemplate = new RestTemplate();
-                String response = restTemplate.getForObject(bnfApiUrl, String.class);
+        // Use Dublin Core schema for easier parsing
+        String bnfApiUrl = "https://catalogue.bnf.fr/api/SRU?version=1.2&operation=searchRetrieve&query=bib.isbn=\"" + isbn + "\"";
+    
+        try {
+            // Create RestTemplate for making HTTP requests
+            RestTemplate restTemplate = new RestTemplate();
+            String response = restTemplate.getForObject(bnfApiUrl, String.class);
 
-                // Create DocumentBuilderFactory to parse XML response
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true); // Enable namespace support for Dublin Core
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                InputSource source = new InputSource(new StringReader(response));
-                Document document = builder.parse(source);
+            // Create DocumentBuilderFactory to parse XML response
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true); // Enable namespace support for Dublin Core
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputSource source = new InputSource(new StringReader(response));
+            Document document = builder.parse(source);
 
-                // Check if we have any records
-                NodeList records = document.getElementsByTagName("srw:numberOfRecords");
-                if (records.getLength() > 0) {
-                    String numberOfRecordsStr = records.item(0).getTextContent();
-                    if ("0".equals(numberOfRecordsStr)) {
-                        return Optional.empty(); // No records found
-                    }
+            // Check if we have any records
+            NodeList records = document.getElementsByTagName("srw:numberOfRecords");
+            if (records.getLength() > 0) {
+                String numberOfRecordsStr = records.item(0).getTextContent();
+                if ("0".equals(numberOfRecordsStr)) {
+                    return Optional.empty(); // No records found
                 }
-
-                XPathFactory xPathFactory = XPathFactory.newInstance();
-                XPath xpath = xPathFactory.newXPath();
-
-                // Déclare les namespaces utilisés
-                xpath.setNamespaceContext(new NamespaceContext() {
-                    public String getNamespaceURI(String prefix) {
-                        switch (prefix) {
-                            case "srw": return "http://www.loc.gov/zing/srw/";
-                            case "mxc": return "info:lc/xmlns/marcxchange-v2";
-                            default: return XMLConstants.NULL_NS_URI;
-                        }
-                    }
-
-                    public String getPrefix(String uri) { return null; }
-                    public Iterator<String> getPrefixes(String uri) { return null; }
-                });
-
-                // Titre
-                String titlePath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='a']";
-                Node titleNode = (Node) xpath.evaluate(titlePath, document, XPathConstants.NODE);
-                if (titleNode != null) {
-                    book.setName(titleNode.getTextContent());
-                }
-
-                // Auteur Principal
-                String authorlastnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='a']";
-                Node authorlastnameNode = (Node) xpath.evaluate(authorlastnamePath, document, XPathConstants.NODE);
-                String authorfirstnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='b']";
-                Node authorfirstnameNode = (Node) xpath.evaluate(authorfirstnamePath, document, XPathConstants.NODE);
-                if (authorlastnameNode != null && authorfirstnameNode != null) {
-                    AuthorBook author = findOrCreateAuthor(authorfirstnameNode.getTextContent(), authorlastnameNode.getTextContent());
-                    book.addAuthor(author);
-                }
-
-                // Editeur
-                String publishernamePath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='c']";
-                Node publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
-                if (publishernameNode == null) {
-                    publishernamePath = "//mxc:datafield[@tag='214']/mxc:subfield[@code='c']";
-                    publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
-                }
-                if (publishernameNode != null) {
-                    book.setPublisher(findOrCreatePublisher(publishernameNode.getTextContent()));
-                }
-
-                // Année de publication
-                String PublicationYearPath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='d']";
-                Node PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
-                if (PublicationYearNode == null) {
-                    PublicationYearPath = "//mxc:datafield[@tag='214']/mxc:subfield[@code='d']";
-                    PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
-                }
-                if (PublicationYearNode != null) {
-                    // Exemple de format récupéré : "DL 2020"
-                    book.setPublicationYear(Integer.valueOf(PublicationYearNode.getTextContent().split(" ")[1]));
-                }
-                
-
-                // Description
-                String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
-                Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
-                if (descriptionNode == null || descriptionNode.getTextContent().isEmpty()) {
-                    descriptionPath = "//mxc:datafield[@tag='329']/mxc:subfield[@code='a']";
-                    descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
-                }
-                if (descriptionNode != null) {
-                    book.setDescription(descriptionNode.getTextContent());
-                }
-
-                // Couverture
-                NodeList recordIdentifiers = document.getElementsByTagName("srw:recordIdentifier");
-                if (recordIdentifiers.getLength() > 0) {
-                    String arkId = recordIdentifiers.item(0).getTextContent();
-                    book.setCoverImage("https://catalogue.bnf.fr/couverture?&appName=NE&idArk=" + arkId + "&couverture=1");
-                }
-
-                /*
-|               ||||||||||||||||||||| Pour plus tard |||||||||||||||||||||
-                // Série
-                String seriePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='t']";
-                Node serieNode = (Node) xpath.evaluate(seriePath, document, XPathConstants.NODE);
-                String serieName = serieNode != null ? serieNode.getTextContent() : "";
-                Series serie = findOrCreateSerie(serieName);
-
-                // Numéro de volume
-                String volumePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='v']";
-                Node volumeNode = (Node) xpath.evaluate(volumePath, document, XPathConstants.NODE);
-                String volumeS = volumeNode != null ? volumeNode.getTextContent() : "";
-                int volume = volumeNode != null ? Integer.valueOf(volumeS):0;*/
-            } catch (Exception e) {
-                throw new RuntimeException("Error fetching book details from BnF API: " + e.getMessage(), e);
             }
-        } else if(language==48){
-            throw new RuntimeException("pays non traité");
-        } else if(language==52){
-            throw new RuntimeException("pays non traité");
-        } else{
-            throw new RuntimeException("pays non traité");
+
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xpath = xPathFactory.newXPath();
+
+            // Déclare les namespaces utilisés
+            xpath.setNamespaceContext(new NamespaceContext() {
+                public String getNamespaceURI(String prefix) {
+                    switch (prefix) {
+                        case "srw": return "http://www.loc.gov/zing/srw/";
+                        case "mxc": return "info:lc/xmlns/marcxchange-v2";
+                        default: return XMLConstants.NULL_NS_URI;
+                    }
+                }
+
+                public String getPrefix(String uri) { return null; }
+                public Iterator<String> getPrefixes(String uri) { return null; }
+            });
+
+            // Numéro de volume
+            String volumePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='v']";
+            Node volumeNode = (Node) xpath.evaluate(volumePath, document, XPathConstants.NODE);
+            if (volumeNode != null) {
+                String volumeS = volumeNode.getTextContent();
+                book.setVolumeNumber(Integer.valueOf(volumeS));
+            }
+
+            // Série
+            String seriePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='t']";
+            Node serieNode = (Node) xpath.evaluate(seriePath, document, XPathConstants.NODE);
+
+            // Titre
+            String titlePath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='a']";
+            Node titleNode = (Node) xpath.evaluate(titlePath, document, XPathConstants.NODE);
+            String titlePartPath = "//mxc:datafield[@tag='200']/mxc:subfield[@code='i']";
+            Node titlePartNode = (Node) xpath.evaluate(titlePartPath, document, XPathConstants.NODE);
+            StringBuilder titleBuilder = new StringBuilder();
+            if (serieNode != null) {
+                titleBuilder.append(serieNode.getTextContent());
+            }
+            if (titleBuilder.length() > 0 && book.getVolumeNumber() != null) {
+                titleBuilder.append(" - Tome ").append(book.getVolumeNumber()).append(" - ");
+            }
+            if (titleNode != null) {
+                titleBuilder.append(titleNode.getTextContent());
+            }
+            if (titlePartNode != null) {
+                if (titleBuilder.length() > 0) {
+                    titleBuilder.append(" - ");
+                }
+                titleBuilder.append(titlePartNode.getTextContent());
+            }
+            if (titleBuilder.length() > 0) {
+                book.setName(titleBuilder.toString());
+            }
+
+            // Auteur Principal
+            String authorlastnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='a']";
+            Node authorlastnameNode = (Node) xpath.evaluate(authorlastnamePath, document, XPathConstants.NODE);
+            String authorfirstnamePath = "//mxc:datafield[@tag='700']/mxc:subfield[@code='b']";
+            Node authorfirstnameNode = (Node) xpath.evaluate(authorfirstnamePath, document, XPathConstants.NODE);
+            if (authorlastnameNode != null && authorfirstnameNode != null) {
+                AuthorBook author = findOrCreateAuthor(authorfirstnameNode.getTextContent(), authorlastnameNode.getTextContent());
+                book.addAuthor(author);
+            }
+
+            // Editeur
+            String publishernamePath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='c']";
+            Node publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
+            if (publishernameNode == null) {
+                publishernamePath = "//mxc:datafield[@tag='214']/mxc:subfield[@code='c']";
+                publishernameNode = (Node) xpath.evaluate(publishernamePath, document, XPathConstants.NODE);
+            }
+            if (publishernameNode != null) {
+                book.setPublisher(findOrCreatePublisher(publishernameNode.getTextContent()));
+            }
+
+            // Année de publication
+            String PublicationYearPath = "//mxc:datafield[@tag='210']/mxc:subfield[@code='d']";
+            Node PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
+            if (PublicationYearNode == null) {
+                PublicationYearPath = "//mxc:datafield[@tag='214']/mxc:subfield[@code='d']";
+                PublicationYearNode = (Node) xpath.evaluate(PublicationYearPath, document, XPathConstants.NODE);
+            }
+            if (PublicationYearNode != null) {
+                // Exemple de format récupéré : "DL 2020"
+                String[] yearParts = PublicationYearNode.getTextContent().split(" ");
+                if (yearParts.length > 1) {
+                    book.setPublicationYear(Integer.valueOf(yearParts[1]));
+                } else {
+                    book.setPublicationYear(Integer.valueOf(PublicationYearNode.getTextContent()));
+                }
+            }
+            
+
+            // Description
+            String descriptionPath = "//mxc:datafield[@tag='330']/mxc:subfield[@code='a']";
+            Node descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
+            if (descriptionNode == null || descriptionNode.getTextContent().isEmpty()) {
+                descriptionPath = "//mxc:datafield[@tag='329']/mxc:subfield[@code='a']";
+                descriptionNode = (Node) xpath.evaluate(descriptionPath, document, XPathConstants.NODE);
+            }
+            if (descriptionNode != null) {
+                book.setDescription(descriptionNode.getTextContent());
+            }
+
+            // Couverture
+            NodeList recordIdentifiers = document.getElementsByTagName("srw:recordIdentifier");
+            if (recordIdentifiers.getLength() > 0) {
+                String arkId = recordIdentifiers.item(0).getTextContent();
+                book.setCoverImage("https://catalogue.bnf.fr/couverture?&appName=NE&idArk=" + arkId + "&couverture=1");
+            }
+
+            // Langue
+            String languagePath = "//mxc:datafield[@tag='101']/mxc:subfield[@code='a']";
+            Node languageNode = (Node) xpath.evaluate(languagePath, document, XPathConstants.NODE);
+            if (languageNode != null) {
+                String languageCode = languageNode.getTextContent();
+                switch (languageCode) {
+                    case "fre":
+                        book.setLanguage(Languages.FR);
+                        break;
+                    case "eng":
+                        book.setLanguage(Languages.EN);
+                        break;
+                    case "jpn":
+                        book.setLanguage(Languages.JA);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            /*
+|               ||||||||||||||||||||| Pour plus tard |||||||||||||||||||||
+            // Série
+            String seriePath = "//mxc:datafield[@tag='461']/mxc:subfield[@code='t']";
+            Node serieNode = (Node) xpath.evaluate(seriePath, document, XPathConstants.NODE);
+            String serieName = serieNode != null ? serieNode.getTextContent() : "";
+            Series serie = findOrCreateSerie(serieName);*/
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching book details from BnF API: " + e.getMessage(), e);
         }
+        
         return Optional.of(book);
     }
 
@@ -392,17 +430,4 @@ public class BookServiceImpl implements BookService {
             }
         }
     }
-    
-    private static String getSubfield(Element datafield, String code) {
-        NodeList subfields = datafield.getElementsByTagNameNS("info:lc/xmlns/marcxchange-v2", "subfield");
-        for (int i = 0; i < subfields.getLength(); i++) {
-            Element sub = (Element) subfields.item(i);
-            if (code.equals(sub.getAttribute("code"))) {
-                return sub.getTextContent();
-            }
-        }
-        return "";
-    }
-
-    
 }
