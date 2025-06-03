@@ -5,6 +5,7 @@ import cartel.spring_boot_api.repository.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.sql.Date; // Changed from java.util.Date to java.sql.Date
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -94,9 +95,6 @@ public class DataInitializer {
             System.out.println("Loading Publisher Book data...");
             List<PublisherBook> publishersBook = loadPublisherBookData(numPublishersBook);
             
-            System.out.println("Loading Series data...");
-            List<Series> series = loadSerieData(numSeries);
-            
             System.out.println("Loading Creator data...");
             List<AuthorGame> creators = loadCreatorData(numCreators);
             
@@ -104,13 +102,10 @@ public class DataInitializer {
             List<PublisherGame> publishersJDS = loadPublisherJDSData(numPublishersJDS);
             
             System.out.println("Loading Book data...");
-            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, series, genres);
+            List<Book> books = loadBookData(numBooks, authors, illustrators, publishersBook, null, genres); // Pass null for series
             
             System.out.println("Loading JDS data...");
             List<Game> jdsList = loadJDSData(numJDS, creators, publishersJDS);
-            
-            System.out.println("Loading Extension data...");
-            List<Extension> extensions = loadExtensionData(numExtensions, creators, publishersJDS, jdsList);
             
             System.out.println("Loading Cartel Person data...");
             List<CartelPerson> cartelPersons = loadCartelPersonData(numCartelPersons);
@@ -198,18 +193,6 @@ public class DataInitializer {
         return publishers;
     }
     
-    private List<Series> loadSerieData(int count) {
-        List<Series> series = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            Series serie = new Series(
-                faker.book().title() + " Series"
-            );
-            serieRepository.save(serie);
-            series.add(serie);
-        }
-        return series;
-    }
-    
     private List<AuthorGame> loadCreatorData(int count) {
         List<AuthorGame> creators = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -266,7 +249,7 @@ public class DataInitializer {
             }
             
             // 70% chance to be part of a series
-            if (random.nextInt(100) < 70) {
+            if (random.nextInt(100) < 70 && series != null) {
                 book.setSeries(getRandomElement(series));
                 book.setVolumeNumber(random.nextInt(10) + 1);
             }
@@ -319,37 +302,6 @@ public class DataInitializer {
         return jdsList;
     }
     
-    private List<Extension> loadExtensionData(int count, List<AuthorGame> creators, List<PublisherGame> publishers, List<Game> jdsList) {
-        List<Extension> extensions = new ArrayList<>();
-        
-        for (int i = 0; i < count; i++) {
-            Collection<AuthorGame> extCreators = getRandomSubList(creators, 1, 2);
-            Game baseGame = getRandomElement(jdsList);
-            
-            String barcode = IntStream.range(0, 13)
-                .mapToObj(n -> String.valueOf(random.nextInt(10)))
-                .collect(Collectors.joining());
-            
-            Extension extension = new Extension(
-                baseGame.getName() + ": " + faker.marketing().buzzwords(), // Ensure name is not null
-                extCreators,
-                baseGame.getPublisher(),
-                baseGame.getPublicationYear() + random.nextInt(3) + 1,
-                baseGame.getLanguage(),
-                baseGame,
-                barcode
-            );
-            
-            extension.setDescription(faker.lorem().paragraph(1));
-            extension.setCoverImage("https://picsum.photos/id/" + (random.nextInt(1000) + 1) + "/200/300");
-            
-            itemRepository.save(extension);
-            extensions.add(extension);
-        }
-        
-        return extensions;
-    }
-    
     private List<CartelPerson> loadCartelPersonData(int count) {
         List<CartelPerson> persons = new ArrayList<>();
         
@@ -384,28 +336,64 @@ public class DataInitializer {
         return copies;
     }
 
-    private List<LoanByCartel> loadLoanByCartelData(int count){
+    private List<LoanByCartel> loadLoanByCartelData(int count) {
         List<LoanByCartel> loanBy = new ArrayList<>();
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> borrowItems = getRandomListAmong(allItemCopies, count, count);
-        for (ItemCopy item : borrowItems) {
+
+        for (int i = 0; i < borrowItems.size(); i++) {
+            ItemCopy item = borrowItems.get(i);
+
+            // Ensure the item is borrowable
+            if (!item.isBorrowable()) {
+                continue;
+            }
+
             CartelPerson borrower = getRandomElement(allPerson);
             LoanByCartel loan = new LoanByCartel(borrower, item);
+
+            // Make some loans completed
+            if (i % 3 == 0) {  // Every third loan is completed
+                long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
+                long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
+
+                loan.setLoanDate(new Date(loanTimeMillis));
+                loan.setEndDate(new Date(endTimeMillis));
+            }
+
             loanByCartelRepository.save(loan);
             loanBy.add(loan);
         }
         return loanBy;
     }
 
-    private List<LoanToCartel> loadLoanToCartelData(int count){
+    private List<LoanToCartel> loadLoanToCartelData(int count) {
         List<LoanToCartel> loanTo = new ArrayList<>();
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();
         List<CartelPerson> allPerson = cartelPersonRepository.findAll();
         List<ItemCopy> lentItems = getRandomListAmong(allItemCopies, count, count);
-        for (ItemCopy item : lentItems) {
+
+        for (int i = 0; i < lentItems.size(); i++) {
+            ItemCopy item = lentItems.get(i);
+
+            // Ensure the item is available
+            if (!item.isAvailable()) {
+                continue;
+            }
+
             CartelPerson owner = getRandomElement(allPerson);
             LoanToCartel loan = new LoanToCartel(owner, item);
+
+            // Make some loans completed
+            if (i % 3 == 0) {  // Every third loan is completed
+                long loanTimeMillis = System.currentTimeMillis() - ((random.nextInt(20) + 10) * 24 * 60 * 60 * 1000L);
+                long endTimeMillis = loanTimeMillis + ((random.nextInt(10) + 1) * 24 * 60 * 60 * 1000L);
+
+                loan.setLoanDate(new Date(loanTimeMillis));
+                loan.setEndDate(new Date(endTimeMillis));
+            }
+
             loanToCartelRepository.save(loan);
             loanTo.add(loan);
         }

@@ -1,11 +1,10 @@
 package cartel.spring_boot_api.model;
 
 import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.sql.Date;
 
-import java.time.LocalDateTime;
-
+import cartel.spring_boot_api.dto.PersonDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Entity;
@@ -25,38 +24,38 @@ public class LoanByCartel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(nullable = false)
     private CartelPerson itemBorrower;
 
-    @Column/*(nullable = false)*/
-    private LocalDateTime loanDate;
+    @Column(nullable = false)
+    private Date loanDate;
+
+    @Column
+    private Date endDate;
 
     @OneToOne
     @JoinColumn(nullable = false)
     private ItemCopy itemShared;
 
     public LoanByCartel() {
-        this.loanDate = LocalDateTime.now();
+        this.loanDate = new Date(System.currentTimeMillis());
     }
 
     public LoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared) {
         super();
         this.itemBorrower = itemBorrower;
         this.itemShared = itemShared;
+        this.loanDate = new Date(System.currentTimeMillis());
     }
 
-	public LoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared, LocalDateTime loanDate) {
+    public LoanByCartel(CartelPerson itemBorrower, ItemCopy itemShared, Date loanDate) {
         this.itemBorrower = itemBorrower;
         this.itemShared = itemShared;
         this.loanDate = loanDate;
     }
 
-    // public LoanByCartel(CartelPerson itemBorrower, Collection<ItemCopy> itemShared, LocalDateTime loanDate) {
-    //     this.itemBorrower = itemBorrower;
-    //     this.itemShared = itemShared;
-    //     this.loanDate = loanDate;
-    // }
 
     public Long getId() {
         return id;
@@ -82,11 +81,31 @@ public class LoanByCartel {
         this.itemShared = itemShared;
     }
 
-    public void setLoanDate(LocalDateTime loanDate) {
+    public Date getLoanDate() {
+        return loanDate;
+    }
+
+    public void setLoanDate(Date loanDate) {
         this.loanDate = loanDate;
     }
 
-    public LocalDateTime getLoanDate(){
-        return this.loanDate;
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public void completeLoan() {
+        this.endDate = new Date(System.currentTimeMillis());
+    }
+    
+    public boolean isActive() {
+        return this.endDate == null;
+    }
+
+    public PersonDTO getBorrower() {
+        return itemBorrower != null ? new PersonDTO(itemBorrower) : null;
     }
 }

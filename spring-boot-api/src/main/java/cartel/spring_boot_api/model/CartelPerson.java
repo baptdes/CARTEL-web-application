@@ -31,17 +31,24 @@ public class CartelPerson {
     private Integer caution;
 
     @Column
-    @OneToMany
+    @OneToMany(mappedBy = "itemBorrower")
     private List<LoanByCartel> loanToPerson;
 
     @Column
-    @OneToMany
+    @OneToMany(mappedBy = "itemOwner")
     private List<LoanToCartel> loanByPerson;
 
     public CartelPerson(String name, String surname,String contact) {
         this.firstname = name;
         this.surname = surname;
         this.contact = contact;
+    }
+
+    public CartelPerson(String name, String surname,String contact, Integer caution) {
+        this.firstname = name;
+        this.surname = surname;
+        this.contact = contact;
+        this.caution = caution;
     }
 
     public CartelPerson(){
@@ -104,4 +111,11 @@ public class CartelPerson {
         this.loanByPerson = loans;
     }
 
+    public Integer getLoanToCartelNumber() {
+        return (loanToPerson != null) ? loanToPerson.size() : 0;
+    }
+
+    public Integer getLoanByCartelNumber() {
+        return (loanByPerson != null) ? loanByPerson.size() : 0;
+    }
 }

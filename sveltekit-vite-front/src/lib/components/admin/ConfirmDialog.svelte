@@ -27,22 +27,27 @@
 {#if show}
   <div 
     class="dialog-backdrop" 
-    on:click={handleCancel}
-    on:keydown={handleKeydown}
+    onclick={handleCancel}
+    onkeydown={handleKeydown}
     role="dialog" 
     aria-modal="true"
     tabindex="-1"
   >
-    <div class="dialog-content" on:click|stopPropagation>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div 
+      class="dialog-content" 
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={() => {}}
+    >  <!-- Stop propagation prevents closing when clicking inside the dialog -->
       <div class="dialog-header">
-        <h3>{title}</h3>
+      <h3>{title}</h3>
       </div>
       <div class="dialog-body">
-        <p>{message}</p>
+      <p>{message}</p>
       </div>
       <div class="dialog-footer">
-        <button class="cancel-btn" on:click={handleCancel}>{cancelText}</button>
-        <button class="confirm-btn" on:click={handleConfirm}>{confirmText}</button>
+      <button type="button" class="cancel-btn" onclick={handleCancel}>{cancelText}</button>
+      <button type="button" class="confirm-btn" onclick={handleConfirm}>{confirmText}</button>
       </div>
     </div>
   </div>

@@ -1,17 +1,16 @@
 package cartel.spring_boot_api.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 import java.util.Collection;
 
 import org.springframework.security.core.Transient;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "books")
@@ -22,12 +21,11 @@ public class Book extends Item{
     public enum BookFormat {MANGA,BD,LIVRE};
 
     // Book author
-    @Column(nullable = false)
     @ManyToMany
+    @Column(nullable = false)
     private Collection<AuthorBook> authors;
 
     // Book publisher
-    @JoinColumn(nullable = false)
     @ManyToOne
     private PublisherBook publisher;
 
@@ -36,6 +34,7 @@ public class Book extends Item{
     private Collection<Illustrator> illustrator;
     
     // Book format
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookFormat format;
 
@@ -118,5 +117,12 @@ public class Book extends Item{
 
     public void setSeries(Series series) {
         this.series = series;
+    }
+
+    public void addAuthor(AuthorBook author) {
+        if (this.authors == null) {
+            this.authors = new java.util.ArrayList<>();
+        }
+        this.authors.add(author);
     }
 }

@@ -6,7 +6,6 @@ import cartel.spring_boot_api.model.Genre;
 import cartel.spring_boot_api.model.Illustrator;
 import cartel.spring_boot_api.model.PublisherBook;
 import cartel.spring_boot_api.model.Book.BookFormat;
-import cartel.spring_boot_api.model.Item.Languages;
 import cartel.spring_boot_api.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * REST controller for managing Book entities through public endpoints
@@ -60,7 +59,7 @@ public class PublicBookController {
     @GetMapping
     public List<Book> filterBooks(
             @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "true") boolean asc,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(required = false) String titleBook,
@@ -75,9 +74,12 @@ public class PublicBookController {
             @RequestParam(required = false) String serieName,
             @RequestParam(required = false) String genreName) {
         
-        return bookService.filterBooks(pageNumber, pageSize, asc, sortBy, titleBook, 
-                publisherName, authorFirstName, authorSurname, authorFullName, illustratorFirstName,
-                illustratorSurname, illustratorFullName, category, serieName, genreName);
+        return bookService.filterBooks(
+            pageNumber, pageSize, asc, sortBy,
+            authorFirstName, authorSurname, authorFullName,
+            illustratorFirstName, illustratorSurname, illustratorFullName,
+            titleBook, publisherName, category, serieName, genreName
+        );
     }
 
     /**
@@ -86,15 +88,17 @@ public class PublicBookController {
      * @param isbn The ISBN code of the book
      * @return 
      */
-    @PostMapping("/bnf/{isbn}")
+    @GetMapping("/bnf/{isbn}")
     public ResponseEntity<?> getBookFromBNF(@PathVariable String isbn) {
         try {
-            Book bookInfo = bookService.getBookWithISBN(isbn);
+            Optional<Book> bookInfo = bookService.getBookFromBNF(isbn);
+            if (bookInfo.isEmpty()) {
+                return ResponseEntity.status(404).body("Book not found in BNF");
+            }
             return ResponseEntity.ok(bookInfo);
         } catch (RuntimeException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }
-        
     }
 
     /**

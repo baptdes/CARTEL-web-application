@@ -10,30 +10,34 @@
 export async function fetchBooks(params = {}) {
   try {
     const queryParams = new URLSearchParams();
-    
-    // Add all possible filter parameters from PublicBookController
+
+    // Required/default params
     if (params.pageNumber !== undefined) queryParams.append('pageNumber', params.pageNumber);
     if (params.pageSize !== undefined) queryParams.append('pageSize', params.pageSize);
     if (params.asc !== undefined) queryParams.append('asc', params.asc);
     if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-    if (params.title) queryParams.append('titleBook', params.title);
+
+    // Optional filters
+    if (params.titleBook) queryParams.append('titleBook', params.titleBook);
     if (params.publisherName) queryParams.append('publisherName', params.publisherName);
     if (params.authorFirstName) queryParams.append('authorFirstName', params.authorFirstName);
     if (params.authorSurname) queryParams.append('authorSurname', params.authorSurname);
+    if (params.authorFullName) queryParams.append('authorFullName', params.authorFullName);
     if (params.illustratorFirstName) queryParams.append('illustratorFirstName', params.illustratorFirstName);
     if (params.illustratorSurname) queryParams.append('illustratorSurname', params.illustratorSurname);
+    if (params.illustratorFullName) queryParams.append('illustratorFullName', params.illustratorFullName);
     if (params.category) queryParams.append('category', params.category);
     if (params.serieName) queryParams.append('serieName', params.serieName);
     if (params.genreName) queryParams.append('genreName', params.genreName);
-    
+
     const url = `/api/public/books${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (err) {
     console.error('Error fetching books:', err);
@@ -76,6 +80,32 @@ export async function getAllGenres() {
   } catch (err) {
     console.error("Failed to fetch genres:", err);
     throw err;
+  }
+}
+
+/**
+ * Add a new genre
+ * @param {String} genre - The genre to add
+ * @returns {Promise<Object>} The added genre object
+ */
+export async function addGenre(genre) {
+  try {
+    const response = await fetch("/api/public/books/genres?name=" + genre, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error adding genre. Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding genre:', error);
+    throw error;
   }
 }
 
@@ -186,7 +216,7 @@ export function isBookAvailable(book) {
 /**
  * Delete a book by ISBN
  * @param {string} isbn - The ISBN of the book to delete
- * @returns {Promise<boolean>} True if the book was deleted, false otherwise
+ * @returns {Promise<boolean} True if the book was deleted, false otherwise
  */
 export async function deleteBook(isbn) {
   try {
@@ -229,6 +259,79 @@ export async function addBook(book) {
     return await response.json();
   } catch (error) {
     console.error('Error adding book:', error);
+    throw error;
+  }
+}
+
+/**
+ * Add a new author
+ * @param {Object} author - { firstname, surname }
+ * @returns {Promise<Object>} The added author object
+ */
+export async function addAuthor(author) {
+  try {
+    const { surname, firstname } = author;
+    const params = new URLSearchParams({ surname, firstname });
+    const response = await fetch(`/api/public/books/authors?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error(`Error adding author. Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding author:', error);
+    throw error;
+  }
+}
+
+/** Add a new Illustrators
+ * @param {Object} illustrator - { firstname, surname }
+ * @returns {Promise<Object>} The added illustrator object
+ */
+export async function addIllustrator(illustrator) {
+  try {
+    const { surname, firstname } = illustrator;
+    const params = new URLSearchParams({ surname, firstname });
+    const response = await fetch(`/api/public/books/illustrators?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error(`Error adding illustrator. Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding illustrator:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get book details from BNF API by ISBN
+ * @param {string} isbn - The ISBN of the book
+ * @returns {Promise<Object>} The book details from BNF
+ */
+export async function getBookFromBNF(isbn) {
+  try {
+    const response = await fetch(`/api/public/books/bnf/${isbn}`, {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching book from BNF. Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching book from BNF:', error);
     throw error;
   }
 }

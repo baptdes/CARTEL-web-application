@@ -105,7 +105,7 @@
       // Add mode-specific filters
       if (mode === 'books') {
         // Book specific parameters
-        if (searchQuery) params.title = searchQuery;
+        if (searchQuery) params.titleBook = searchQuery;
         if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
         if (selectedAuthorFirstName) params.authorFirstName = selectedAuthorFirstName;
         if (selectedAuthorSurname) params.authorSurname = selectedAuthorSurname;
@@ -854,20 +854,6 @@
       }
     }
   }
-  
-  .publisher-input, .number-input {
-    width: 100%;
-    padding: 0.5rem;
-    background-color: #343434;
-    color: #e0d6c2;
-    border: 1px solid var(--dark-orange);
-    border-radius: 4px;
-    
-    &:focus {
-      outline: none;
-      border-color: var(--orange);
-    }
-  }
 
   input {
      width: 100%;
@@ -891,10 +877,6 @@
     .range-separator {
       color: #e0d6c2;
       font-size: 0.9rem;
-    }
-
-    .number-input {
-      flex: 1;
     }
   }
   

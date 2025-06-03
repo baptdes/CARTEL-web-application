@@ -53,13 +53,11 @@ public interface BookService {
                           String titleBook, String publisherName, BookFormat category, String serieName, String genreName);
     
     /**
-     * Imports book information from an external API using ISBN
-     * 
-     * @param isbn The ISBN code of the book to import
-     * @return The Book entity associated with the given ISBN
-     * @throws RuntimeException if import fails
+     * Retrieves a book from the BNF (Bibliothèque nationale de France) by its ISBN
+     * @param isbn
+     * @return
      */
-    Book getBookWithISBN(String isbn);
+    Optional<Book> getBookFromBNF(String isbn);
     
     /**
      * Retrieves all authors in the system
