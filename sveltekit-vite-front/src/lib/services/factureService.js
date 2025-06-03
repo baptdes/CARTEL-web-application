@@ -9,13 +9,20 @@
  */
 export async function createFacture(factureData) {
   try {
+    // Before sending, rename 'items' to 'copies' to match backend
+    const formattedData = {
+      ...factureData,
+      copies: factureData.items  // Rename the property
+    };
+    delete formattedData.items;  // Remove the old property
+    
     const response = await fetch('/api/public/factures', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify(factureData)
+      body: JSON.stringify(formattedData)
     });
     
     if (!response.ok) {
@@ -25,7 +32,12 @@ export async function createFacture(factureData) {
       throw error;
     }
     
-    return await response.json();
+    // Parse response and adapt the received object back to frontend's expectation
+    const data = await response.json();
+    if (data.copies) {
+      data.items = data.copies; // Add back an items property for frontend compatibility
+    }
+    return data;
   } catch (error) {
     console.error('Error creating facture:', error);
     throw error;
@@ -46,7 +58,22 @@ export async function getAllFactures() {
       throw new Error(`Error fetching factures. Status: ${response.status}`);
     }
     
-    return await response.json();
+    // Adapt the returned data to maintain frontend compatibility
+    const factures = await response.json();
+    return factures.map(facture => {
+      if (facture.copies) {
+        // Map the copies to items (with their parent item data) for frontend
+        facture.items = facture.copies.map(copy => {
+          return {
+            ...copy.objet, // Spread the parent item properties
+            copyId: copy.id, // Keep track of the copy ID
+            available: copy.available,
+            borrowable: copy.borrowable
+          };
+        });
+      }
+      return facture;
+    });
   } catch (error) {
     console.error('Error fetching factures:', error);
     throw error;
@@ -68,7 +95,20 @@ export async function getFactureById(id) {
       throw new Error(`Error fetching facture. Status: ${response.status}`);
     }
     
-    return await response.json();
+    // Adapt the returned data to maintain frontend compatibility
+    const facture = await response.json();
+    if (facture.copies) {
+      // Map the copies to items for frontend
+      facture.items = facture.copies.map(copy => {
+        return {
+          ...copy.objet, // Spread the parent item properties
+          copyId: copy.id, // Keep track of the copy ID
+          available: copy.available,
+          borrowable: copy.borrowable
+        };
+      });
+    }
+    return facture;
   } catch (error) {
     console.error('Error fetching facture:', error);
     throw error;

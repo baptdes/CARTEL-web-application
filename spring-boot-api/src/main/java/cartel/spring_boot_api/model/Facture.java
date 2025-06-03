@@ -18,16 +18,11 @@ public class Facture {
     private String filepath;
 
     private LocalDateTime updatedAt;
-
     
-
     @ManyToMany
-    private Collection<Item> items;
-
-    
+    private Collection<ItemCopy> copies;  // Changed from Item to ItemCopy
 
     public Facture() {
-
     }
 
     public Facture(String filename, String filepath) {
@@ -48,12 +43,12 @@ public class Facture {
          this.filename = filename; 
     }
 
-    public Collection<Item> getItems() {
-        return items;
+    public Collection<ItemCopy> getCopies() {  // Changed from getItems
+        return copies;
     }
 
-    public void setItems(Collection<Item> items) {
-        this.items = items;
+    public void setCopies(Collection<ItemCopy> copies) {  // Changed from setItems
+        this.copies = copies;
     }
 
     public String getFilepath() {
@@ -71,6 +66,4 @@ public class Facture {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-
 }

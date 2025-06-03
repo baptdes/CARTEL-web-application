@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 @Repository
 public interface ItemCopyRepository extends JpaRepository<ItemCopy, Long>, JpaSpecificationExecutor<ItemCopy> {
@@ -22,4 +23,7 @@ public interface ItemCopyRepository extends JpaRepository<ItemCopy, Long>, JpaSp
      */
     @Query("SELECT ic FROM ItemCopy ic JOIN ic.objet i WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%'))")
     Page<ItemCopy> findByItemNameContainingIgnoreCase(@Param("itemName") String itemName, Pageable pageable);
+
+    @Query("SELECT ic FROM ItemCopy ic WHERE ic.objet.barcode = :barcode")
+    List<ItemCopy> findByObjetBarcode(@Param("barcode") String barcode);
 }
