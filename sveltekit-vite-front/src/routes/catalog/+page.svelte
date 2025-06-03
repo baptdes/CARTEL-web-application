@@ -105,7 +105,7 @@
       // Add mode-specific filters
       if (mode === 'books') {
         // Book specific parameters
-        if (searchQuery) params.title = searchQuery;
+        if (searchQuery) params.titleBook = searchQuery;
         if (selectedPublisher && selectedPublisher !== "") params.publisherName = selectedPublisher;
         if (selectedAuthorFirstName) params.authorFirstName = selectedAuthorFirstName;
         if (selectedAuthorSurname) params.authorSurname = selectedAuthorSurname;
