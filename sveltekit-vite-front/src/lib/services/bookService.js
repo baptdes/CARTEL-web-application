@@ -216,7 +216,7 @@ export function isBookAvailable(book) {
 /**
  * Delete a book by ISBN
  * @param {string} isbn - The ISBN of the book to delete
- * @returns {Promise<boolean>} True if the book was deleted, false otherwise
+ * @returns {Promise<boolean} True if the book was deleted, false otherwise
  */
 export async function deleteBook(isbn) {
   try {
@@ -310,6 +310,28 @@ export async function addIllustrator(illustrator) {
     return await response.json();
   } catch (error) {
     console.error('Error adding illustrator:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get book details from BNF API by ISBN
+ * @param {string} isbn - The ISBN of the book
+ * @returns {Promise<Object>} The book details from BNF
+ */
+export async function getBookFromBNF(isbn) {
+  try {
+    const response = await fetch(`/api/public/books/bnf/${isbn}`, {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching book from BNF. Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching book from BNF:', error);
     throw error;
   }
 }

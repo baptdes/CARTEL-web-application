@@ -7,6 +7,7 @@
   import { fetchBooks, deleteBook, addBook } from '$lib/services/bookService';
   import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
   import AddBookPopup from '$lib/components/admin/AddBookPopup.svelte';
+  import AddBookByISBNPopup from '$lib/components/admin/AddBookByISBNPopup.svelte';
 
   // State for books data
   let books = $state([]);
@@ -35,6 +36,7 @@
 
   // Add book form and popup state
   let showAddBookPopup = $state(false);
+  let showAddBookByISBNPopup = $state(false);
   
   // Load books with search, sort, and pagination
   async function loadBooks() {
@@ -133,9 +135,22 @@
     showAddBookPopup = true;
   }
 
+  // Handle opening the add book by ISBN popup
+  function handleAddBookByISBN() {
+    showAddBookByISBNPopup = true;
+  }
+
   // Handle book added event
   function handleBookAdded(event) {
     showAddBookPopup = false;
+    loadBooks();
+  }
+
+  // Handle book added by ISBN event
+  function handleBookAddedByISBN(event) {
+    const { addedBooks } = event.detail;
+    console.log(`Added ${addedBooks.length} books by ISBN`);
+    showAddBookByISBNPopup = false;
     loadBooks();
   }
 
@@ -180,6 +195,9 @@
       <div class="action-buttons">
         <button class="admin-button add-book-btn" onclick={handleAddBook}>
           <span>+</span> Ajouter un livre
+        </button>
+        <button class="admin-button add-isbn-btn" onclick={handleAddBookByISBN}>
+          <span>📊</span> Ajouter par ISBN
         </button>
         <button class="return-button" type="button" onclick={() => { $adminPageState = 0; goto('/admin'); }}>
           Retour
@@ -305,6 +323,13 @@
 
   <!-- Add book popup (now as a component) -->
   <AddBookPopup show={showAddBookPopup} on:close={() => showAddBookPopup = false} on:added={handleBookAdded} />
+  
+  <!-- Add book by ISBN popup -->
+  <AddBookByISBNPopup 
+    show={showAddBookByISBNPopup} 
+    on:close={() => showAddBookByISBNPopup = false} 
+    on:added={handleBookAddedByISBN} 
+  />
 </main>
 
 <style lang="scss">
@@ -414,7 +439,7 @@
     }
   }
 
-  .add-book-btn {
+  .add-book-btn, .add-isbn-btn {
     background-color: var(--accent);
     color: white;
     border: none;
@@ -432,6 +457,11 @@
       background-color: var(--accent);
       filter: brightness(0.85);
     }
+  }
+  
+  .add-isbn-btn {
+    background-color: #4CAF50; // Different color to distinguish from regular add
+    margin-left: 0.5rem;
   }
 
   // Grid Layout

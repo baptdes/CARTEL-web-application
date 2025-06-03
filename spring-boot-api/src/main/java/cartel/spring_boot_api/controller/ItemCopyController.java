@@ -24,11 +24,11 @@ public class ItemCopyController {
      * @return L'exemplaire créé
      */
     @PostMapping("/create")
-    public ResponseEntity<CopyDTO> createItemCopy(@RequestParam String itemId) {
+    public ResponseEntity<String> createItemCopy(@RequestParam String itemId) {
         itemCopyService.createItemCopy(itemId);
         // Assuming the created copy can be fetched by ID or similar logic
         // Adjust as necessary to return the created CopyDTO
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok("Item copy created successfully for item ID: " + itemId);
     }
     
     /**
