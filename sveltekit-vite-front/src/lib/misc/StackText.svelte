@@ -1,6 +1,7 @@
 <script lang="ts">
   export let text: string = "TEST";
   export let size: number = "4";
+  export let hoverAnim: boolean = false;
 </script>
 
 <div class="doubleText outer" style="height: {size * 2}rem;">

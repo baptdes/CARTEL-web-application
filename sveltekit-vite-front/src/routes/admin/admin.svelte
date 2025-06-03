@@ -3,6 +3,7 @@
   import { adminPageState } from "./store.js";
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
+  import Starline from "$lib/misc/Starline.svelte";
 </script>
 
 <main>
@@ -21,7 +22,7 @@
           class="thres hoverBlur"
         />
       </div>
-      <DoubleText text="CATALOGUE" size="4em" />
+      <DoubleText text="CATALOGUE" size="4em" hoverAnim=true />
     </button>
 
     <button
@@ -29,11 +30,9 @@
       type="button"
       onclick={() => goto("/admin/purge_course")}
     >
-      <DoubleText text="PURGE" size="4em" />
+      <DoubleText text="PURGE" size="4em" hoverAnim=true />
       <div class="border">
-        <img src="/src/assets/img/thres/fire.jpg"
-        alt="arrow" 
-        class="thres" />
+        <img src="/src/assets/img/thres/fire.jpg" alt="arrow" class="thres" />
       </div>
     </button>
 
@@ -49,7 +48,7 @@
           class="thres hoverBlur"
         />
       </div>
-      <DoubleText text="trésorerie" size="4em" />
+      <DoubleText text="trésorerie" size="4em" hoverAnim=true />
     </button>
 
     <button
@@ -57,14 +56,60 @@
       type="button"
       onclick={() => goto("/admin/emprunt_pret")}
     >
-      <DoubleText text="Emprunt/Prêt" size="4em" />
+      <DoubleText text="Emprunt/Prêt" size="4em" hoverAnim=true />
       <div class="border">
-        <img src="/src/assets/img/thres/hands_e.jpg" alt="arrow" class="thres" />
+        <img
+          src="/src/assets/img/thres/hands_e.jpg"
+          alt="arrow"
+          class="thres"
+        />
       </div>
     </button>
   </div>
 
   <PointBar Color="var(--accent)" />
+
+  <Starline
+    content={[
+      { type: "icon*", content: "/src/assets/img/icons/star_dual_skew.svg" },
+      { type: "text", content: "let the" },
+      { type: "line", content: "30%" },
+      { type: "text*", content: "people" },
+      { type: "line", content: "25%" },
+      { type: "icon", content: "/src/assets/img/icons/world_grid_outline.svg" },
+    ]}
+  />
+
+  <Starline
+    content={[
+      { type: "icon", content: "/src/assets/img/icons/three_arcs.svg" },
+      { type: "line", content: "20%" },
+      { type: "icon*", content: "/src/assets/img/icons/ring_bell.svg"},
+      { type: "text", content: "take control" },
+      { type: "line", content: "15%" },
+      { type: "text", content: "back" },
+      { type: "icon", content: "/src/assets/img/icons/warp_skew.svg" },
+    ]}
+  />
+
+  <Starline
+    content={[
+      { type: "icon", content: "/src/assets/img/icons/star_sparkle.svg" },
+      { type: "line*", content: "15%" },
+      { type: "text", content: "and reach" },
+      { type: "line", content: "25%" },
+      { type: "text*", content: "the divine" },
+      { type: "line", content: "15%" },
+      { type: "icon", content: "/src/assets/img/icons/double_cone_skew.svg" },
+    ]}
+  />
+
+  <img
+    src="/src/assets/img/thres/divine.jpg"
+    alt="Warp Skew"
+    class=""
+    style="width: 100%; height: auto; margin-top: 2em; border: 1px solid var(--primary);">
+
 </main>
 
 <style lang="scss">
