@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -361,7 +362,7 @@ public class BookServiceImpl implements BookService {
         } else{
             throw new RuntimeException("pays non traité");
         }
-        return Optional.of(bookRepository.save(book));
+        return Optional.of(book);
     }
 
     private PublisherBook findOrCreatePublisher(String name) {

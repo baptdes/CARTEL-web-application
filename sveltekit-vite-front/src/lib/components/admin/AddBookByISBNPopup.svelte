@@ -98,7 +98,6 @@
       error = null;
       
       // Add the book
-      console.log("Adding book:", currentBook);
       const addedBook = await addBook(currentBook);
       
       // Create copies as specified
