@@ -1,13 +1,14 @@
 <script lang="ts">
   export let text: string = "TEST";
   export let size: string = "2rem";
+  export let hoverAnim: boolean = false;
 </script>
 
 <div class="doubleText outer">
   <span class="text1 below" style="font-size: {size};">
     {text}
   </span>
-  <span class="text2 top" style="font-size: {size}">
+  <span class="text2 top {hoverAnim ? 'animate' : ''}" style="font-size: {size}">
     {text}
   </span>
 </div>
@@ -57,4 +58,12 @@
   .outer .top {
     z-index: 2;
   }
+
+  .animate {
+    transition: transform 0.1s ease-in-out;
+    &:hover {
+      transform: scale(1.2, 1.2);
+    }
+  }
+
 </style>

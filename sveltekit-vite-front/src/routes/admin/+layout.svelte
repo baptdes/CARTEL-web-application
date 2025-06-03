@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { isAuthenticated, logout } from "$lib/auth";
   import PointBar from "$lib/misc/PointBar.svelte";
+  import StackText from "$lib/misc/StackText.svelte";
 
   let authenticated = $state(false);
   let { children } = $props();
@@ -35,7 +36,9 @@
         startDotSrc="/src/assets/img/icons/star_dual.svg"
         startImageScale={8}
       />
-      <button class="logout-button" onclick={handleLogout}>Déconnexion</button>
+      <button class="logout-button" onclick={handleLogout}>
+        <StackText text="Deconnexion" size="2" />
+      </button>
     </div>
     <div class="main-wrap">
       {@render children()}

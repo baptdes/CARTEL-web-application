@@ -6,9 +6,43 @@
   import StackText from "$lib/misc/StackText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
   import { onMount } from "svelte";
-  import { fetchAllSuggestions, deleteSuggestion } from "$lib/services/suggestionService.js";
+  import {
+    fetchAllSuggestions,
+    deleteSuggestion,
+  } from "$lib/services/suggestionService.js";
 
-  let suggestions = [];
+  
+  // Add this function to apply random rotations
+  onMount(() => {
+    const rows = document.querySelectorAll('.zigzag tr');
+    
+    rows.forEach(row => {
+      // Generate random rotation between -2 and 2 degrees
+      const randomRotation = ((Math.random() - 1.) * 2.5).toFixed(2.);
+      row.style.transform = `rotate(${randomRotation}deg)`;
+    });
+  });
+
+  let suggestions = [
+    {
+      name: "Exemple",
+      type: "Jeu de saucisse",
+      description: "Moi quand je me cascade le sheet",
+      createdAt: "Hier",
+    },
+    {
+      name: "Exemple 2",
+      type: "Jeu de saucisse",
+      description: "Moi quand je me cascade le sheet",
+      createdAt: "Hier",
+    },
+    {
+      name: "Exemple 3",
+      type: "Jeu de saucisse",
+      description: "Moi quand je me cascade le sheet",
+      createdAt: "Hier",
+    },
+  ];
   let error = "";
 
   onMount(async () => {
@@ -18,10 +52,10 @@
   async function loadSuggestions() {
     try {
       let fetched = await fetchAllSuggestions();
-      const typeOrder = ['LIVRE', 'BD','MANGA', 'JDS', 'JDR', 'AUTRE', ];
+      const typeOrder = ["LIVRE", "BD", "MANGA", "JDS", "JDR", "AUTRE"];
       fetched.sort((a, b) => {
-        const idxA = typeOrder.indexOf(a.type?.toUpperCase() || 'AUTRE');
-        const idxB = typeOrder.indexOf(b.type?.toUpperCase() || 'AUTRE');
+        const idxA = typeOrder.indexOf(a.type?.toUpperCase() || "AUTRE");
+        const idxB = typeOrder.indexOf(b.type?.toUpperCase() || "AUTRE");
         return idxA - idxB;
       });
       suggestions = fetched;
@@ -43,21 +77,20 @@
 
   // PDF export using jsPDF and autotable
   async function exportPDF() {
-    const { jsPDF } = await import('jspdf');
-    const autoTable = (await import('jspdf-autotable')).default;
+    const { jsPDF } = await import("jspdf");
+    const autoTable = (await import("jspdf-autotable")).default;
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['Nom', 'Type', 'Description', 'Date']],
-      body: suggestions.map(s => [
+      head: [["Nom", "Type", "Description", "Date"]],
+      body: suggestions.map((s) => [
         s.name,
         s.type,
         s.description,
-        s.createdAt?.slice(0, 10) || ''
-      ])
+        s.createdAt?.slice(0, 10) || "",
+      ]),
     });
-    doc.save('suggestions.pdf');
+    doc.save("suggestions.pdf");
   }
-
 </script>
 
 <main>
@@ -70,18 +103,30 @@
   <PointBar Color="var(--accent)" width="70%" />
 
   {#if error}
-    <div class="error">{error}</div>
+    <div class="error">
+      <DoubleText text={error} />
+    </div>
   {/if}
 
   {#if suggestions.length > 0}
-    <table>
+    <table class="zigzag">
       <thead>
         <tr>
-          <th>Nom</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Date</th>
-          <th>Action</th>
+          <th>
+            <span>Nom</span>
+          </th>
+          <th>
+            <span>Type</span>
+          </th>
+          <th>
+            <span>Description</span>
+          </th>
+          <th>
+            <span>Date</span>
+          </th>
+          <th>
+            <span>Action</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -92,9 +137,7 @@
             <td>{s.description}</td>
             <td>{s.createdAt?.slice(0, 10)}</td>
             <td>
-              <button on:click={() => handleDelete(s.id)}>
-                Supprimer
-              </button>
+              <button on:click={() => handleDelete(s.id)}> Supprimer </button>
             </td>
           </tr>
         {/each}
@@ -117,17 +160,20 @@
     z-index: 10;
   }
   .export-buttons button {
-    background: #1976d2;
-    color: #fff;
+    background: var(--secondary);
+    color: var(--back);
     border: none;
     padding: 0.5em 1.2em;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.2s;
+    transition:
+      background 0.5s ease-in-out,
+      color 0.5s ease-in-out;
   }
   .export-buttons button:hover {
-    background: #0d47a1;
+    background: var(--accent);
+    color: var(--primary);
   }
 
   main {
@@ -138,42 +184,79 @@
     position: relative;
   }
 
+  .zigzag {
+    border-collapse: separate;
+    border-spacing: 0.25em 1em;
+  }
+  
+  .zigzag tr {
+    transition: transform 3s ease-in-out;
+  }
+
   table {
     margin-top: 2rem;
     border-collapse: collapse;
     width: 90%;
     max-width: 900px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    background: transparent;
     color: #000;
+    border: 3px solid var(--back);
   }
-  th, td {
-    border: 1px solid #ddd;
+
+  thead {
+    border: 1px solid var(--back);
+    font-family: "Guisol";
+    text-align: center;
+    tr {
+      text-align: center;
+      th {
+        text-align: center;
+        span {
+          font-size: 2rem;
+          text-align: center;
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+
+  th,
+  td {
+    // border: 1px dotted #ddd;
     padding: 0.7rem 1rem;
     text-align: left;
     color: #000;
+    background: var(--back);
+    border-radius: 10px;
   }
   th {
     background: var(--accent);
-    color: #fff;
+    color: var(--back);
   }
-  tr:nth-child(even) {
-    background: #f9f9f9;
+
+  td {
+    color: var(--primary);
   }
+
+  tr {
+    background: var(--back);
+    color: var(--primary);
+  }
+
   .error {
-    color: red;
+    color: var(--accent);
     margin: 1rem 0;
   }
   button {
-    background: #d32f2f;
+    background: var(--tertiary);
     color: #fff;
     border: none;
     padding: 0.4em 1em;
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.5s;
   }
   button:hover {
-    background: #b71c1c;
+    background: var(--accent);
   }
 </style>
