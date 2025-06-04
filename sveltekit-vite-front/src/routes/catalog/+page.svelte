@@ -321,33 +321,6 @@
           </div>
         </div>
       {:else}
-        <!-- Game-specific filters -->
-        <div class="section">
-          <h3>Catégorie</h3>
-          <div>
-            <select bind:value={selectedCategory} title="Sélectionner une catégorie">
-              <option value="ALL">Toutes les catégories</option>
-              {#each categories as category}
-                <option value={category}>{category}</option>
-              {/each}
-            </select>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Créateur</h3>
-          <div>
-            <select bind:value={selectedCreator} title="Sélectionner un créateur">
-              <option value="ALL">Tous les créateurs</option>
-              {#each creators as creator}
-                <option value={`${creator.firstname || ''}|${creator.surname || ''}`}>
-                  {(creator.firstname || '') + ' ' + (creator.surname || '')}
-                </option>
-              {/each}
-            </select>
-          </div>
-        </div>
-        
         <div class="section">
           <h3>Nombre de joueurs</h3>
           <div class="range-inputs">
@@ -386,18 +359,6 @@
           </div>
         </div>
       {/if}
-      
-      <!-- Common filter - Publisher -->
-      <div class="section">
-        <h3>Éditeur</h3>
-        <div>
-          <input 
-            type="text" 
-            bind:value={selectedPublisher} 
-            placeholder="Nom de l'éditeur"
-          />
-        </div>
-      </div>
       
       <button class="apply-filters" onclick={handleSearch}>
         Appliquer les filtres
