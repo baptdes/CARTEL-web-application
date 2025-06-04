@@ -31,7 +31,6 @@ public class LoanByCartelController {
      * @param startDateAfter Filtrer les prêts après cette date de début.
      * @param endDateBefore Filtrer les prêts avant cette date de fin.
      * @param endDateAfter Filtrer les prêts après cette date de fin.
-     * @param active Statut actif ou inactif du prêt.
      * @return Liste des prêts correspondant aux critères.
      */
     @GetMapping
@@ -46,10 +45,9 @@ public class LoanByCartelController {
             @RequestParam(required = false) Date startDateBefore,
             @RequestParam(required = false) Date startDateAfter,
             @RequestParam(required = false) Date endDateBefore,
-            @RequestParam(required = false) Date endDateAfter,
-            @RequestParam(required = false) Boolean active) {
+            @RequestParam(required = false) Date endDateAfter) {
         return loanByCartelService.filterLoanByCartel(pageNumber, pageSize, asc, sortBy, itemName,
-                borrowerFirstName, borrowerSurname, startDateBefore, startDateAfter, endDateBefore, endDateAfter, active);
+                borrowerFirstName, borrowerSurname, startDateBefore, startDateAfter, endDateBefore, endDateAfter);
     }
 
     /**
@@ -83,16 +81,5 @@ public class LoanByCartelController {
             @RequestParam Long itemCopyId) {
         loanByCartelService.createLoanByCartel(personId, itemCopyId);
         return ResponseEntity.ok("Loan created successfully");
-    }
-
-    /**
-     * Marquer un prêt comme complété en utilisant son ID.
-     * @param loanId ID du prêt à compléter.
-     * @return Réponse confirmant la complétion du prêt.
-     */
-    @PostMapping("/{loanId}/complete")
-    public ResponseEntity<String> completeLoanByCartel(@PathVariable long loanId) {
-        loanByCartelService.completeLoanByCartel(loanId);
-        return ResponseEntity.ok("Loan completed successfully");
     }
 }

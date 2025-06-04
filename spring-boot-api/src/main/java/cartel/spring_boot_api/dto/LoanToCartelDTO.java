@@ -12,10 +12,9 @@ public class LoanToCartelDTO {
     private String itemBarcode;
     private Date loanDate;
     private Date endDate;
-    private boolean active;
     private String itemCoverImage; // Optional, can be null if not available
 
-    public LoanToCartelDTO(Long id, Long ownerId, String ownerName, String ownerContact, String itemName, String itemBarcode, Date loanDate, Date endDate, boolean active) {
+    public LoanToCartelDTO(Long id, Long ownerId, String ownerName, String ownerContact, String itemName, String itemBarcode, Date loanDate, Date endDate) {
         this.id = id;
         this.ownerId = ownerId;
         this.ownerName = ownerName;
@@ -24,7 +23,6 @@ public class LoanToCartelDTO {
         this.itemBarcode = itemBarcode;
         this.loanDate = loanDate;
         this.endDate = endDate;
-        this.active = active;
         this.itemCoverImage = null; // Initialize to null, can be set later if needed
     }
 
@@ -34,11 +32,10 @@ public class LoanToCartelDTO {
         this.ownerId = loan.getItemOwner() != null ? loan.getItemOwner().getId() : null;
         this.ownerName = loan.getItemOwner() != null ? loan.getItemOwner().getFirstname() + " " + loan.getItemOwner().getSurname() : null;
         this.ownerContact = loan.getItemOwner() != null ? loan.getItemOwner().getContact() : null;
-        this.itemName = loan.getItemName();
-        this.itemBarcode = loan.getItemBarcode();
+        this.itemName = loan.getItemShared() != null ? loan.getItemShared().getObjet().getName() : null;
+        this.itemBarcode = loan.getItemShared() != null ? loan.getItemShared().getObjet().getBarcode() : null;
         this.loanDate = loan.getLoanDate();
         this.endDate = loan.getEndDate();
-        this.active = loan.isActive();
         this.itemCoverImage = loan.getItemShared() != null && loan.getItemShared().getObjet() != null ? loan.getItemShared().getObjet().getCoverImage() : null;
     }
 
@@ -73,10 +70,6 @@ public class LoanToCartelDTO {
 
     public Date getEndDate() {
         return endDate;
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
     public String getItemCoverImage() {

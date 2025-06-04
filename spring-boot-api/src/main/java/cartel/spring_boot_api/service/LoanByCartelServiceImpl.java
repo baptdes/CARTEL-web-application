@@ -87,8 +87,7 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
             Date startDateBefore,
             Date startDateAfter,
             Date endDateBefore,
-            Date endDateAfter,
-            Boolean active) {
+            Date endDateAfter) {
 
         Pageable page = asc ?
             PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) :
@@ -101,26 +100,11 @@ public class LoanByCartelServiceImpl implements LoanByCartelService {
             .and(filterLoanByCartelFromStartDateBefore(startDateBefore))
             .and(filterLoanByCartelFromStartDateAfter(startDateAfter))
             .and(filterLoanByCartelFromEndDateBefore(endDateBefore))
-            .and(filterLoanByCartelFromEndDateAfter(endDateAfter))
-            .and(filterLoanByCartelActive(active));
+            .and(filterLoanByCartelFromEndDateAfter(endDateAfter));
 
         Page<LoanByCartel> pageLoanByCartel = loanByCartelRepository.findAll(filters, page);
         return pageLoanByCartel.getContent().stream()
             .map(LoanByCartelDTO::new)
             .toList();
-    }
-
-    @Override
-    public void completeLoanByCartel(long loanByCartelId) {
-        LoanByCartel loan = loanByCartelRepository.findById(loanByCartelId)
-            .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanByCartelId));
-        loan.completeLoan();
-
-        // Remove the item copy from the loan
-        ItemCopy itemCopy = loan.getItemShared();
-        itemCopy.setLoanToPerson(null);
-        itemCopyRepository.save(itemCopy);
-
-        loanByCartelRepository.save(loan);
     }
 }

@@ -1,7 +1,6 @@
 package cartel.spring_boot_api.service;
 
 import cartel.spring_boot_api.dto.LoanToCartelDTO;
-import cartel.spring_boot_api.model.LoanToCartel;
 
 import java.sql.Date;
 import java.util.List;
@@ -45,7 +44,6 @@ public interface LoanToCartelService {
      * @param startDateAfter filtre les prêts commençant après cette date
      * @param endDateBefore filtre les prêts se terminant avant cette date
      * @param endDateAfter filtre les prêts se terminant après cette date
-     * @param active filtre les prêts actifs ou inactifs
      * @return une liste de prêts correspondant aux critères
      */
     List<LoanToCartelDTO> filterLoanToCartel(
@@ -54,12 +52,5 @@ public interface LoanToCartelService {
             String itemName, String ownerFirstName,
             String ownerSurname, Date startDateBefore,
             Date startDateAfter, Date endDateBefore,
-            Date endDateAfter, Boolean active);
-
-    /**
-     * Marque un prêt comme terminé.
-     *
-     * @param loanToCartelId l'ID du prêt
-     */
-    void completeLoanToCartel(long loanToCartelId);
+            Date endDateAfter);
 }
