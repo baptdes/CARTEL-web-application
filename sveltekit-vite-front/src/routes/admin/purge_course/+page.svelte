@@ -14,7 +14,7 @@
 
   // Add this function to apply random rotations
   onMount(() => {
-    const rows = document.querySelectorAll(".zigzag tr");
+    const rows = document.querySelectorAll(".zigzag tbody tr");
 
     rows.forEach((row) => {
       // Generate random rotation between -2 and 2 degrees
