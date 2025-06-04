@@ -1,3 +1,10 @@
+<div>
+    <img
+         src="./sveltekit-vite-front/src/assets/img/cartel_guisol.svg"
+         width="2000"
+         >
+</div>
+
 # 📚🎲 CARTEL - Application de Gestion de Bibliothèque & Ludothèque Étudiante
 
 Bienvenue sur le projet **CARTEL**, l'application web officielle pour gérer le catalogue de la bibliothèque/ludothèque de la bibliothèque & ludothèque étudiante CARTEL. Pour les plus intimes, cette application se nomme :
