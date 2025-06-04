@@ -55,7 +55,7 @@
   </div>
 
   <div style="margin-bottom: 4rem;"></div>
-  
+
   <PointBar Color="var(--accent)" width="90%" />
 
   <div style="margin-bottom: 3rem;"></div>
@@ -97,11 +97,11 @@
   />
 
   <img
-    src="/src/assets/img/thres/{isJdsActive ? "chess" : "war"}.jpg"
+    src="/src/assets/img/thres/{isJdsActive ? 'chess' : 'war'}.jpg"
     alt="Warp Skew"
     class=""
-    style="width: 100%; height: auto; margin-top: 2em; border: 1px solid var(--primary);">
-
+    style="width: 100%; height: auto; margin-top: 2em; border: 1px solid var(--primary);"
+  />
 </main>
 
 <style lang="scss">
@@ -130,7 +130,7 @@
 
     button {
       flex: 1;
-      display:l flex;
+      display: l flex;
       width: 100%;
       height: 100%;
       padding: 0;
@@ -138,7 +138,7 @@
       border-radius: 0px;
       overflow: hidden;
       outline: 1px solid var(--primary);
-      
+
       &.active {
         /* Active button styling */
         outline: 1px solid var(--accent);
