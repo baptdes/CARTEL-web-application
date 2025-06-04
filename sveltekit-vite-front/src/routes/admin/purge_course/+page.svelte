@@ -5,20 +5,20 @@
   import DoubleText from "$lib/misc/DoubleText.svelte";
   import StackText from "$lib/misc/StackText.svelte";
   import PointBar from "$lib/misc/PointBar.svelte";
+  import Starline from "$lib/misc/Starline.svelte";
   import { onMount } from "svelte";
   import {
     fetchAllSuggestions,
     deleteSuggestion,
   } from "$lib/services/suggestionService.js";
 
-  
   // Add this function to apply random rotations
   onMount(() => {
-    const rows = document.querySelectorAll('.zigzag tr');
-    
-    rows.forEach(row => {
+    const rows = document.querySelectorAll(".zigzag tr");
+
+    rows.forEach((row) => {
       // Generate random rotation between -2 and 2 degrees
-      const randomRotation = ((Math.random() - 1.) * 2.5).toFixed(2.);
+      const randomRotation = ((Math.random() - 1) * 0.5).toFixed(2);
       row.style.transform = `rotate(${randomRotation}deg)`;
     });
   });
@@ -62,6 +62,7 @@
     } catch (e) {
       error = "Erreur lors du chargement des suggestions.";
     }
+    scrollTo(0, 0);
   }
 
   async function handleDelete(id) {
@@ -146,6 +147,57 @@
   {:else}
     <p>Aucune suggestion trouvée.</p>
   {/if}
+
+  <div style="margin-bottom: 4rem;"></div>
+
+  <PointBar Color="var(--accent)" width="90%" />
+
+  <div style="margin-bottom: 3rem;"></div>
+
+  <Starline
+    content={[
+      { type: "icon*", content: "/src/assets/img/icons/arc_ring.svg" },
+      { type: "line", content: "1%" },
+      { type: "text", content: "the" },
+      { type: "line", content: "50%" },
+      { type: "text*", content: "legends" },
+      { type: "line", content: "60%" },
+      { type: "icon", content: "/src/assets/img/icons/star_hexa.svg" },
+    ]}
+  />
+
+  <Starline
+    content={[
+      { type: "icon", content: "/src/assets/img/icons/earth_flat.svg" },
+      { type: "line", content: "30%" },
+      { type: "text*", content: "speak" },
+      { type: "line", content: "30%" },
+      { type: "text", content: "of" },
+      { type: "line*", content: "10%" },
+      { type: "text", content: "a" },
+      { type: "line", content: "10%" },
+      { type: "icon*", content: "/src/assets/img/icons/warp_tall.svg" },
+    ]}
+  />
+
+  <Starline
+    content={[
+      { type: "icon", content: "/src/assets/img/icons/star_area.svg" },
+      { type: "line*", content: "5%" },
+      { type: "text", content: "cleansing" },
+      { type: "line", content: "40%" },
+      { type: "text*", content: "fire" },
+      { type: "line", content: "30%" },
+      { type: "icon", content: "/src/assets/img/icons/circle_grid_flat.svg" },
+    ]}
+  />
+
+  <img
+    src="/src/assets/img/thres/deinos.jpg"
+    alt="Warp Skew"
+    class=""
+    style="width: 100%; height: auto; margin-top: 2em; border: 1px solid var(--primary);"
+  />
 </main>
 
 <style lang="scss">
@@ -188,9 +240,9 @@
     border-collapse: separate;
     border-spacing: 0.25em 1em;
   }
-  
-  .zigzag tr {
-    transition: transform 3s ease-in-out;
+
+  .zigzag tbody tr {
+    transition: transform 10s ease-in-out;
   }
 
   table {

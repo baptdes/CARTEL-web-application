@@ -18,6 +18,8 @@
     logout();
     goto("/login");
   }
+
+
 </script>
 
 <div class="admin-background">
@@ -48,6 +50,9 @@
 
 <style lang="scss">
 
+  html {
+    scroll-behavior: unset !important;
+  }
   ::root {
     text-overflow: "•";
   }

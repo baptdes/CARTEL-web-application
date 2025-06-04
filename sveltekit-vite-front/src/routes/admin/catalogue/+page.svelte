@@ -82,6 +82,7 @@
   function nextPage() {
     pageNumber += 1;
     loadBooks();
+    window.scrollTo(0, 0);
   }
 
   // Navigate to the previous page
@@ -89,6 +90,7 @@
     if (pageNumber > 0) {
       pageNumber -= 1;
       loadBooks();
+      window.scrollTo(0, 0);
     }
   }
 
