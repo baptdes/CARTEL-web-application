@@ -44,7 +44,7 @@
         sortBy: sortField,
         active: filterActive,
         startDateAfter: filterDateStart,
-        endDateBefore: filterDateEnd,
+        startDateBefore: filterDateEnd,
       };
 
       if (searchTerm) {
@@ -206,15 +206,6 @@
       <button class="sort-dir" onclick={() => { sortAsc = !sortAsc; loadLoans(); }}>
         {sortAsc ? '↑' : '↓'}
       </button>
-    </div>
-
-    <div class="filter-group">
-      <label for="filterActive">Statut:</label>
-      <select id="filterActive" bind:value={filterActive} onchange={loadLoans}>
-        <option value={null}>Tous</option>
-        <option value={true}>Actifs</option>
-        <option value={false}>Terminés</option>
-      </select>
     </div>
 
     <div class="filter-group">

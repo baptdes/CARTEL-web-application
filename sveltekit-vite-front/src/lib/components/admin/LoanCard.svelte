@@ -14,11 +14,6 @@
     return new Intl.DateTimeFormat("fr-FR").format(date);
   }
   
-  // Complete loan handler
-  function handleComplete() {
-    dispatch('complete', { id: loan.id });
-  }
-  
   // Delete loan handler
   function handleDelete() {
     dispatch('delete', { id: loan.id });
@@ -38,12 +33,6 @@
           Emprunt
         {:else}
           Prêt
-        {/if}
-        —
-        {#if loan.endDate}
-          Terminé
-        {:else}
-          En cours
         {/if}
       </p>
       <p class="title">{loan.itemName || "Sans titre"}</p>
@@ -74,14 +63,9 @@
   </div>
 
   <div class="itemActions">
-    {#if !loan.endDate}
-    <button class="loanInfo" onclick={handleComplete}>
+    <button class="loanInfo" onclick={handleDelete}>
             Terminer
         <img src="/src/assets/img/icons/star_rf.svg" alt="cross" />
-    </button>
-    {/if}
-    <button class="delete-button" onclick={handleDelete}>
-        Supprimer
     </button>
   </div>
 </div>
@@ -161,7 +145,7 @@
     border-radius: 0;
 
     img {
-        margin-left: 1rem;
+      margin-left: 1rem;
       height: 100%;
       object-fit: contain;
       rotate: 45deg;
@@ -175,17 +159,12 @@
     }
   }
 
-  .delete-button {
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 0;
-  }
-
   .itemActions {
     display: flex;
     flex-direction: column;
     align-items: end;
     justify-content:space-between;
     padding: 1rem 0.5rem;
+    height: 100%;
   }
 </style>

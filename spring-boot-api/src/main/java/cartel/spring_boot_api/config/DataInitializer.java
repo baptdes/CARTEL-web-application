@@ -34,13 +34,9 @@ public class DataInitializer {
     @Autowired
     private PublisherBookRepository publisherBookRepository;
     @Autowired
-    private SerieRepository serieRepository;
-    @Autowired
     private GameRepository jdsRepository;
     @Autowired
     private AuthorGameRepository creatorRepository;
-    @Autowired
-    private ExtensionRepository extensionRepository;
     @Autowired
     private PublisherGameRepository publisherjdsRepository;
     @Autowired
@@ -62,12 +58,10 @@ public class DataInitializer {
     private final int numAuthors = 20;
     private final int numIllustrators = 15;
     private final int numPublishersBook = 10;
-    private final int numSeries = 8;
     private final int numBooks = 30;
     private final int numCreators = 12;
     private final int numPublishersJDS = 8;
     private final int numJDS = 30;
-    private final int numExtensions = 10;
     private final int numCartelPersons = 25;
     private final int numSuggestions = 10;
     private final int numItemCopies = 40;
@@ -109,9 +103,6 @@ public class DataInitializer {
             
             System.out.println("Loading Cartel Person data...");
             List<CartelPerson> cartelPersons = loadCartelPersonData(numCartelPersons);
-            
-            System.out.println("Loading Item Copy data...");
-            List<ItemCopy> itemCopies = loadItemCopyData(numItemCopies);
             
             System.out.println("Loading LoanByCartel data...");
             List<LoanByCartel> loanByCartel = loadLoanByCartelData(numLoanByCartel);
@@ -259,6 +250,13 @@ public class DataInitializer {
             
             itemRepository.save(book);
             books.add(book);
+
+            // Create 1 to 3 copies for each book
+            int numCopies = random.nextInt(3) + 1;
+            for (int j = 0; j < numCopies; j++) {
+                ItemCopy copy = new ItemCopy(book);
+                itemCopyRepository.save(copy);
+            }
         }
         
         return books;
@@ -297,6 +295,13 @@ public class DataInitializer {
             
             itemRepository.save(game);
             jdsList.add(game);
+
+            // Create 1 to 3 copies for each game
+            int numCopies = random.nextInt(3) + 1;
+            for (int j = 0; j < numCopies; j++) {
+                ItemCopy copy = new ItemCopy(game);
+                itemCopyRepository.save(copy);
+            }
         }
         
         return jdsList;
@@ -321,21 +326,6 @@ public class DataInitializer {
         return persons;
     }
     
-    private List<ItemCopy> loadItemCopyData(int count) {
-        List<ItemCopy> copies = new ArrayList<>();
-        List<Item> allItems = itemRepository.findAll();
-        
-        for (int i = 0; i < count; i++) {
-            Item item = getRandomElement(allItems);
-            ItemCopy copy = new ItemCopy(item);
-            
-            itemCopyRepository.save(copy);
-            copies.add(copy);
-        }
-        
-        return copies;
-    }
-
     private List<LoanByCartel> loadLoanByCartelData(int count) {
         List<LoanByCartel> loanBy = new ArrayList<>();
         List<ItemCopy> allItemCopies = itemCopyRepository.findAll();

@@ -69,22 +69,13 @@ public class LoanSpecification {
     return (root, query, builder) -> {
         String searchPattern = "%" + itemCopyNameLike.toLowerCase() + "%";
         
-        // Prend en compte à la fois les prêts actifs (avec itemShared) et complétés (avec savedItemName)
-        return builder.or(
-            // Pour les prêts actifs avec itemShared non null
-            builder.and(
+        return builder.and(
                 builder.isNotNull(root.get("itemShared")),
                 builder.like(
                     builder.lower(root.join("itemShared").join("objet").get("name")), 
                     searchPattern
                 )
-            ),
-            // Pour les prêts complétés avec savedItemName
-            builder.and(
-                builder.isNotNull(root.get("savedItemName")),
-                builder.like(builder.lower(root.get("savedItemName")), searchPattern)
-            )
-        );
+            );
     };
 }
 
@@ -94,21 +85,13 @@ public class LoanSpecification {
             String searchPattern = "%" + barcode + "%";
             
             // Handle both active loans (with itemShared) and completed loans (with savedBarcode)
-            return builder.or(
-                // For active loans with non-null itemShared
-                builder.and(
+            return builder.and(
                     builder.isNotNull(root.get("itemShared")),
                     builder.like(
                         root.join("itemShared").join("objet").get("barcode"), 
                         searchPattern
                     )
-                ),
-                // For completed loans with savedBarcode
-                builder.and(
-                    builder.isNotNull(root.get("savedBarcode")),
-                    builder.like(root.get("savedBarcode"), searchPattern)
-                )
-            );
+                );
         };
     }
 
@@ -154,14 +137,6 @@ public class LoanSpecification {
         };
     }
 
-    // Filter by active loans (endDate is null)
-    public static Specification<LoanByCartel> filterLoanByCartelActive(Boolean active) {
-        return (root, query, builder) -> {
-            if (active == null) return null;
-            return active ? builder.isNull(root.get("endDate")) : builder.isNotNull(root.get("endDate"));
-        };
-    }
-
     // Same filters for LoanToCartel
     public static Specification<LoanToCartel> filterLoanToCartelFromStartDateBefore(Date dateLimite) {
         return (root, query, builder) -> {
@@ -190,12 +165,4 @@ public class LoanSpecification {
             return builder.greaterThan(root.get("endDate"), dateLimite);
         };
     }
-
-    public static Specification<LoanToCartel> filterLoanToCartelActive(Boolean active) {
-        return (root, query, builder) -> {
-            if (active == null) return null;
-            return active ? builder.isNull(root.get("endDate")) : builder.isNotNull(root.get("endDate"));
-        };
-    }
-
 }
