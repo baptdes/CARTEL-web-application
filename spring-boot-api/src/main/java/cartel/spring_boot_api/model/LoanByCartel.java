@@ -1,6 +1,5 @@
 package cartel.spring_boot_api.model;
 
-import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Date;
 
@@ -32,7 +31,7 @@ public class LoanByCartel {
     @Column(nullable = false)
     private Date loanDate;
 
-    @Column
+    @Column(nullable = true)
     private Date endDate;
 
     @OneToOne
@@ -95,14 +94,6 @@ public class LoanByCartel {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-    }
-
-    public void completeLoan() {
-        this.endDate = new Date(System.currentTimeMillis());
-    }
-    
-    public boolean isActive() {
-        return this.endDate == null;
     }
 
     public PersonDTO getBorrower() {

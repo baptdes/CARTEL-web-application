@@ -55,8 +55,7 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
             Date startDateBefore,
             Date startDateAfter,
             Date endDateBefore,
-            Date endDateAfter,
-            Boolean active) {
+            Date endDateAfter) {
 
         Pageable page = asc ?
             PageRequest.of(pageNumber, pageSize, Sort.by(sortBy)) :
@@ -69,8 +68,7 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
             .and(filterLoanToCartelFromStartDateBefore(startDateBefore))
             .and(filterLoanToCartelFromStartDateAfter(startDateAfter))
             .and(filterLoanToCartelFromEndDateBefore(endDateBefore))
-            .and(filterLoanToCartelFromEndDateAfter(endDateAfter))
-            .and(filterLoanToCartelActive(active));
+            .and(filterLoanToCartelFromEndDateAfter(endDateAfter));
 
         Page<LoanToCartel> pageLoanToCartel = loanToCartelRepository.findAll(filters, page);
         return pageLoanToCartel.getContent().stream()
@@ -94,29 +92,6 @@ class LoanToCartelServiceImpl implements LoanToCartelService {
         
         // Create a new loan with the new item copy
         LoanToCartel loan = new LoanToCartel(owner, newCopy);
-        loanToCartelRepository.save(loan);
-    }
-
-    @Override
-    public void completeLoanToCartel(long loanToCartelId) {
-        // Find the loan by ID
-        LoanToCartel loan = loanToCartelRepository.findById(loanToCartelId)
-            .orElseThrow(() -> new IllegalArgumentException("Loan not found with id: " + loanToCartelId));
-        
-        // Complete the loan - this will also save item information internally
-        loan.completeLoan();
-
-        // Save the item information before deleting the item copy
-        loan.saveItemInfo();
-
-        // Delete the item copy associated with the loan
-        ItemCopy itemCopy = loan.getItemShared();
-        if (itemCopy != null) {
-            loan.setItemShared(null);
-            loanToCartelRepository.save(loan);
-            itemCopyRepository.delete(itemCopy);
-        }
-
         loanToCartelRepository.save(loan);
     }
 

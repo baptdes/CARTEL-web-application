@@ -13,9 +13,8 @@ public class LoanByCartelDTO {
     private String itemCoverImage;
     private Date loanDate;
     private Date endDate;
-    private boolean active;
 
-    public LoanByCartelDTO(Long id, Long borrowerId, String borrowerName, String borrowerContact, String itemName, String itemBarcode, Date loanDate, Date endDate, boolean active) {
+    public LoanByCartelDTO(Long id, Long borrowerId, String borrowerName, String borrowerContact, String itemName, String itemBarcode, Date loanDate, Date endDate) {
         this.id = id;
         this.borrowerId = borrowerId;
         this.borrowerName = borrowerName;
@@ -24,7 +23,6 @@ public class LoanByCartelDTO {
         this.itemBarcode = itemBarcode;
         this.loanDate = loanDate;
         this.endDate = endDate;
-        this.active = active;
         this.itemCoverImage = null;
     }
 
@@ -38,7 +36,6 @@ public class LoanByCartelDTO {
         this.itemBarcode = loan.getItemShared() != null ? loan.getItemShared().getObjet().getBarcode() : null;
         this.loanDate = loan.getLoanDate();
         this.endDate = loan.getEndDate();
-        this.active = loan.isActive();
         this.itemCoverImage = loan.getItemShared() != null && loan.getItemShared().getObjet() != null ? loan.getItemShared().getObjet().getCoverImage() : null;
     }
 
@@ -72,10 +69,6 @@ public class LoanByCartelDTO {
 
     public Date getEndDate() {
         return endDate;
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
     public String getItemCoverImage() {

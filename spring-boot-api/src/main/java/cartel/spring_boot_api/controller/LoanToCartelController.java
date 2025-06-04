@@ -1,7 +1,6 @@
 package cartel.spring_boot_api.controller;
 
 import cartel.spring_boot_api.dto.LoanToCartelDTO;
-import cartel.spring_boot_api.model.LoanToCartel;
 import cartel.spring_boot_api.service.LoanToCartelService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,6 @@ public class LoanToCartelController {
      * @param startDateAfter filtre les prêts commençant après cette date
      * @param endDateBefore filtre les prêts se terminant avant cette date
      * @param endDateAfter filtre les prêts se terminant après cette date
-     * @param active filtre les prêts actifs ou inactifs
      * @return une liste de prêts correspondant aux critères
      */
     @GetMapping
@@ -83,21 +81,8 @@ public class LoanToCartelController {
             @RequestParam(required = false) Date startDateBefore,
             @RequestParam(required = false) Date startDateAfter,
             @RequestParam(required = false) Date endDateBefore,
-            @RequestParam(required = false) Date endDateAfter,
-            @RequestParam(required = false) Boolean active) {
+            @RequestParam(required = false) Date endDateAfter) {
         return loanToCartelService.filterLoanToCartel(pageNumber, pageSize, asc, sortBy, itemName,
-                ownerFirstName, ownerSurname, startDateBefore, startDateAfter, endDateBefore, endDateAfter, active);
-    }
-
-    /**
-     * Marque un prêt comme terminé et supprime l'exemplaire associé.
-     *
-     * @param loanId l'ID du prêt
-     * @return une réponse indiquant que le prêt a été terminé avec succès
-     */
-    @PostMapping("/{loanId}/complete")
-    public ResponseEntity<String> completeLoanToCartel(@PathVariable long loanId) {
-        loanToCartelService.completeLoanToCartel(loanId);
-        return ResponseEntity.ok("Loan completed successfully");
+                ownerFirstName, ownerSurname, startDateBefore, startDateAfter, endDateBefore, endDateAfter);
     }
 }
