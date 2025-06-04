@@ -249,16 +249,22 @@
   .dialog {
     background-color: var(--back);
     padding: 2em;
-    border-radius: 4px;
+    border-radius: 0px;
     width: 90%;
     max-width: 500px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 
     h2 {
       margin-top: 0;
-      color: var(--primary);
       text-align: center;
-      margin-bottom: 1.5em;
+      margin-bottom: 1rem;
+
+      color: var(--back);
+      -webkit-text-stroke: 1px var(--accent);
+      text-transform: uppercase;
+      font-size: 2.5rem;
+      font-family: Guisol;
+      transform: scaleY(1.5);
     }
   }
 

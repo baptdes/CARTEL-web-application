@@ -47,6 +47,11 @@
 </div>
 
 <style lang="scss">
+
+  ::root {
+    text-overflow: "•";
+  }
+
   .main-wrap {
     width: 100%;
   }
