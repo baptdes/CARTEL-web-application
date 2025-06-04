@@ -86,7 +86,7 @@
 
   .main-title {
     font-family: "Pirata One", cursive;
-    color: var(--red);
+    color: var(--dark-orange);
     font-size: 4.2rem;
     margin-bottom: 3rem;
     text-align: center;
@@ -134,7 +134,7 @@
   p {
     font-family: "Pirata One", cursive;
     font-size: 1.8rem;
-    color: var(--dark-orange);
+    color: #f5f5f5;
     margin: 0 0 0.8rem 0;
     line-height: 1.7;
   }

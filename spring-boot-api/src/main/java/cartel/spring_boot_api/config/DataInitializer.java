@@ -55,15 +55,15 @@ public class DataInitializer {
     private LoanToCartelRepository loanToCartelRepository;
 
     // Number of entities to generate
-    private final int numAuthors = 20;
+    private final int numAuthors = 30;
     private final int numIllustrators = 15;
     private final int numPublishersBook = 10;
-    private final int numBooks = 30;
+    private final int numBooks = 350;
     private final int numCreators = 12;
     private final int numPublishersJDS = 8;
-    private final int numJDS = 30;
+    private final int numJDS = 300;
     private final int numCartelPersons = 25;
-    private final int numSuggestions = 10;
+    private final int numSuggestions = 5;
     private final int numItemCopies = 40;
     private final int numGenres = 15;
     private final int numLoanByCartel = 12;
