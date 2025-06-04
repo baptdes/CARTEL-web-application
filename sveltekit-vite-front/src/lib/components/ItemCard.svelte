@@ -93,9 +93,11 @@
               </div>
             </div>
             
+            {#if type === 'book'}
             <div class="meta">
               <strong>{getCreatorInfo().label} :</strong> {getCreatorInfo().value || 'Non spécifié'}
             </div>
+            {/if}
             
             <div class="meta">
               <strong>Année :</strong> {item.publicationYear || 'Non spécifié'}
@@ -121,9 +123,11 @@
               <strong>{getCategoryInfo().label} :</strong> {getCategoryInfo().value}
             </div>
             
-            <div class="meta">
-              <strong>Éditeur :</strong> {getPublisher()}
-            </div>
+            {#if type === 'book'}
+              <div class="meta">
+                <strong>Éditeur :</strong> {getPublisher()}
+              </div>
+            {/if}
             
             <p>{item.description ? 
                 (item.description.substring(0, 150) + (item.description.length > 150 ? '...' : '')) : 
