@@ -3,12 +3,26 @@
   import ItemCard from '$lib/components/ItemCard.svelte';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import ItemDetailPopup from '$lib/misc/ItemDetailPopup.svelte';
   
   // Import services for both item types
   import { fetchBooks, getAllGenres, getAllAuthors } from '$lib/services/bookService';
   import { fetchGames, getAllGameCategories, getAllCreators } from '$lib/services/gameService';
   
   const { data } = $props();
+
+  // Add state for the popup
+  let selectedItem = $state(null);
+  let showPopup = $state(false);
+  let popupType = $state('book');
+
+  // Define the handleItemClick function
+  function handleItemClick(event) {
+    const { item, type } = event.detail;
+    selectedItem = item;
+    popupType = type;
+    showPopup = true;
+  }
 
   // Mode toggle state - use initialMode from load function
   let mode = $state(data.initialMode || 'books'); // 'books' or 'games'
@@ -449,7 +463,7 @@
         {/if}
         
         {#each items as item (item.barcode)}
-          <ItemCard {item} type={mode === 'books' ? 'book' : 'game'} />
+          <ItemCard {item} type={mode === 'books' ? 'book' : 'game'} on:click={handleItemClick}  />
         {/each}
       </div>
       
@@ -479,6 +493,12 @@
   </div>
 </div>
 
+<ItemDetailPopup 
+  item={selectedItem}
+  type={popupType}
+  show={showPopup}
+  on:close={() => showPopup = false}
+/>
 <style lang="scss">
   .container {
     display: flex;

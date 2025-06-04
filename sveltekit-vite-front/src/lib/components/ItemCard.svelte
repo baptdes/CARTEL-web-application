@@ -1,12 +1,16 @@
 <script>
   import { formatAuthor, formatPublisher as formatBookPublisher, formatGenre, formatIllustrator, isBookAvailable } from '$lib/services/bookService';
   import { formatCreator, formatPublisher as formatGamePublisher, formatCategories, formatPlayerCount, formatPlaytime, isGameAvailable } from '$lib/services/gameService';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
 
   let { item, type = 'book' } = $props();
   
   function handleClick() {
     // TODO : Create a page for item details
-    console.log(`${type} clicked`, item);
+    dispatch('click', { item, type });
   }
 
   // Determine availability based on item type
@@ -68,6 +72,7 @@
   onclick={handleClick}
   type="button"
 >
+<div class="item-card {type}"></div>
   <div class="card-frame" style="--frame-color: {frameColor};">
     <div class="card-inner">
       <div class="card-content">
