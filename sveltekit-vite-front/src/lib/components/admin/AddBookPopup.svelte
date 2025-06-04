@@ -523,7 +523,7 @@
   .popup-content {
     background-color: var(--back);
     border: 2px solid var(--accent);
-    border-radius: 8px;
+    border-radius: 0px;
     padding: 2rem;
     width: 90%;
     max-width: 800px;
@@ -531,11 +531,15 @@
     overflow-y: auto;
     position: relative;
     h3 {
-      color: var(--accent);
+      color: var(--back);
+      -webkit-text-stroke: 1px var(--accent);
+      text-transform: uppercase;
+      font-size: 2.5rem;
+      font-family: Guisol;
+      transform: scaleY(1.5);
       margin-top: 0;
       text-align: center;
       margin-bottom: 1.5rem;
-      font-size: 1.8rem;
     }
   }
   .add-book-form {

@@ -173,15 +173,23 @@
 
 <div class="catalogue-container">
   <div class="header-actions">
-    <div class="search-actions">
+    <div class="search-actions" style="border-radius: 0px;">
       <form class="search-form" onsubmit={handleSearch}>
         <input
           type="text"
           bind:value={searchQuery}
           placeholder="Rechercher par titre..."
           class="search-input"
+          style="border-radius: 0px;"
         />
-        <button type="submit" class="search-btn">🔍</button>
+        <button type="submit" class="search-btn">
+          <img
+            src="/src/assets/img/icons/magglass.svg"
+            alt="Modifier"
+            width="20"
+            height="20"
+          />
+        </button>
       </form>
 
       <div class="sort-container">
@@ -204,7 +212,7 @@
         <span>+</span> Ajouter un livre
       </button>
       <button class="admin-button add-isbn-btn" onclick={handleAddBookByISBN}>
-        <span>📊</span> Ajouter par ISBN
+        <!-- <span>📊</span> --> Ajouter par ISBN
       </button>
       <button
         class="return-button"
@@ -246,7 +254,7 @@
     <div class="books-grid-container">
       <!-- Header Row -->
       <div class="grid-header">
-        <div class="grid-cell">Couverture</div>
+        <div class="grid-cell">•</div>
         <div class="grid-cell">Titre</div>
         <div class="grid-cell">Auteur(s)</div>
         <div class="grid-cell">Format</div>
@@ -284,14 +292,26 @@
               onclick={() => handleModify(book)}
               title="Modifier"
             >
-              ✏️
+              <img
+                src="/src/assets/img/icons/pen.svg"
+                style=" filter: invert(1);"
+                alt="Modifier"
+                width="20"
+                height="20"
+              />
             </button>
             <button
               class="action-btn delete-btn"
               onclick={() => handleDelete(book)}
               title="Supprimer"
             >
-              🗑️
+              <img
+                src="/src/assets/img/icons/bin.svg"
+                style=" filter: invert(1);"
+                alt="Modifier"
+                width="20"
+                height="20"
+              />
             </button>
           </div>
         </div>
@@ -354,6 +374,8 @@
 />
 
 <style lang="scss">
+  @use "/src/lib/sass/base" as base;
+
   main {
     flex: auto;
     display: flex;
@@ -362,7 +384,7 @@
   }
 
   .catalogue-container {
-    width: 95%;
+    width: 100%;
     margin-top: 2rem;
   }
 
@@ -394,7 +416,7 @@
       display: flex;
       flex: 1;
       position: relative;
-      max-width: 500px;
+      max-width: 600px;
 
       .search-input {
         width: 100%;
@@ -431,6 +453,13 @@
 
         &:hover {
           color: var(--accent);
+        }
+
+        img {
+          filter: invert(1);
+          &:hover {
+            @extend .accent-colorize;
+          }
         }
       }
     }
@@ -490,22 +519,25 @@
   .books-grid-container {
     width: 100%;
     background-color: var(--back);
-    border: 1px solid var(--secondary);
     overflow-x: auto;
   }
 
   .grid-header {
     display: grid;
     grid-template-columns: 80px 2fr 2fr 1fr 1fr 1fr 120px;
-    background-color: var(--tertiary);
-    color: var(--primary);
-    font-weight: bold;
+    border: none;
+    gap: 5px;
+    color: var(--back);
+    font-family: Guisol;
+    font-size: 1.5em;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--secondary);
 
     .grid-cell {
       padding: 1rem 0.8rem;
+      border-radius: 15px;
+      background-color: var(--accent);
+      text-overflow: "•";
     }
   }
 
@@ -517,7 +549,7 @@
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
+      outline: 5px dashed var(--accent);
     }
 
     &:last-child {
@@ -567,6 +599,7 @@
   .action-btn {
     background: transparent;
     border: 1px solid var(--secondary);
+    border-radius: 0px;
     color: var(--secondary);
     width: 36px;
     height: 36px;
@@ -577,20 +610,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, filter 0.1s ease;
     flex-shrink: 0;
 
     &:hover {
       border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    &.modify-btn:hover {
-      background-color: rgba(255, 61, 0, 0.1);
-    }
-
-    &.delete-btn:hover {
-      background-color: rgba(255, 61, 0, 0.1);
+      @extend .accent-colorize;
     }
   }
 

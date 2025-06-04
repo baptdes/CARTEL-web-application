@@ -13,59 +13,79 @@
   }
 </script>
 
-<div class="image-text-container"
-    style="max-width: {text.length*size}em; max-height: {size};">
-  <img {src} 
-    alt="{src.split('/').pop().split('.')[0].toUpperCase()}"
-    on:error={handleError} 
-    on:load={handleLoad} />
+<div
+  class="outer {isAnimated ? 'isAnimated' : ''}"
+  style="min-width: {text.length * size + (text.length - 1)}em;
+     height: {size * 1.3}em;"
+>
+  <img
+    {src}
+    class="below"
+    alt={src.split("/").pop().split(".")[0].toUpperCase()}
+    on:error={handleError}
+    on:load={handleLoad}
+  />
   <span
-    class:isAnimated={isAnimated}
-    style="font-size: {size};">
-    {text}
+    class="top"
+    style="
+        font-size: {size}em;
+        transform: scaleY(1.5) translateY({1.3*size}px);"
+  >
+    <p>{text}</p>
   </span>
 </div>
 
 <style>
   div {
-    position: relative;
     width: 100%;
-    height: 100%;
+    position: relative;
     overflow: hidden;
-    display: block;
   }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
   }
 
   span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
     color: var(--back);
+    font-family: Guisol;
     font-weight: bold;
     text-align: center;
     text-transform: uppercase;
 
     -webkit-text-stroke: 1px var(--primary);
 
-    z-index: 2;
-    width: 90%;
-    padding: 0.5rem;
+    width: 100%;
   }
 
-    .isAnimated {
-        letter-spacing: 0px;
-        transition: letter-spacing 0.3s ease-in-out;
+  .outer {
+    display: grid;
+    grid-template: 1fr / 1fr;
+    place-items: center;
+  }
+  .outer > * {
+    grid-column: 1 / 1;
+    grid-row: 1 / 1;
+  }
+  .outer .below {
+    z-index: 1;
+  }
+  .outer .top {
+    z-index: 2;
+  }
 
-        &:hover {
-            letter-spacing: 15px;
+  .isAnimated {
+    span {
+        p {
+            transition: transform 0.1s ease-in-out;
+            transform: scaleX(1);
+
+            &:hover {
+                transform: scaleX(2);
+            }
         }
     }
+  }
 </style>
