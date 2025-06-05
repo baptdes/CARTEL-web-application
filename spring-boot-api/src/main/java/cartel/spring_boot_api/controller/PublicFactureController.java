@@ -191,4 +191,11 @@ public class PublicFactureController {
                     .body("Failed to delete facture: " + e.getMessage());
         }
     }
+
+
+    @GetMapping("/search-by-item")
+    public ResponseEntity<List<Facture>> searchFacturesByItemName(@RequestParam String query) {
+        List<Facture> matchingFactures = factureRepository.findByCopiesItemNameContainingIgnoreCase(query);
+        return ResponseEntity.ok(matchingFactures);
+    }
 }

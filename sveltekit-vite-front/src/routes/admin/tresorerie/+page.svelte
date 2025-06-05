@@ -8,6 +8,7 @@
     getAllFactures,
     deleteFacture,
     getFactureById,
+    searchFacturesByItem,
   } from "$lib/services/factureService.js";
   import { isAuthenticated, logout } from "$lib/auth";
   
@@ -20,6 +21,12 @@
   let isLoading = $state(true);
   let error = $state(null);
   let isAuthError = $state(false);
+
+  // Search state
+  let searchQuery = $state("");
+  let isSearching = $state(false);
+  let searchResults = $state([]);
+  let searchPerformed = $state(false);
 
   // Popup state
   let showAddFacturePopup = $state(false);
@@ -41,6 +48,10 @@
       // Sort by date desc
       factures.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
       console.log("Loaded factures:", factures);
+      
+      // Reset search state
+      searchResults = [];
+      searchPerformed = false;
     } catch (err) {
       // Check if it's an auth error (403 Forbidden)
       if (err.status === 403) {
@@ -53,6 +64,41 @@
     } finally {
       isLoading = false;
     }
+  }
+  
+  // Search for factures containing the given item
+  async function searchFacturesByItemName() {
+    if (!searchQuery.trim()) {
+      // If search query is empty, just show all factures
+      searchResults = [];
+      searchPerformed = false;
+      return;
+    }
+    
+    isSearching = true;
+    error = null;
+    try {
+      const result = await searchFacturesByItem(searchQuery.trim());
+      searchResults = result;
+      searchPerformed = true;
+    } catch (err) {
+      error = `Erreur lors de la recherche: ${err.message || err}`;
+    } finally {
+      isSearching = false;
+    }
+  }
+  
+  // Handle search form submission
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+    searchFacturesByItemName();
+  }
+  
+  // Reset search
+  function resetSearch() {
+    searchQuery = "";
+    searchResults = [];
+    searchPerformed = false;
   }
 
   // Handle authentication error
@@ -114,6 +160,14 @@
       minute: "2-digit",
     }).format(date);
   }
+  
+  // Get matching items count for a facture
+  function getMatchingItemsCount(facture) {
+    if (!facture.items || !Array.isArray(facture.items)) return 0;
+    return facture.items.filter(item => 
+      item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ).length;
+  }
 </script>
 
 <main>
@@ -140,12 +194,33 @@
         Retour
       </button>
     </div>
+    
+<div class="search-bar">
+  <form onsubmit={handleSearchSubmit}>
+    <div class="search-input-container">
+      <input
+        type="text"
+        bind:value={searchQuery}
+        placeholder="Rechercher un article dans les factures..."
+        class="search-input"
+      />
+      <button type="submit" class="search-btn">
+        🔍
+      </button>
+      {#if searchPerformed}
+        <button type="button" class="reset-btn" onclick={resetSearch}>
+          ✕
+        </button>
+      {/if}
+    </div>
+  </form>
+</div>
 
     <!-- Loading State -->
-    {#if isLoading}
+    {#if isLoading || isSearching}
       <div class="loading-spinner">
         <div class="spinner"></div>
-        <p>Chargement des factures...</p>
+        <p>{isSearching ? "Recherche en cours..." : "Chargement des factures..."}</p>
       </div>
       <!-- Error Message -->
     {:else if error}
@@ -164,56 +239,102 @@
     {:else}
       <!-- Factures List -->
       <div class="factures-list">
-        <h2>Factures</h2>
-
-        {#if factures.length === 0}
-          <div class="empty-state">
-            <p>Aucune facture trouvée</p>
-            <button class="admin-button" onclick={openAddFacturePopup}
-              >Créer une facture</button
-            >
-          </div>
-        {:else}
-          <div class="factures-grid">
-            <div class="grid-header">
-              <div class="grid-cell">Nom</div>
-              <div class="grid-cell">Date</div>
-              <div class="grid-cell">Nombre d'articles</div>
-              <div class="grid-cell">Actions</div>
+        {#if searchPerformed}
+          <h2>Résultats de la recherche</h2>
+          {#if searchResults.length === 0}
+            <div class="empty-state">
+              <p>Aucune facture trouvée contenant "{searchQuery}"</p>
+              <button class="admin-button" onclick={resetSearch}>Réinitialiser la recherche</button>
             </div>
-
-            {#each factures as facture}
-              <div class="grid-row">
-                <div
-                  class="grid-cell facture-name"
-                  role="button"
-                  tabindex="0"
-                  onclick={() => openFactureDetailPopup(facture)}
-                  onkeydown={() => {}}
-                >
-                  {facture.filename || "Sans nom"}
-                </div>
-                <div
-                  class="
-                grid-cell"
-                >
-                  {formatDate(facture.updatedAt)}
-                </div>
-                <div class="grid-cell">
-                  {facture.items ? facture.items.length : 0}
-                </div>
-                <div class="grid-cell actions-cell">
-                  <button
-                    class="action-btn delete-btn"
-                    onclick={() => handleDeleteFacture(facture.id)}
-                    title="Supprimer"
-                  >
-                    🗑️
-                  </button>
-                </div>
+          {:else}
+            <p class="search-results-count">{searchResults.length} facture(s) trouvée(s)</p>
+            <div class="factures-grid">
+              <div class="grid-header">
+                <div class="grid-cell">Nom</div>
+                <div class="grid-cell">Date</div>
+                <div class="grid-cell">Articles trouvés</div>
+                <div class="grid-cell">Actions</div>
               </div>
-            {/each}
-          </div>
+
+              {#each searchResults as facture}
+                <div class="grid-row">
+                  <div
+                    class="grid-cell facture-name"
+                    role="button"
+                    tabindex="0"
+                    onclick={() => openFactureDetailPopup(facture)}
+                    onkeydown={() => {}}
+                  >
+                    {facture.filename || "Sans nom"}
+                  </div>
+                  <div class="grid-cell">
+                    {formatDate(facture.updatedAt)}
+                  </div>
+                  <div class="grid-cell">
+                    {getMatchingItemsCount(facture)}/{facture.items ? facture.items.length : 0}
+                  </div>
+                  <div class="grid-cell actions-cell">
+                    <button
+                      class="action-btn delete-btn"
+                      onclick={() => handleDeleteFacture(facture.id)}
+                      title="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        {:else}
+          <h2>Factures</h2>
+
+          {#if factures.length === 0}
+            <div class="empty-state">
+              <p>Aucune facture trouvée</p>
+              <button class="admin-button" onclick={openAddFacturePopup}
+                >Créer une facture</button
+              >
+            </div>
+          {:else}
+            <div class="factures-grid">
+              <div class="grid-header">
+                <div class="grid-cell">Nom</div>
+                <div class="grid-cell">Date</div>
+                <div class="grid-cell">Nombre d'articles</div>
+                <div class="grid-cell">Actions</div>
+              </div>
+
+              {#each factures as facture}
+                <div class="grid-row">
+                  <div
+                    class="grid-cell facture-name"
+                    role="button"
+                    tabindex="0"
+                    onclick={() => openFactureDetailPopup(facture)}
+                    onkeydown={() => {}}
+                  >
+                    {facture.filename || "Sans nom"}
+                  </div>
+                  <div class="grid-cell">
+                    {formatDate(facture.updatedAt)}
+                  </div>
+                  <div class="grid-cell">
+                    {facture.items ? facture.items.length : 0}
+                  </div>
+                  <div class="grid-cell actions-cell">
+                    <button
+                      class="action-btn delete-btn"
+                      onclick={() => handleDeleteFacture(facture.id)}
+                      title="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
         {/if}
       </div>
     {/if}
@@ -265,6 +386,65 @@
         margin-right: 0.3em;
       }
     }
+  }
+  
+  .search-bar {
+    margin-bottom: 1.5rem;
+    
+    .search-input-container {
+      position: relative;
+      display: flex;
+      
+      .search-input {
+        flex: 1;
+        padding: 0.7rem 1rem;
+        padding-right: 3rem;
+        background-color: var(--back);
+        color: var(--primary);
+        border: 1px solid var(--secondary);
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        
+        &:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+      }
+      
+      .search-btn, .reset-btn {
+        position: absolute;
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: var(--secondary);
+        
+        &:hover {
+          color: var(--accent);
+        }
+      }
+      
+      .search-btn {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+      }
+      
+      .reset-btn {
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+      }
+    }
+  }
+  
+  .search-results-count {
+    margin-bottom: 1rem;
+    color: var(--secondary);
+    font-style: italic;
   }
 
   .auth-error-actions {

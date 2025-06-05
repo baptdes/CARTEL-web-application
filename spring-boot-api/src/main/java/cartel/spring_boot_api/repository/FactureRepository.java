@@ -20,4 +20,5 @@ public interface FactureRepository extends JpaRepository<Facture, Long> {
     
     @Query("SELECT f FROM Facture f JOIN f.copies c JOIN c.objet i WHERE LOWER(i.description) LIKE LOWER(CONCAT('%', :description, '%'))")
     List<Facture> findByCopiesItemDescriptionContainingIgnoreCase(@Param("description") String description);
+
 }

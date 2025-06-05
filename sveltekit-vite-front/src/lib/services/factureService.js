@@ -136,4 +136,31 @@ export async function deleteFacture(id) {
     console.error('Error deleting facture:', error);
     throw error;
   }
+
+
+}
+
+export async function searchFacturesByItem(query) {
+  try {
+    const response = await fetch(`/api/public/factures/search-by-item?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        throw { status: 403, message: 'Forbidden' };
+      }
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to search factures');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error searching factures by item:', error);
+    throw error;
+  }
 }
